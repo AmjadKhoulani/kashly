@@ -15,33 +15,32 @@
         <!-- Funds Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             @forelse($businesses as $business)
-                <div class="glass p-6 rounded-[2rem] border border-white/5 hover:border-indigo-500/30 transition-all group relative overflow-hidden">
+                <div class="bg-slate-900 p-6 rounded-[2.5rem] border border-white/5 hover:border-indigo-500/30 transition-all group relative overflow-hidden shadow-xl shadow-black/20">
                     <div class="absolute -right-10 -top-10 w-32 h-32 bg-indigo-500/5 rounded-full blur-3xl group-hover:bg-indigo-500/10 transition-all"></div>
                     
-                    <div class="flex justify-between items-start mb-6">
-                        <div class="p-3 bg-indigo-500/10 rounded-2xl text-indigo-400">
+                    <div class="flex justify-between items-start mb-8">
+                        <div class="w-14 h-14 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-indigo-500/20 group-hover:scale-110 transition-transform">
                             <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
                         </div>
-                        <span class="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-bold uppercase tracking-wider">Active</span>
+                        <span class="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-black uppercase tracking-widest">Commercial</span>
                     </div>
 
                     <h3 class="text-xl font-bold text-white mb-2">{{ $business->name }}</h3>
-                    <p class="text-slate-400 text-sm line-clamp-2 mb-6">{{ $business->description ?? 'No description provided.' }}</p>
+                    <p class="text-slate-500 text-sm line-clamp-1 mb-8">{{ $business->description ?? 'Business Portfolio' }}</p>
 
-                    <div class="grid grid-cols-2 gap-4 mb-6">
-                        <div class="bg-slate-800/50 p-3 rounded-2xl border border-slate-700/50 text-center">
-                            <p class="text-[10px] text-slate-500 uppercase font-bold tracking-widest mb-1">Partners</p>
-                            <p class="text-lg font-bold text-white">{{ $business->partners_count }}</p>
+                    <div class="grid grid-cols-2 gap-4 mb-8">
+                        <div class="bg-white/5 p-4 rounded-2xl text-center">
+                            <p class="text-[10px] text-slate-500 uppercase font-black tracking-widest mb-1">Partners</p>
+                            <p class="text-xl font-black text-white">{{ $business->partners_count }}</p>
                         </div>
-                        <div class="bg-slate-800/50 p-3 rounded-2xl border border-slate-700/50 text-center">
-                            <p class="text-[10px] text-slate-500 uppercase font-bold tracking-widest mb-1">Total Assets</p>
-                            <p class="text-lg font-bold text-emerald-400">${{ number_format($business->transactions_sum_amount ?? 0, 2) }}</p>
+                        <div class="bg-white/5 p-4 rounded-2xl text-center">
+                            <p class="text-[10px] text-slate-500 uppercase font-black tracking-widest mb-1">Assets</p>
+                            <p class="text-xl font-black text-emerald-400">${{ number_format($business->transactions_sum_amount ?? 0, 2) }}</p>
                         </div>
                     </div>
 
-                    <a href="{{ route('businesses.show', $business) }}" class="w-full flex items-center justify-center px-4 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-sm font-semibold transition-all border border-slate-700">
-                        Manage Fund
-                        <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('businesses.show', $business) }}" class="w-full flex items-center justify-center py-4 bg-slate-800 hover:bg-slate-700 text-white rounded-2xl text-sm font-bold transition-all border border-slate-700">
+                        Manage Portfolio
                     </a>
                 </div>
             @empty

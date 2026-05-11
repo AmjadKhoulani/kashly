@@ -37,15 +37,26 @@
         </script>
         <style type="text/css">
             [x-cloak] { display: none !important; }
+            body {
+                background: radial-gradient(circle at top right, #1e1b4b, #0f172a, #020617);
+                background-attachment: fixed;
+            }
             .glass {
-                background: rgba(15, 23, 42, 0.6);
-                backdrop-filter: blur(12px);
-                -webkit-backdrop-filter: blur(12px);
-                border: 1px solid rgba(255, 255, 255, 0.1);
+                background: rgba(30, 41, 59, 0.4);
+                backdrop-filter: blur(16px);
+                -webkit-backdrop-filter: blur(16px);
+                border: 1px solid rgba(255, 255, 255, 0.08);
+            }
+            .hide-scrollbar::-webkit-scrollbar {
+                display: none;
+            }
+            .hide-scrollbar {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
             }
         </style>
     </head>
-    <body class="font-sans antialiased bg-slate-950 text-slate-200">
+    <body class="font-sans antialiased text-slate-200">
         <div class="min-h-screen flex">
             <!-- Sidebar placeholder - will implement later -->
             @include('layouts.navigation')

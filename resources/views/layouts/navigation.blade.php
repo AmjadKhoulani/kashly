@@ -18,28 +18,36 @@
             Dashboard
         </x-nav-link>
 
-        <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider px-3 mb-2 mt-8">Commercial</div>
+        <div class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] px-4 mb-4 mt-8 opacity-50">Commercial</div>
         
-        <x-nav-link :href="route('businesses.index')" :active="request()->routeIs('businesses.*')" class="flex items-center px-3 py-2.5 rounded-xl transition-all group {{ request()->routeIs('businesses.*') ? 'bg-indigo-600/10 text-indigo-400' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200' }}">
-            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
-            Investment Funds
+        <x-nav-link :href="route('businesses.index')" :active="request()->routeIs('businesses.*')" class="flex items-center px-4 py-3 rounded-2xl transition-all group {{ request()->routeIs('businesses.*') ? 'bg-indigo-600/10 text-indigo-400' : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200' }}">
+            <div class="p-2 {{ request()->routeIs('businesses.*') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'bg-slate-800 text-slate-500' }} rounded-xl mr-3 group-hover:scale-110 transition-transform">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+            </div>
+            <span class="font-bold text-sm">Investment Funds</span>
         </x-nav-link>
 
-        <x-nav-link :href="route('partners.index')" :active="request()->routeIs('partners.*')" class="flex items-center px-3 py-2.5 rounded-xl transition-all group {{ request()->routeIs('partners.*') ? 'bg-indigo-600/10 text-indigo-400' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200' }}">
-            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-            Partners
+        <x-nav-link :href="route('partners.index')" :active="request()->routeIs('partners.*')" class="flex items-center px-4 py-3 rounded-2xl transition-all group {{ request()->routeIs('partners.*') ? 'bg-amber-600/10 text-amber-400' : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200' }}">
+            <div class="p-2 {{ request()->routeIs('partners.*') ? 'bg-amber-600 text-white shadow-lg shadow-amber-500/20' : 'bg-slate-800 text-slate-500' }} rounded-xl mr-3 group-hover:scale-110 transition-transform">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+            </div>
+            <span class="font-bold text-sm">Partners</span>
         </x-nav-link>
 
-        <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider px-3 mb-2 mt-8">Personal</div>
+        <div class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] px-4 mb-4 mt-8 opacity-50">Personal</div>
 
-        <x-nav-link :href="route('wallets.index')" :active="request()->routeIs('wallets.*')" class="flex items-center px-3 py-2.5 rounded-xl transition-all group {{ request()->routeIs('wallets.*') ? 'bg-indigo-600/10 text-indigo-400' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200' }}">
-            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
-            Personal Vault
+        <x-nav-link :href="route('wallets.index')" :active="request()->routeIs('wallets.*')" class="flex items-center px-4 py-3 rounded-2xl transition-all group {{ request()->routeIs('wallets.*') ? 'bg-emerald-600/10 text-emerald-400' : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200' }}">
+            <div class="p-2 {{ request()->routeIs('wallets.*') ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-500/20' : 'bg-slate-800 text-slate-500' }} rounded-xl mr-3 group-hover:scale-110 transition-transform">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+            </div>
+            <span class="font-bold text-sm">Personal Vault</span>
         </x-nav-link>
 
-        <a href="#" class="flex items-center px-3 py-2.5 rounded-xl text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition-all group">
-            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-            Debts & Claims
+        <a href="#" class="flex items-center px-4 py-3 rounded-2xl transition-all group text-slate-400 hover:bg-slate-800/50 hover:text-slate-200">
+            <div class="p-2 bg-slate-800 text-slate-500 rounded-xl mr-3 group-hover:scale-110 transition-transform">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            </div>
+            <span class="font-bold text-sm">Debts & Claims</span>
         </a>
     </nav>
 
