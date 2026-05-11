@@ -41,4 +41,17 @@ class WalletController extends Controller
 
         return redirect()->route('wallets.index')->with('success', 'Wallet created successfully.');
     }
+
+    public function show(Wallet $wallet)
+    {
+        if ($wallet->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $wallet->load(['transactions' => function($q) {
+            $q->latest('transaction_date');
+        }]);
+        
+        return view('wallets.show', compact('wallet'));
+    }
 }
