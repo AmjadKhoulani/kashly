@@ -11,6 +11,14 @@ class Transaction extends Model
         'type', 'category', 'description', 'transaction_date'
     ];
 
+    protected function casts(): array
+    {
+        return [
+            'transaction_date' => 'datetime',
+            'amount' => 'decimal:2',
+        ];
+    }
+
     public function wallet()
     {
         return $this->belongsTo(Wallet::class);
