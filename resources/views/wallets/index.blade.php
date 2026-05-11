@@ -3,12 +3,12 @@
         <!-- Header -->
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-                <h2 class="text-3xl font-bold text-white tracking-tight">Personal Vault</h2>
-                <p class="text-slate-400 mt-1">Manage your personal savings, cash, and private wallets.</p>
+                <h2 class="text-3xl font-bold text-white tracking-tight">الخزنة الشخصية</h2>
+                <p class="text-slate-400 mt-1">إدارة مدخراتك الشخصية، النقود، والمحافظ الخاصة.</p>
             </div>
             <a href="{{ route('wallets.create') }}" class="inline-flex items-center px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-semibold transition-all shadow-lg shadow-indigo-500/20 group">
-                <svg class="w-5 h-5 mr-2 group-hover:rotate-90 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-                New Wallet
+                <svg class="w-5 h-5 ml-2 group-hover:rotate-90 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                محفظة جديدة
             </a>
         </div>
 
@@ -19,31 +19,31 @@
                     <div class="absolute -right-10 -top-10 w-32 h-32 bg-emerald-500/5 rounded-full blur-3xl group-hover:bg-emerald-500/10 transition-all"></div>
                     
                     <div class="flex justify-between items-start mb-8">
-                        <div class="w-14 h-14 bg-emerald-500 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-emerald-500/20 group-hover:rotate-6 transition-transform">
+                        <div class="w-14 h-14 bg-emerald-500 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-emerald-500/20 group-hover:-rotate-6 transition-transform">
                             <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
                         </div>
-                        <div class="text-right">
+                        <div class="text-left">
                             <span class="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-black uppercase tracking-widest">{{ $wallet->type }}</span>
                         </div>
                     </div>
 
                     <h3 class="text-xl font-bold text-white mb-1">{{ $wallet->name }}</h3>
-                    <p class="text-slate-500 text-[10px] font-black uppercase tracking-[0.2em] mb-4">Balance</p>
+                    <p class="text-slate-500 text-[10px] font-black uppercase tracking-[0.2em] mb-4">الرصيد الحالي</p>
                     
                     <div class="mb-8">
                         <span class="text-4xl font-black text-white tracking-tight">${{ number_format($wallet->balance, 2) }}</span>
                     </div>
 
                     <a href="{{ route('wallets.show', $wallet) }}" class="flex items-center justify-center w-full py-4 bg-slate-800 hover:bg-slate-700 text-white rounded-2xl text-sm font-bold transition-all border border-slate-700">
-                        View Wallet
+                        عرض المحفظة
                     </a>
                 </div>
             @empty
                 <div class="col-span-full py-20 text-center glass rounded-[2rem] border-dashed border-2 border-slate-800">
-                    <h3 class="text-xl font-bold text-white mb-2">No Wallets Created</h3>
-                    <p class="text-slate-400 mb-8">Organize your money by creating separate wallets for savings, cash, etc.</p>
+                    <h3 class="text-xl font-bold text-white mb-2">لا توجد محافظ حالياً</h3>
+                    <p class="text-slate-400 mb-8">نظم أموالك عن طريق إنشاء محافظ منفصلة للمدخرات، النقد، إلخ.</p>
                     <a href="{{ route('wallets.create') }}" class="inline-flex items-center px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-semibold transition-all">
-                        Create Your First Wallet
+                        أنشئ محفظتك الأولى
                     </a>
                 </div>
             @endforelse
