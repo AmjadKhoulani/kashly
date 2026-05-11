@@ -24,8 +24,8 @@
                     <x-nav-link :href="route('dashboard')" class="text-sm font-bold">
                         الشركاء
                     </x-nav-link>
-                    <x-nav-link :href="route('dashboard')" class="text-sm font-bold">
-                        المحافظ
+                    <x-nav-link :href="route('transactions.index')" :active="request()->routeIs('transactions.*')" class="text-sm font-bold">
+                        العمليات
                     </x-nav-link>
                 </div>
             </div>
