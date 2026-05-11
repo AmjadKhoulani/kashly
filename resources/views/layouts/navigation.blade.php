@@ -18,7 +18,7 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="text-sm font-bold">
                         الرئيسية
                     </x-nav-link>
-                    <x-nav-link :href="route('dashboard')" class="text-sm font-bold">
+                    <x-nav-link :href="route('funds.index')" :active="request()->routeIs('funds.*')" class="text-sm font-bold">
                         الاستثمارات
                     </x-nav-link>
                     <x-nav-link :href="route('dashboard')" class="text-sm font-bold">
