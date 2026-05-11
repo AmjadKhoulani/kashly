@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>كاشلي - إدارة ثروتك بذكاء</title>
+    <title>كاشلي - إدارة مالية بسيطة</title>
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- Tailwind & Alpine CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -17,25 +17,17 @@
 
     <script>
         tailwind.config = {
-            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
-                        brand: {
-                            50: '#f0f4ff',
-                            100: '#d9e2ff',
-                            200: '#b9c8ff',
-                            300: '#8ca3ff',
-                            400: '#5873ff',
-                            500: '#2c3eff',
-                            600: '#1417ff',
-                            700: '#0000ff',
-                            800: '#0000e6',
-                            900: '#0000b3',
-                        },
-                        slate: {
-                            850: '#141c2f',
-                            950: '#0a0f1d',
+                        primary: '#4F46E5',
+                        secondary: '#10B981',
+                        accent: '#F59E0B',
+                        background: '#F9FAFB',
+                        surface: '#FFFFFF',
+                        text: {
+                            main: '#1F2937',
+                            muted: '#6B7280',
                         }
                     },
                     fontFamily: {
@@ -49,248 +41,184 @@
     <style type="text/css">
         [x-cloak] { display: none !important; }
         body {
-            background: radial-gradient(circle at top right, #1e1b4b, #0f172a, #020617);
-            background-attachment: fixed;
-            min-height: 100vh;
+            background-color: #F9FAFB;
+            color: #1F2937;
         }
-        .glass {
-            background: rgba(30, 41, 59, 0.4);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+        .clean-card {
+            background: #FFFFFF;
+            border: 1px solid #E5E7EB;
+            border-radius: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            transition: all 0.2s ease;
+        }
+        .clean-card:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+            border-color: #D1D5DB;
+        }
+        .nav-link-active {
+            background-color: #EEF2FF;
+            color: #4F46E5;
         }
         .hide-scrollbar::-webkit-scrollbar {
             display: none;
         }
-        .hide-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-        .spendee-card {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .spendee-card:hover {
-            transform: translateY(-5px);
-            border-color: rgba(255, 255, 255, 0.2);
-        }
     </style>
 </head>
-<body class="font-sans antialiased text-slate-200" x-data="{ activeTab: 'dashboard' }">
+<body class="font-sans antialiased" x-data="{ activeTab: 'dashboard' }">
 
-    <div class="flex">
+    <div class="flex min-h-screen">
         <!-- Sidebar -->
-        <aside class="w-72 bg-slate-900/80 border-l border-white/5 flex flex-col h-screen sticky top-0 backdrop-blur-xl">
+        <aside class="w-64 bg-white border-l border-gray-200 flex flex-col h-screen sticky top-0 shadow-sm z-50">
             <div class="p-8">
-                <div class="flex items-center space-x-3 space-x-reverse group cursor-pointer">
-                    <div class="w-12 h-12 bg-brand-500 rounded-2xl flex items-center justify-center shadow-lg shadow-brand-500/20 group-hover:scale-110 transition-transform">
-                        <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
+                <div class="flex items-center space-x-2 space-x-reverse">
+                    <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     </div>
-                    <span class="text-2xl font-black tracking-tight text-white mr-3">كاشلي</span>
+                    <span class="text-xl font-bold tracking-tight text-gray-900">كاشلي</span>
                 </div>
             </div>
 
-            <nav class="flex-1 px-4 space-y-2">
-                <div class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] px-4 mb-4 mt-4 opacity-50">الرئيسية</div>
-                
-                <button @click="activeTab = 'dashboard'" :class="activeTab === 'dashboard' ? 'bg-brand-500/10 text-brand-400' : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200'" class="w-full flex items-center px-4 py-3 rounded-2xl transition-all group">
-                    <div :class="activeTab === 'dashboard' ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/20' : 'bg-slate-800 text-slate-500'" class="p-2 rounded-xl ml-3 group-hover:scale-110 transition-transform">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
-                    </div>
-                    <span class="font-bold text-sm">لوحة التحكم</span>
+            <nav class="flex-1 px-4 space-y-1">
+                <button @click="activeTab = 'dashboard'" :class="activeTab === 'dashboard' ? 'nav-link-active' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'" class="w-full flex items-center px-4 py-3 rounded-xl transition-all group">
+                    <svg class="w-5 h-5 ml-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                    <span class="font-medium text-sm">الرئيسية</span>
                 </button>
 
-                <div class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] px-4 mb-4 mt-8 opacity-50">تجاري</div>
-                
-                <button @click="activeTab = 'investments'" :class="activeTab === 'investments' ? 'bg-brand-500/10 text-brand-400' : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200'" class="w-full flex items-center px-4 py-3 rounded-2xl transition-all group">
-                    <div :class="activeTab === 'investments' ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/20' : 'bg-slate-800 text-slate-500'" class="p-2 rounded-xl ml-3 group-hover:scale-110 transition-transform">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
-                    </div>
-                    <span class="font-bold text-sm">صناديق الاستثمار</span>
+                <button @click="activeTab = 'investments'" :class="activeTab === 'investments' ? 'nav-link-active' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'" class="w-full flex items-center px-4 py-3 rounded-xl transition-all group">
+                    <svg class="w-5 h-5 ml-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                    <span class="font-medium text-sm">الاستثمارات</span>
                 </button>
 
-                <button @click="activeTab = 'partners'" :class="activeTab === 'partners' ? 'bg-amber-500/10 text-amber-400' : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200'" class="w-full flex items-center px-4 py-3 rounded-2xl transition-all group">
-                    <div :class="activeTab === 'partners' ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/20' : 'bg-slate-800 text-slate-500'" class="p-2 rounded-xl ml-3 group-hover:scale-110 transition-transform">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                    </div>
-                    <span class="font-bold text-sm">الشركاء</span>
+                <button @click="activeTab = 'wallets'" :class="activeTab === 'wallets' ? 'nav-link-active' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'" class="w-full flex items-center px-4 py-3 rounded-xl transition-all group">
+                    <svg class="w-5 h-5 ml-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+                    <span class="font-medium text-sm">المحافظ</span>
                 </button>
 
-                <div class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] px-4 mb-4 mt-8 opacity-50">شخصي</div>
-
-                <button @click="activeTab = 'wallets'" :class="activeTab === 'wallets' ? 'bg-emerald-500/10 text-emerald-400' : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200'" class="w-full flex items-center px-4 py-3 rounded-2xl transition-all group">
-                    <div :class="activeTab === 'wallets' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 'bg-slate-800 text-slate-500'" class="p-2 rounded-xl ml-3 group-hover:scale-110 transition-transform">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
-                    </div>
-                    <span class="font-bold text-sm">الخزنة الشخصية</span>
-                </button>
-
-                <button @click="activeTab = 'debts'" :class="activeTab === 'debts' ? 'bg-rose-500/10 text-rose-400' : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200'" class="w-full flex items-center px-4 py-3 rounded-2xl transition-all group">
-                    <div :class="activeTab === 'debts' ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/20' : 'bg-slate-800 text-slate-500'" class="p-2 rounded-xl ml-3 group-hover:scale-110 transition-transform">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    </div>
-                    <span class="font-bold text-sm">الديون والمستحقات</span>
+                <button @click="activeTab = 'debts'" :class="activeTab === 'debts' ? 'nav-link-active' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'" class="w-full flex items-center px-4 py-3 rounded-xl transition-all group">
+                    <svg class="w-5 h-5 ml-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span class="font-medium text-sm">الديون</span>
                 </button>
             </nav>
 
-            <div class="p-4 border-t border-white/5">
-                <div class="flex items-center p-3 rounded-2xl bg-slate-850/50">
-                    <div class="w-10 h-10 rounded-xl bg-brand-500/20 flex items-center justify-center text-brand-400 font-black text-sm">أ</div>
-                    <div class="mr-3 overflow-hidden">
-                        <p class="text-xs font-bold text-white truncate">أمجد خولاني</p>
-                        <p class="text-[10px] text-slate-500 truncate">amjad@kashly.xyz</p>
+            <div class="p-6 border-t border-gray-100">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-indigo-600 font-bold">أ</div>
+                    <div class="mr-3">
+                        <p class="text-xs font-bold text-gray-900">أمجد خولاني</p>
+                        <p class="text-[10px] text-gray-500">مشترك متميز</p>
                     </div>
                 </div>
             </div>
         </aside>
 
-        <!-- Main Content -->
-        <main class="flex-1 p-8 overflow-y-auto h-screen">
-            <div class="max-w-5xl mx-auto space-y-10 pb-20">
+        <!-- Content -->
+        <main class="flex-1 p-10 overflow-y-auto h-screen">
+            <div class="max-w-4xl mx-auto space-y-8">
                 
+                <!-- Header -->
+                <header class="flex justify-between items-center">
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-900">أهلاً بك، أمجد 👋</h1>
+                        <p class="text-gray-500 text-sm mt-1">إليك ملخص سريع لوضعك المالي اليوم.</p>
+                    </div>
+                    <button class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-sm transition-all flex items-center">
+                        <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        عملية جديدة
+                    </button>
+                </header>
+
                 <!-- Dashboard Tab -->
-                <div x-show="activeTab === 'dashboard'" x-transition class="space-y-10">
-                    <!-- Wallet Slider -->
-                    <div class="relative group">
-                        <div class="flex overflow-x-auto pb-6 hide-scrollbar snap-x snap-mandatory gap-6">
-                            <!-- Wealth Card -->
-                            <div class="min-w-full md:min-w-[420px] snap-center bg-gradient-to-br from-brand-500 to-indigo-700 p-8 rounded-[3rem] shadow-2xl shadow-brand-500/20 relative overflow-hidden spendee-card">
-                                <div class="absolute top-0 left-0 w-40 h-40 bg-white/10 rounded-full -ml-20 -mt-20 blur-3xl"></div>
-                                <p class="text-brand-100 text-[10px] font-black uppercase tracking-widest mb-2">إجمالي الثروة</p>
-                                <h2 class="text-5xl font-black text-white mb-8">$124,500.00</h2>
-                                <div class="flex justify-between items-end">
-                                    <div class="flex -space-x-3 space-x-reverse">
-                                        <div class="w-12 h-12 rounded-2xl border-2 border-brand-600 bg-white/20 flex items-center justify-center backdrop-blur-md">
-                                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <div x-show="activeTab === 'dashboard'" x-transition class="space-y-8">
+                    <!-- Stats Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="clean-card p-6">
+                            <p class="text-gray-500 text-xs font-bold uppercase tracking-wider mb-2">إجمالي الرصيد</p>
+                            <h3 class="text-3xl font-bold text-gray-900">$12,450</h3>
+                            <div class="mt-4 flex items-center text-emerald-500 text-xs font-bold">
+                                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                                +2.5% من الشهر الماضي
+                            </div>
+                        </div>
+                        <div class="clean-card p-6 border-r-4 border-r-indigo-500">
+                            <p class="text-gray-500 text-xs font-bold uppercase tracking-wider mb-2">الاستثمارات</p>
+                            <h3 class="text-3xl font-bold text-gray-900">$84,000</h3>
+                            <p class="mt-4 text-gray-400 text-xs font-medium">12 صندوق نشط</p>
+                        </div>
+                        <div class="clean-card p-6 border-r-4 border-r-rose-500">
+                            <p class="text-gray-500 text-xs font-bold uppercase tracking-wider mb-2">الالتزامات</p>
+                            <h3 class="text-3xl font-bold text-gray-900">$2,100</h3>
+                            <p class="mt-4 text-gray-400 text-xs font-medium">مستحقة خلال 10 أيام</p>
+                        </div>
+                    </div>
+
+                    <!-- Main Section -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        <!-- Chart Area -->
+                        <div class="lg:col-span-2 clean-card p-8">
+                            <h4 class="font-bold text-gray-900 mb-6">التدفق النقدي</h4>
+                            <div id="simpleChart" class="w-full"></div>
+                        </div>
+
+                        <!-- Recent Transactions -->
+                        <div class="clean-card p-8">
+                            <h4 class="font-bold text-gray-900 mb-6">أحدث العمليات</h4>
+                            <div class="space-y-6">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <div class="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
                                         </div>
-                                        <div class="w-12 h-12 rounded-2xl border-2 border-brand-600 bg-emerald-500 flex items-center justify-center shadow-lg">
-                                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                                        <div class="mr-3">
+                                            <p class="text-sm font-bold text-gray-900">راتب شهري</p>
+                                            <p class="text-[10px] text-gray-500 uppercase font-bold">اليوم، 10:00 ص</p>
                                         </div>
                                     </div>
-                                    <span class="px-5 py-2 bg-black/20 rounded-2xl text-white text-[10px] font-black uppercase tracking-widest backdrop-blur-md">مباشر</span>
+                                    <span class="text-sm font-bold text-emerald-600">+$4,500</span>
                                 </div>
-                            </div>
 
-                            <!-- Investment Card -->
-                            <div class="min-w-full md:min-w-[420px] snap-center bg-slate-900 p-8 rounded-[3rem] border border-white/5 relative overflow-hidden spendee-card">
-                                <p class="text-slate-500 text-[10px] font-black uppercase tracking-widest mb-2">الاستثمارات النشطة</p>
-                                <h2 class="text-5xl font-black text-white mb-8">12 <span class="text-xl font-normal text-slate-600">صندوق</span></h2>
-                                <div class="flex items-center space-x-2 space-x-reverse text-emerald-400 font-black text-xs uppercase tracking-widest">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
-                                    <span>نمو +12% هذا الشهر</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Quick Actions -->
-                    <div class="grid grid-cols-4 gap-6 px-4">
-                        <button class="flex flex-col items-center space-y-3 group">
-                            <div class="w-20 h-20 bg-emerald-500 rounded-[2rem] flex items-center justify-center shadow-xl shadow-emerald-500/20 group-hover:scale-110 transition-transform">
-                                <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-                            </div>
-                            <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">إضافة دخل</span>
-                        </button>
-                        <button class="flex flex-col items-center space-y-3 group">
-                            <div class="w-20 h-20 bg-rose-500 rounded-[2rem] flex items-center justify-center shadow-xl shadow-rose-500/20 group-hover:scale-110 transition-transform">
-                                <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg>
-                            </div>
-                            <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">تسجيل مصروف</span>
-                        </button>
-                        <button class="flex flex-col items-center space-y-3 group">
-                            <div class="w-20 h-20 bg-amber-500 rounded-[2rem] flex items-center justify-center shadow-xl shadow-amber-500/20 group-hover:scale-110 transition-transform">
-                                <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
-                            </div>
-                            <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">نقل أموال</span>
-                        </button>
-                        <button class="flex flex-col items-center space-y-3 group">
-                            <div class="w-20 h-20 bg-brand-500 rounded-[2rem] flex items-center justify-center shadow-xl shadow-brand-500/20 group-hover:scale-110 transition-transform">
-                                <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
-                            </div>
-                            <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">تقارير</span>
-                        </button>
-                    </div>
-
-                    <!-- Timeline Feed -->
-                    <div class="space-y-6">
-                        <div class="flex items-center justify-between px-6">
-                            <h3 class="text-2xl font-black text-white tracking-tight">النشاط الأخير</h3>
-                            <button class="text-brand-400 text-sm font-bold hover:underline">عرض الكل</button>
-                        </div>
-
-                        <div class="space-y-4 px-2">
-                            <div class="glass p-6 rounded-[2.5rem] flex items-center justify-between spendee-card group cursor-pointer">
-                                <div class="flex items-center">
-                                    <div class="w-16 h-16 bg-rose-500 rounded-3xl flex items-center justify-center text-white shadow-lg shadow-rose-500/20 group-hover:-rotate-6 transition-transform">
-                                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <div class="w-10 h-10 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg>
+                                        </div>
+                                        <div class="mr-3">
+                                            <p class="text-sm font-bold text-gray-900">سوبر ماركت</p>
+                                            <p class="text-[10px] text-gray-500 uppercase font-bold">أمس، 08:30 م</p>
+                                        </div>
                                     </div>
-                                    <div class="mr-6">
-                                        <p class="text-white font-bold text-lg">إيجار المكتب</p>
-                                        <p class="text-slate-500 text-[11px] font-black uppercase tracking-widest">محفظة العمل • منذ ساعتين</p>
-                                    </div>
-                                </div>
-                                <div class="text-left">
-                                    <p class="text-xl font-black text-rose-400">-$2,400.00</p>
-                                    <p class="text-[10px] text-slate-600 font-black uppercase tracking-widest">مصروف دوري</p>
+                                    <span class="text-sm font-bold text-rose-600">-$120</span>
                                 </div>
                             </div>
+                            <button class="w-full mt-8 py-3 text-indigo-600 font-bold text-xs hover:bg-gray-50 rounded-xl transition-all">مشاهدة الكل</button>
                         </div>
-                    </div>
-
-                    <!-- Financial Pulse Chart -->
-                    <div class="glass p-10 rounded-[3.5rem] border border-white/5 mx-2 shadow-2xl">
-                        <h3 class="text-2xl font-black text-white mb-10 tracking-tight">النبض المالي</h3>
-                        <div id="mainChart" class="w-full h-80"></div>
                     </div>
                 </div>
 
                 <!-- Investments Tab -->
-                <div x-show="activeTab === 'investments'" x-transition class="space-y-10">
-                    <div class="flex justify-between items-center px-4">
-                        <h2 class="text-4xl font-black text-white">صناديق الاستثمار</h2>
-                        <button class="bg-brand-500 p-4 rounded-2xl text-white shadow-lg shadow-brand-500/20">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                        </button>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div class="bg-slate-900 p-8 rounded-[3rem] border border-white/5 spendee-card relative overflow-hidden">
-                            <div class="absolute -right-10 -top-10 w-32 h-32 bg-brand-500/10 rounded-full blur-3xl"></div>
-                            <div class="flex justify-between items-start mb-10">
-                                <div class="w-16 h-16 bg-brand-500 rounded-3xl flex items-center justify-center text-white shadow-lg shadow-brand-500/20">
-                                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
-                                </div>
-                                <span class="px-4 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-black uppercase tracking-widest">نشط</span>
+                <div x-show="activeTab === 'investments'" x-transition class="space-y-6">
+                    <h2 class="text-2xl font-bold text-gray-900">حقائب الاستثمار</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="clean-card p-6 flex items-start">
+                            <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
                             </div>
-                            <h3 class="text-2xl font-black text-white mb-2">مجمع النور العقاري</h3>
-                            <p class="text-slate-500 text-sm mb-10">حقيبة عقارية تضم 14 وحدة سكنية في دبي</p>
-                            <div class="grid grid-cols-2 gap-4">
-                                <div class="bg-white/5 p-4 rounded-2xl text-center">
-                                    <p class="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">الشركاء</p>
-                                    <p class="text-xl font-black text-white">4</p>
+                            <div class="mr-4 flex-1">
+                                <div class="flex justify-between items-center mb-2">
+                                    <h5 class="font-bold text-gray-900 text-lg">صندوق الأمل التجاري</h5>
+                                    <span class="text-xs bg-emerald-50 text-emerald-600 px-2 py-1 rounded-lg font-bold">نشط</span>
                                 </div>
-                                <div class="bg-white/5 p-4 rounded-2xl text-center">
-                                    <p class="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">إجمالي الأصول</p>
-                                    <p class="text-xl font-black text-emerald-400">$2.4M</p>
+                                <p class="text-gray-500 text-sm mb-4">استثمارات في قطاع التجزئة والمواد الغذائية.</p>
+                                <div class="flex space-x-6 space-x-reverse">
+                                    <div>
+                                        <p class="text-[10px] text-gray-400 font-bold uppercase">القيمة الحالية</p>
+                                        <p class="text-md font-bold text-gray-900">$24,500</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-[10px] text-gray-400 font-bold uppercase">الشركاء</p>
+                                        <p class="text-md font-bold text-gray-900">3</p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Wallets Tab -->
-                <div x-show="activeTab === 'wallets'" x-transition class="space-y-10">
-                    <div class="flex justify-between items-center px-4">
-                        <h2 class="text-4xl font-black text-white">الخزنة الشخصية</h2>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div class="bg-slate-900 p-8 rounded-[2.5rem] border border-white/5 spendee-card text-center">
-                            <div class="w-20 h-20 bg-emerald-500 rounded-[2rem] mx-auto mb-6 flex items-center justify-center text-white shadow-xl shadow-emerald-500/20">
-                                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            </div>
-                            <h3 class="text-xl font-bold text-white mb-2">النقد المتاح</h3>
-                            <p class="text-3xl font-black text-white tracking-tight">$42,000</p>
-                            <p class="text-[10px] text-slate-500 font-black uppercase tracking-widest mt-4">محفظة رئيسية</p>
                         </div>
                     </div>
                 </div>
@@ -298,61 +226,44 @@
             </div>
         </main>
     </div>
-    </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             var options = {
                 series: [{
-                    name: 'دخل',
-                    data: [45, 52, 38, 24, 33, 26, 48]
+                    name: 'الدخل',
+                    data: [31, 40, 28, 51, 42, 109, 100]
                 }, {
-                    name: 'مصروف',
-                    data: [35, 41, 62, 42, 13, 18, 29]
+                    name: 'المصاريف',
+                    data: [11, 32, 45, 32, 34, 52, 41]
                 }],
                 chart: {
+                    height: 300,
                     type: 'area',
-                    height: 350,
                     toolbar: { show: false },
                     fontFamily: 'Cairo, sans-serif',
-                    sparkline: { enabled: false }
                 },
-                colors: ['#10b981', '#f43f5e'],
+                colors: ['#4F46E5', '#10B981'],
                 dataLabels: { enabled: false },
-                stroke: { curve: 'smooth', width: 4 },
+                stroke: { curve: 'smooth', width: 2 },
+                xaxis: {
+                    categories: ["سبت", "أحد", "إثن", "ثلا", "أرب", "خمي", "جمع"],
+                    labels: { style: { colors: '#9CA3AF', fontFamily: 'Cairo' } }
+                },
+                yaxis: { show: false },
+                grid: { borderColor: '#F3F4F6' },
+                legend: { position: 'top', horizontalAlign: 'right', fontFamily: 'Cairo' },
                 fill: {
                     type: 'gradient',
                     gradient: {
                         shadeIntensity: 1,
-                        opacityFrom: 0.4,
-                        opacityTo: 0.05,
-                        stops: [0, 90, 100]
+                        opacityFrom: 0.1,
+                        opacityTo: 0.01,
                     }
-                },
-                xaxis: {
-                    categories: ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'],
-                    axisBorder: { show: false },
-                    axisTicks: { show: false },
-                    labels: { style: { colors: '#64748b', fontWeight: 700, fontFamily: 'Cairo' } }
-                },
-                yaxis: { show: false },
-                grid: { 
-                    show: true,
-                    borderColor: 'rgba(255,255,255,0.02)',
-                    strokeDashArray: 5,
-                    position: 'back'
-                },
-                legend: { 
-                    position: 'top',
-                    horizontalAlign: 'right',
-                    fontFamily: 'Cairo',
-                    fontWeight: 700,
-                    labels: { colors: '#94a3b8' }
-                },
-                theme: { mode: 'dark' }
+                }
             };
 
-            var chart = new ApexCharts(document.querySelector("#mainChart"), options);
+            var chart = new ApexCharts(document.querySelector("#simpleChart"), options);
             chart.render();
         });
     </script>
