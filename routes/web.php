@@ -14,6 +14,8 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
     ->name('dashboard');
 
 use App\Http\Controllers\BusinessController;
+use App\Http\Controllers\PartnerController;
+use App\Http\Controllers\WalletController;
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -21,6 +23,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::resource('businesses', BusinessController::class);
+    Route::resource('partners', PartnerController::class);
+    Route::resource('wallets', WalletController::class);
 });
 
 require __DIR__.'/auth.php';
