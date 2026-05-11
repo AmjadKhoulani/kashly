@@ -8,7 +8,7 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <!-- Tailwind & Alpine CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -20,14 +20,15 @@
             theme: {
                 extend: {
                     colors: {
-                        primary: '#4F46E5',
-                        secondary: '#10B981',
-                        accent: '#F59E0B',
-                        background: '#F9FAFB',
-                        surface: '#FFFFFF',
-                        text: {
-                            main: '#1F2937',
-                            muted: '#6B7280',
+                        indigo: {
+                            50: '#eef2ff',
+                            600: '#4f46e5',
+                            900: '#312e81',
+                        },
+                        emerald: {
+                            50: '#ecfdf5',
+                            600: '#10b981',
+                            900: '#064e3b',
                         }
                     },
                     fontFamily: {
@@ -40,249 +41,238 @@
 
     <style type="text/css">
         [x-cloak] { display: none !important; }
-        body {
-            background-color: #F9FAFB;
-            color: #1F2937;
-        }
+        body { background-color: #F9FAFB; }
         .clean-card {
-            background: #FFFFFF;
+            background: white;
             border: 1px solid #E5E7EB;
             border-radius: 24px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-            transition: all 0.2s ease;
-        }
-        .clean-card:hover {
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
-            border-color: #D1D5DB;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
         }
         .nav-link-active {
             background-color: #EEF2FF;
             color: #4F46E5;
         }
-        .hide-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
     </style>
 </head>
-<body class="font-sans antialiased bg-gray-50 text-gray-900" x-data="{ activeTab: 'dashboard' }">
+<body class="font-sans antialiased text-gray-900" x-data="{ activeTab: 'dashboard', showModal: false }">
 
-    <!-- Top Navbar -->
-    <nav class="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm backdrop-blur-md bg-white/90">
+    <!-- Navbar -->
+    <nav class="sticky top-0 z-50 bg-white/80 border-b border-gray-200 backdrop-blur-md">
         <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-            <!-- Right: Logo -->
             <div class="flex items-center space-x-8 space-x-reverse">
                 <div class="flex items-center space-x-3 space-x-reverse cursor-pointer" @click="activeTab = 'dashboard'">
                     <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
                         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     </div>
-                    <span class="text-2xl font-black tracking-tight text-gray-900">كاشلي</span>
+                    <span class="text-2xl font-black text-gray-900">كاشلي</span>
                 </div>
-
-                <!-- Center: Navigation Links -->
-                <div class="hidden md:flex items-center space-x-1 space-x-reverse">
-                    <button @click="activeTab = 'dashboard'" :class="activeTab === 'dashboard' ? 'nav-link-active' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'" class="px-5 py-2 rounded-xl text-sm font-bold transition-all">الرئيسية</button>
-                    <button @click="activeTab = 'investments'" :class="activeTab === 'investments' ? 'nav-link-active' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'" class="px-5 py-2 rounded-xl text-sm font-bold transition-all">الاستثمارات</button>
-                    <button @click="activeTab = 'wallets'" :class="activeTab === 'wallets' ? 'nav-link-active' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'" class="px-5 py-2 rounded-xl text-sm font-bold transition-all">المحافظ</button>
-                    <button @click="activeTab = 'debts'" :class="activeTab === 'debts' ? 'nav-link-active' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'" class="px-5 py-2 rounded-xl text-sm font-bold transition-all">الديون</button>
+                <div class="hidden md:flex space-x-1 space-x-reverse">
+                    <button @click="activeTab = 'dashboard'" :class="activeTab === 'dashboard' ? 'nav-link-active' : 'text-gray-500 hover:bg-gray-50'" class="px-5 py-2 rounded-xl text-sm font-bold transition-all">الرئيسية</button>
+                    <button @click="activeTab = 'investments'" :class="activeTab === 'investments' ? 'nav-link-active' : 'text-gray-500 hover:bg-gray-50'" class="px-5 py-2 rounded-xl text-sm font-bold transition-all">الاستثمارات</button>
+                    <button @click="activeTab = 'partners'" :class="activeTab === 'partners' ? 'nav-link-active' : 'text-gray-500 hover:bg-gray-50'" class="px-5 py-2 rounded-xl text-sm font-bold transition-all">الشركاء</button>
+                    <button @click="activeTab = 'wallets'" :class="activeTab === 'wallets' ? 'nav-link-active' : 'text-gray-500 hover:bg-gray-50'" class="px-5 py-2 rounded-xl text-sm font-bold transition-all">المحافظ</button>
+                    <button @click="activeTab = 'debts'" :class="activeTab === 'debts' ? 'nav-link-active' : 'text-gray-500 hover:bg-gray-50'" class="px-5 py-2 rounded-xl text-sm font-bold transition-all">الديون</button>
                 </div>
             </div>
-
-            <!-- Left: User Profile -->
             <div class="flex items-center space-x-4 space-x-reverse">
-                <button class="p-2 text-gray-400 hover:text-gray-900 transition-colors">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
-                </button>
-                <div class="h-8 w-px bg-gray-200"></div>
-                <div class="flex items-center cursor-pointer group">
-                    <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-indigo-600 font-bold group-hover:bg-indigo-50 transition-colors">أ</div>
-                    <div class="mr-3 hidden sm:block">
-                        <p class="text-xs font-bold text-gray-900 leading-tight">أمجد خولاني</p>
-                        <p class="text-[10px] text-gray-500 font-medium">مشترك متميز</p>
-                    </div>
-                </div>
+                <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-indigo-600 font-bold">أ</div>
             </div>
         </div>
     </nav>
 
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto p-10">
-        <div class="max-w-4xl mx-auto space-y-10">
+        <div class="max-w-5xl mx-auto">
             
-            <!-- Header -->
-            <header class="flex justify-between items-center">
-                <div>
-                    <h1 class="text-3xl font-black text-gray-900">أهلاً بك، أمجد 👋</h1>
-                    <p class="text-gray-500 text-sm mt-1 font-medium">إليك ملخص سريع لوضعك المالي اليوم.</p>
-                </div>
-                <button class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-2xl text-sm font-black shadow-lg shadow-indigo-500/20 transition-all flex items-center">
-                    <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                    عملية جديدة
-                </button>
-            </header>
+            <!-- Dashboard -->
+            <div x-show="activeTab === 'dashboard'" x-transition class="space-y-10">
+                <header class="flex justify-between items-center">
+                    <div>
+                        <h1 class="text-3xl font-black text-gray-900">أهلاً بك، أمجد 👋</h1>
+                        <p class="text-gray-500 text-sm mt-1">إليك نظرة شاملة على وضعك المالي.</p>
+                    </div>
+                    <button @click="showModal = true" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-2xl text-sm font-black shadow-lg shadow-indigo-500/20 flex items-center">
+                        <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        عملية جديدة
+                    </button>
+                </header>
 
-                <!-- Dashboard Tab -->
-                <div x-show="activeTab === 'dashboard'" x-transition class="space-y-10">
-                    
-                    <!-- Dual World Grid -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <!-- Commercial Section -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Commercial Section -->
+                    <div class="space-y-6">
+                        <h3 class="text-lg font-black text-indigo-900 flex items-center">
+                            <span class="w-2 h-6 bg-indigo-600 rounded-full ml-3"></span>
+                            القطاع التجاري
+                        </h3>
+                        <div class="clean-card p-8 border-t-4 border-t-indigo-600">
+                            <p class="text-gray-500 text-xs font-bold uppercase mb-2">إجمالي قيمة الاستثمارات</p>
+                            <h4 class="text-4xl font-black text-gray-900">$284,000</h4>
+                            <div class="mt-6 flex justify-between items-center text-xs font-bold">
+                                <span class="text-emerald-600">+4.2% نمو</span>
+                                <span class="text-gray-400">12 صندوق نشط</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Personal Section -->
+                    <div class="space-y-6">
+                        <h3 class="text-lg font-black text-emerald-900 flex items-center">
+                            <span class="w-2 h-6 bg-emerald-600 rounded-full ml-3"></span>
+                            القطاع الشخصي
+                        </h3>
+                        <div class="clean-card p-8 border-t-4 border-t-emerald-600">
+                            <p class="text-gray-500 text-xs font-bold uppercase mb-2">النقد الشخصي المتاح</p>
+                            <h4 class="text-4xl font-black text-gray-900">$42,150</h4>
+                            <div class="mt-6 flex justify-between items-center text-xs font-bold">
+                                <span class="text-rose-600">-1.5% مصاريف</span>
+                                <span class="text-gray-400">4 محافظ نشطة</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-2 clean-card p-8">
+                        <h4 class="font-bold text-gray-900 mb-6">التدفق النقدي الشامل</h4>
+                        <div id="mainChart"></div>
+                    </div>
+                    <div class="clean-card p-8">
+                        <h4 class="font-bold text-gray-900 mb-6">أحدث العمليات</h4>
                         <div class="space-y-6">
                             <div class="flex items-center justify-between">
-                                <h3 class="text-lg font-black text-indigo-900">القطاع التجاري</h3>
-                                <span class="px-3 py-1 bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase rounded-lg">إدارة الاستثمارات</span>
-                            </div>
-                            <div class="clean-card p-8 border-t-4 border-t-indigo-600">
-                                <p class="text-gray-500 text-xs font-bold uppercase mb-2">إجمالي قيمة الصناديق</p>
-                                <h4 class="text-4xl font-black text-gray-900">$284,000</h4>
-                                <div class="mt-6 flex items-center justify-between">
-                                    <div class="flex items-center text-emerald-500 text-xs font-bold">
-                                        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
-                                        +4.2% نمو
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center">💼</div>
+                                    <div class="mr-3">
+                                        <p class="text-sm font-black text-gray-900">أرباح مجمع النور</p>
+                                        <p class="text-[10px] text-gray-400 uppercase font-black">تجاري • اليوم</p>
                                     </div>
-                                    <span class="text-gray-400 text-xs font-bold">12 صندوق نشط</span>
                                 </div>
+                                <span class="text-sm font-black text-emerald-600">+$1,500</span>
                             </div>
-                        </div>
-
-                        <!-- Personal Section -->
-                        <div class="space-y-6">
                             <div class="flex items-center justify-between">
-                                <h3 class="text-lg font-black text-emerald-900">القطاع الشخصي</h3>
-                                <span class="px-3 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-black uppercase rounded-lg">الخزنة الخاصة</span>
-                            </div>
-                            <div class="clean-card p-8 border-t-4 border-t-emerald-600">
-                                <p class="text-gray-500 text-xs font-bold uppercase mb-2">صافي النقد الشخصي</p>
-                                <h4 class="text-4xl font-black text-gray-900">$42,150</h4>
-                                <div class="mt-6 flex items-center justify-between">
-                                    <div class="flex items-center text-rose-500 text-xs font-bold">
-                                        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"></path></svg>
-                                        -1.5% مصاريف
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center">🛒</div>
+                                    <div class="mr-3">
+                                        <p class="text-sm font-black text-gray-900">مشتريات منزلية</p>
+                                        <p class="text-[10px] text-gray-400 uppercase font-black">شخصي • أمس</p>
                                     </div>
-                                    <span class="text-gray-400 text-xs font-bold">4 محافظ نشطة</span>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Mixed Activity Section -->
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                        <div class="lg:col-span-2 clean-card p-8">
-                            <h4 class="font-bold text-gray-900 mb-6 flex items-center justify-between">
-                                التدفق النقدي الشامل
-                                <div class="flex space-x-2 space-x-reverse">
-                                    <span class="flex items-center text-[10px] text-indigo-600"><span class="w-2 h-2 bg-indigo-600 rounded-full ml-1"></span> تجاري</span>
-                                    <span class="flex items-center text-[10px] text-emerald-600"><span class="w-2 h-2 bg-emerald-600 rounded-full ml-1"></span> شخصي</span>
-                                </div>
-                            </h4>
-                            <div id="simpleChart" class="w-full"></div>
-                        </div>
-
-                        <div class="clean-card p-8">
-                            <h4 class="font-bold text-gray-900 mb-6">أحدث العمليات</h4>
-                            <div class="space-y-6">
-                                <!-- Commercial Item -->
-                                <div class="flex items-center justify-between">
-                                    <div class="flex items-center">
-                                        <div class="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
-                                        </div>
-                                        <div class="mr-3">
-                                            <p class="text-sm font-black text-gray-900 leading-tight">توزيع أرباح</p>
-                                            <p class="text-[10px] text-indigo-500 uppercase font-black">تجاري • منذ ساعة</p>
-                                        </div>
-                                    </div>
-                                    <span class="text-sm font-black text-emerald-600">+$1,500</span>
-                                </div>
-
-                                <!-- Personal Item -->
-                                <div class="flex items-center justify-between">
-                                    <div class="flex items-center">
-                                        <div class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
-                                        </div>
-                                        <div class="mr-3">
-                                            <p class="text-sm font-black text-gray-900 leading-tight">فاتورة كهرباء</p>
-                                            <p class="text-[10px] text-emerald-500 uppercase font-black">شخصي • منذ ساعتين</p>
-                                        </div>
-                                    </div>
-                                    <span class="text-sm font-black text-rose-600">-$85</span>
-                                </div>
+                                <span class="text-sm font-black text-rose-600">-$120</span>
                             </div>
                         </div>
                     </div>
                 </div>
-
-                <!-- Investments Tab -->
-                <div x-show="activeTab === 'investments'" x-transition class="space-y-6">
-                    <h2 class="text-2xl font-bold text-gray-900">حقائب الاستثمار</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="clean-card p-6 flex items-start">
-                            <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
-                            </div>
-                            <div class="mr-4 flex-1">
-                                <div class="flex justify-between items-center mb-2">
-                                    <h5 class="font-bold text-gray-900 text-lg">صندوق الأمل التجاري</h5>
-                                    <span class="text-xs bg-emerald-50 text-emerald-600 px-2 py-1 rounded-lg font-bold">نشط</span>
-                                </div>
-                                <p class="text-gray-500 text-sm mb-4">استثمارات في قطاع التجزئة والمواد الغذائية.</p>
-                                <div class="flex space-x-6 space-x-reverse">
-                                    <div>
-                                        <p class="text-[10px] text-gray-400 font-bold uppercase">القيمة الحالية</p>
-                                        <p class="text-md font-bold text-gray-900">$24,500</p>
-                                    </div>
-                                    <div>
-                                        <p class="text-[10px] text-gray-400 font-bold uppercase">الشركاء</p>
-                                        <p class="text-md font-bold text-gray-900">3</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
             </div>
-        </main>
+
+            <!-- Investments Tab -->
+            <div x-show="activeTab === 'investments'" x-transition class="space-y-8">
+                <h2 class="text-3xl font-black text-gray-900">صناديق الاستثمار</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="clean-card p-8">
+                        <div class="flex justify-between mb-6">
+                            <div class="w-14 h-14 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center text-2xl">🏢</div>
+                            <span class="px-3 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-black rounded-lg uppercase">نشط</span>
+                        </div>
+                        <h3 class="text-xl font-black text-gray-900 mb-2">مجمع النور العقاري</h3>
+                        <p class="text-gray-500 text-sm mb-6">استثمار عقاري - دبي، الإمارات.</p>
+                        <div class="flex justify-between border-t border-gray-100 pt-6">
+                            <div>
+                                <p class="text-[10px] text-gray-400 font-bold uppercase">رأس المال</p>
+                                <p class="text-lg font-black text-gray-900">$1.2M</p>
+                            </div>
+                            <div>
+                                <p class="text-[10px] text-gray-400 font-bold uppercase">الشركاء</p>
+                                <p class="text-lg font-black text-gray-900">4</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Partners Tab -->
+            <div x-show="activeTab === 'partners'" x-transition class="space-y-8">
+                <h2 class="text-3xl font-black text-gray-900">الشركاء المستثمرون</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="clean-card p-6 text-center">
+                        <div class="w-20 h-20 bg-gray-100 rounded-full mx-auto mb-4 flex items-center justify-center text-2xl font-black text-indigo-600">ي</div>
+                        <h4 class="font-bold text-gray-900 text-lg">ياسر القحطاني</h4>
+                        <p class="text-xs text-gray-500 mb-6">مستثمر عقاري</p>
+                        <div class="bg-indigo-50 p-4 rounded-2xl">
+                            <p class="text-[10px] text-indigo-400 font-bold uppercase mb-1">إجمالي الحصة</p>
+                            <p class="text-xl font-black text-indigo-600">$450,000</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Wallets Tab -->
+            <div x-show="activeTab === 'wallets'" x-transition class="space-y-8">
+                <h2 class="text-3xl font-black text-gray-900">المحافظ الشخصية</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="clean-card p-8 text-center border-b-4 border-b-emerald-600">
+                        <div class="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-2xl mx-auto mb-6 flex items-center justify-center text-2xl">💵</div>
+                        <h4 class="font-bold text-gray-900 text-lg">النقد المتاح</h4>
+                        <p class="text-3xl font-black text-emerald-600">$12,400</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Debts Tab -->
+            <div x-show="activeTab === 'debts'" x-transition class="space-y-8">
+                <h2 class="text-3xl font-black text-gray-900">الديون والالتزامات</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="clean-card p-6 flex justify-between items-center border-r-4 border-r-rose-600">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 bg-rose-50 text-rose-600 rounded-xl flex items-center justify-center">💳</div>
+                            <div class="mr-4 text-right">
+                                <h5 class="font-bold text-gray-900">قرض تجاري - البنك الوطني</h5>
+                                <p class="text-xs text-gray-500">القسط القادم: 25 مايو</p>
+                            </div>
+                        </div>
+                        <div class="text-left">
+                            <p class="text-xl font-black text-rose-600">$12,000</p>
+                            <span class="text-[10px] text-gray-400 font-bold uppercase">متبقي</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal Placeholder -->
+    <div x-show="showModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-sm" x-cloak>
+        <div class="bg-white rounded-[2.5rem] w-full max-w-md p-10 shadow-2xl" @click.away="showModal = false">
+            <h3 class="text-2xl font-black text-gray-900 mb-6">إضافة عملية جديدة</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-black text-gray-400 uppercase mb-2">نوع العملية</label>
+                    <select class="w-full bg-gray-50 border-0 rounded-xl p-4 font-bold text-sm focus:ring-2 focus:ring-indigo-600">
+                        <option>دخل تجاري</option>
+                        <option>مصروف تجاري</option>
+                        <option>دخل شخصي</option>
+                        <option>مصروف شخصي</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-black text-gray-400 uppercase mb-2">المبلغ</label>
+                    <input type="number" class="w-full bg-gray-50 border-0 rounded-xl p-4 font-bold text-sm focus:ring-2 focus:ring-indigo-600" placeholder="0.00">
+                </div>
+                <button class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-black mt-4 shadow-lg shadow-indigo-500/20">تأكيد الإضافة</button>
+            </div>
+        </div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             var options = {
-                series: [{
-                    name: 'الدخل',
-                    data: [31, 40, 28, 51, 42, 109, 100]
-                }, {
-                    name: 'المصاريف',
-                    data: [11, 32, 45, 32, 34, 52, 41]
-                }],
-                chart: {
-                    height: 300,
-                    type: 'area',
-                    toolbar: { show: false },
-                    fontFamily: 'Cairo, sans-serif',
-                },
-                colors: ['#4F46E5', '#10B981'],
-                dataLabels: { enabled: false },
-                stroke: { curve: 'smooth', width: 2 },
-                xaxis: {
-                    categories: ["سبت", "أحد", "إثن", "ثلا", "أرب", "خمي", "جمع"],
-                    labels: { style: { colors: '#9CA3AF', fontFamily: 'Cairo' } }
-                },
-                yaxis: { show: false },
-                grid: { borderColor: '#F3F4F6' },
-                legend: { position: 'top', horizontalAlign: 'right', fontFamily: 'Cairo' },
-                fill: {
-                    type: 'gradient',
-                    gradient: {
-                        shadeIntensity: 1,
-                        opacityFrom: 0.1,
-                        opacityTo: 0.01,
-                    }
-                }
+                series: [{ name: 'تجاري', data: [30, 40, 35, 50, 49, 60, 70] }, { name: 'شخصي', data: [20, 30, 25, 40, 39, 50, 60] }],
+                chart: { height: 350, type: 'area', toolbar: { show: false }, fontFamily: 'Cairo' },
+                colors: ['#4f46e5', '#10b981'],
+                stroke: { curve: 'smooth', width: 3 },
+                xaxis: { categories: ['السبت', 'الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'] },
+                legend: { position: 'top', horizontalAlign: 'right' }
             };
-
-            var chart = new ApexCharts(document.querySelector("#simpleChart"), options);
-            chart.render();
+            new ApexCharts(document.querySelector("#mainChart"), options).render();
         });
     </script>
 </body>
