@@ -10,9 +10,45 @@
                 </nav>
                 <div class="flex justify-between items-center">
                     <h2 class="text-4xl font-black text-gray-900">{{ $fund->name }}</h2>
-                    <div class="flex space-x-3 space-x-reverse">
+                    <div class="flex space-x-3 space-x-reverse" x-data="{ showModal: false }">
                         <button class="bg-white border border-gray-200 text-gray-900 px-5 py-2.5 rounded-xl text-sm font-black shadow-sm">تعديل</button>
-                        <button class="bg-indigo-600 text-white px-5 py-2.5 rounded-xl text-sm font-black shadow-lg shadow-indigo-500/20">توزيع أرباح</button>
+                        <button @click="showModal = true" class="bg-indigo-600 text-white px-5 py-2.5 rounded-xl text-sm font-black shadow-lg shadow-indigo-500/20">إضافة عملية</button>
+
+                        <!-- Modal Inside Show Page -->
+                        <div x-show="showModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-sm" x-cloak>
+                            <div class="bg-white rounded-[2.5rem] w-full max-w-md p-10 shadow-2xl relative text-right" @click.away="showModal = false">
+                                <h3 class="text-2xl font-black text-gray-900 mb-8">تسجيل عملية للصندوق</h3>
+                                <form action="{{ route('transactions.store') }}" method="POST" class="space-y-6">
+                                    @csrf
+                                    <input type="hidden" name="source_type" value="InvestmentFund">
+                                    <input type="hidden" name="source_id" value="{{ $fund->id }}">
+                                    
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <label class="cursor-pointer">
+                                            <input type="radio" name="type" value="income" class="hidden peer" checked>
+                                            <div class="p-4 text-center border-2 border-gray-100 rounded-2xl font-black text-sm peer-checked:border-emerald-500 peer-checked:text-emerald-600 peer-checked:bg-emerald-50 transition-all">دخل / أرباح</div>
+                                        </label>
+                                        <label class="cursor-pointer">
+                                            <input type="radio" name="type" value="expense" class="hidden peer">
+                                            <div class="p-4 text-center border-2 border-gray-100 rounded-2xl font-black text-sm peer-checked:border-rose-500 peer-checked:text-rose-600 peer-checked:bg-rose-50 transition-all">مصروف</div>
+                                        </label>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-2">المبلغ ($)</label>
+                                        <input type="number" step="0.01" name="amount" required class="w-full bg-gray-50 border-0 rounded-xl p-4 font-black text-2xl focus:ring-2 focus:ring-indigo-600">
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-2">الوصف / التصنيف</label>
+                                        <input type="text" name="category" required class="w-full bg-gray-50 border-0 rounded-xl p-4 font-bold text-sm focus:ring-2 focus:ring-indigo-600" placeholder="مثلاً: توزيع أرباح ربع سنوية">
+                                    </div>
+
+                                    <input type="hidden" name="transaction_date" value="{{ date('Y-m-d') }}">
+                                    <button type="submit" class="w-full bg-indigo-600 text-white py-5 rounded-2xl font-black shadow-lg shadow-indigo-500/20">تأكيد الإضافة</button>
+                                </form>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
