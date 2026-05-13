@@ -5,26 +5,29 @@ use App\Http\Controllers\InvestmentFundController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\WebhookController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PartnerController;
+use App\Http\Controllers\IntegrationsController;
+use App\Http\Controllers\SuperAdminController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/dashboard', [DashboardController::class, 'index'])
-    ->middleware(['auth', 'verified'])
-    ->name('dashboard');
-
 Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/funds', [InvestmentFundController::class, 'index'])->name('funds.index');
     Route::get('/funds/{id}', [InvestmentFundController::class, 'show'])->name('funds.show');
-    
-    Route::get('/partners', [App\Http\Controllers\PartnerController::class, 'index'])->name('partners.index');
-    
+    Route::get('/partners', [PartnerController::class, 'index'])->name('partners.index');
     Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions.index');
     Route::post('/transactions', [TransactionController::class, 'store'])->name('transactions.store');
+    Route::get('/integrations', [IntegrationsController::class, 'index'])->name('integrations.index');
+});
 
-    Route::get('/integrations', [App\Http\Controllers\IntegrationsController::class, 'index'])->name('integrations.index');
+// Super Admin Routes
+Route::middleware(['auth', 'super_admin'])->prefix('admin')->group(function () {
+    Route::get('/dashboard', [SuperAdminController::class, 'index'])->name('admin.dashboard');
+    Route::get('/users', [SuperAdminController::class, 'users'])->name('admin.users');
 });
 
 // Integrations (Public Webhooks)

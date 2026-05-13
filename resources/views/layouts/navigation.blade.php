@@ -30,6 +30,12 @@
                     <x-nav-link :href="route('transactions.index')" :active="request()->routeIs('transactions.*')" class="text-sm font-bold">
                         العمليات
                     </x-nav-link>
+
+                    @if(Auth::user()->isSuperAdmin())
+                        <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.*')" class="text-sm font-black text-indigo-600">
+                            الإدارة (SaaS)
+                        </x-nav-link>
+                    @endif
                 </div>
             </div>
 
