@@ -33,8 +33,8 @@
             .spendee-card { background: white; border-radius: 24px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
         </style>
     </head>
-    <body class="font-sans antialiased">
-        <div class="min-h-screen bg-gray-100">
+    <body class="font-sans antialiased bg-[#FDFDFC] text-[#1b1b18]">
+        <div class="min-h-screen bg-[#FDFDFC]">
             @include('layouts.navigation')
 
             <!-- Page Heading -->

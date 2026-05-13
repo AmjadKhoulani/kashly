@@ -21,8 +21,11 @@
                     <x-nav-link :href="route('funds.index')" :active="request()->routeIs('funds.*')" class="text-sm font-bold">
                         الاستثمارات
                     </x-nav-link>
-                    <x-nav-link :href="route('dashboard')" class="text-sm font-bold">
+                    <x-nav-link :href="route('partners.index')" :active="request()->routeIs('partners.*')" class="text-sm font-bold">
                         الشركاء
+                    </x-nav-link>
+                    <x-nav-link :href="route('integrations.index')" :active="request()->routeIs('integrations.*')" class="text-sm font-bold">
+                        الربط الآلي
                     </x-nav-link>
                     <x-nav-link :href="route('transactions.index')" :active="request()->routeIs('transactions.*')" class="text-sm font-bold">
                         العمليات

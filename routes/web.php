@@ -3,6 +3,7 @@
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\InvestmentFundController;
 use App\Http\Controllers\TransactionController;
+use App\Http\Controllers\WebhookController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -18,9 +19,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/funds', [InvestmentFundController::class, 'index'])->name('funds.index');
     Route::get('/funds/{id}', [InvestmentFundController::class, 'show'])->name('funds.show');
     
+    Route::get('/partners', [App\Http\Controllers\PartnerController::class, 'index'])->name('partners.index');
+    
     Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions.index');
     Route::post('/transactions', [TransactionController::class, 'store'])->name('transactions.store');
+
+    Route::get('/integrations', [App\Http\Controllers\IntegrationsController::class, 'index'])->name('integrations.index');
 });
+
+// Integrations (Public Webhooks)
+Route::post('/webhooks/shopify/{id}', [WebhookController::class, 'shopify'])->name('webhooks.shopify');
+Route::post('/webhooks/whmcs/{id}', [WebhookController::class, 'whmcs'])->name('webhooks.whmcs');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

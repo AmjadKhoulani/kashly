@@ -10,4 +10,9 @@ class Partner extends Model
     {
         return $this->hasMany(Equity::class);
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

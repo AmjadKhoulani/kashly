@@ -100,18 +100,18 @@
                     height: 300,
                     type: 'area',
                     toolbar: { show: false },
-                    fontFamily: 'Cairo, sans-serif',
+                    fontFamily: 'Noto Sans Arabic, sans-serif',
                 },
                 colors: ['#4f46e5', '#10b981'],
                 dataLabels: { enabled: false },
                 stroke: { curve: 'smooth', width: 3 },
                 xaxis: {
                     categories: ["سبت", "أحد", "إثن", "ثلا", "أرب", "خمي", "جمع"],
-                    labels: { style: { colors: '#828282', fontFamily: 'Cairo' } }
+                    labels: { style: { colors: '#828282', fontFamily: 'Noto Sans Arabic' } }
                 },
                 yaxis: { show: false },
                 grid: { borderColor: '#F2F2F2' },
-                legend: { position: 'top', horizontalAlign: 'right', fontFamily: 'Cairo' },
+                legend: { position: 'top', horizontalAlign: 'right', fontFamily: 'Noto Sans Arabic' },
                 fill: {
                     type: 'gradient',
                     gradient: {
