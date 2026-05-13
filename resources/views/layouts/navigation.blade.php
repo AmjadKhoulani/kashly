@@ -15,21 +15,29 @@
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 space-x-reverse sm:-my-px sm:mr-10 sm:flex">
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="text-sm font-bold">
-                        الرئيسية
-                    </x-nav-link>
-                    <x-nav-link :href="route('funds.index')" :active="request()->routeIs('funds.*')" class="text-sm font-bold">
-                        الاستثمارات
-                    </x-nav-link>
-                    <x-nav-link :href="route('partners.index')" :active="request()->routeIs('partners.*')" class="text-sm font-bold">
-                        الشركاء
-                    </x-nav-link>
-                    <x-nav-link :href="route('integrations.index')" :active="request()->routeIs('integrations.*')" class="text-sm font-bold">
-                        الربط الآلي
-                    </x-nav-link>
-                    <x-nav-link :href="route('transactions.index')" :active="request()->routeIs('transactions.*')" class="text-sm font-bold">
-                        العمليات
-                    </x-nav-link>
+                    @if(Auth::user()->isUser())
+                        <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="text-sm font-bold">
+                            الرئيسية
+                        </x-nav-link>
+                        <x-nav-link :href="route('funds.index')" :active="request()->routeIs('funds.*')" class="text-sm font-bold">
+                            الاستثمارات
+                        </x-nav-link>
+                        <x-nav-link :href="route('partners.index')" :active="request()->routeIs('partners.*')" class="text-sm font-bold">
+                            الشركاء
+                        </x-nav-link>
+                        <x-nav-link :href="route('integrations.index')" :active="request()->routeIs('integrations.*')" class="text-sm font-bold">
+                            الربط الآلي
+                        </x-nav-link>
+                        <x-nav-link :href="route('transactions.index')" :active="request()->routeIs('transactions.*')" class="text-sm font-bold">
+                            العمليات
+                        </x-nav-link>
+                    @endif
+
+                    @if(Auth::user()->isPartner())
+                        <x-nav-link :href="route('partner.dashboard')" :active="request()->routeIs('partner.dashboard')" class="text-sm font-bold">
+                            لوحة الشريك
+                        </x-nav-link>
+                    @endif
 
                     @if(Auth::user()->isSuperAdmin())
                         <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.*')" class="text-sm font-black text-indigo-600">

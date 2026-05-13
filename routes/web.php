@@ -8,6 +8,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PartnerController;
 use App\Http\Controllers\IntegrationsController;
 use App\Http\Controllers\SuperAdminController;
+use App\Http\Controllers\PartnerDashboardController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -28,6 +29,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
 Route::middleware(['auth', 'super_admin'])->prefix('admin')->group(function () {
     Route::get('/dashboard', [SuperAdminController::class, 'index'])->name('admin.dashboard');
     Route::get('/users', [SuperAdminController::class, 'users'])->name('admin.users');
+});
+
+// Partner Routes
+Route::middleware(['auth', 'partner'])->prefix('partner')->group(function () {
+    Route::get('/dashboard', [PartnerDashboardController::class, 'index'])->name('partner.dashboard');
 });
 
 // Integrations (Public Webhooks)
