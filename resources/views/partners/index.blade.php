@@ -13,6 +13,12 @@
                 </button>
             </div>
 
+            @if (session('status'))
+                <div class="bg-emerald-50 border border-emerald-100 text-emerald-600 px-6 py-4 rounded-2xl font-bold text-sm mx-4">
+                    {{ session('status') }}
+                </div>
+            @endif
+
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 @forelse($partners as $partner)
                     <div class="spendee-card p-6 flex flex-col justify-between">
@@ -36,6 +42,23 @@
                             @endforeach
                             @if($partner->equities->isEmpty())
                                 <p class="text-center text-[10px] text-gray-400 py-2 italic">لا توجد مساهمات مسجلة</p>
+                            @endif
+                        </div>
+
+                        <!-- Link Account Section -->
+                        <div class="mb-6 p-4 bg-gray-50 rounded-2xl">
+                            <p class="text-[10px] text-gray-400 font-black uppercase mb-3">حساب الشريك للدخول</p>
+                            @if($partner->linkedUser)
+                                <div class="flex items-center gap-2">
+                                    <div class="w-2 h-2 bg-emerald-500 rounded-full"></div>
+                                    <span class="text-xs font-bold text-gray-700">{{ $partner->linkedUser->email }}</span>
+                                </div>
+                            @else
+                                <form action="{{ route('partners.link', $partner) }}" method="POST" class="flex gap-2">
+                                    @csrf
+                                    <input type="email" name="email" required placeholder="البريد الإلكتروني" class="flex-1 bg-white border-0 rounded-xl px-3 py-2 text-[10px] font-bold focus:ring-1 focus:ring-indigo-600">
+                                    <button type="submit" class="bg-indigo-600 text-white px-3 py-2 rounded-xl text-[10px] font-black shadow-sm">ربط</button>
+                                </form>
                             @endif
                         </div>
 

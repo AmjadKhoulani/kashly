@@ -20,6 +20,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/funds', [InvestmentFundController::class, 'index'])->name('funds.index');
     Route::get('/funds/{id}', [InvestmentFundController::class, 'show'])->name('funds.show');
     Route::get('/partners', [PartnerController::class, 'index'])->name('partners.index');
+    Route::post('/partners/{partner}/link', [PartnerController::class, 'linkAccount'])->name('partners.link');
     Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions.index');
     Route::post('/transactions', [TransactionController::class, 'store'])->name('transactions.store');
     Route::get('/integrations', [IntegrationsController::class, 'index'])->name('integrations.index');
