@@ -10,10 +10,14 @@
                 </div>
                 <div class="flex items-center gap-4">
                     <div class="hidden md:flex flex-col items-end">
-                        <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">إجمالي الثروة التقديرية</span>
-                        <div class="flex items-baseline gap-2">
-                            <span class="text-2xl font-black text-emerald-600">${{ number_format($estimatedTotalUSD, 0) }}</span>
-                            <span class="text-[10px] font-black text-gray-400">تقريباً</span>
+                        <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">الثروة الإجمالية</span>
+                        <div class="flex items-center gap-3">
+                            <span class="text-2xl font-black text-emerald-600">${{ number_format($totalByCurrency['USD'] ?? 0, 0) }}</span>
+                            @foreach($totalByCurrency as $curr => $val)
+                                @if($curr !== 'USD')
+                                    <span class="text-sm font-black text-gray-400">+ {{ number_format($val, 0) }} {{ $curr }}</span>
+                                @endif
+                            @endforeach
                         </div>
                     </div>
                     <button class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-[2rem] text-sm font-black shadow-xl shadow-indigo-500/20 flex items-center transition-all hover:scale-105">
