@@ -3,6 +3,19 @@
         <div class="max-w-7xl mx-auto space-y-12">
             
             <!-- Breadcrumbs & Header -->
+            @if(session('new_partner_password'))
+                <div class="bg-emerald-50 border border-emerald-100 p-8 rounded-[2rem] flex items-center justify-between shadow-sm">
+                    <div class="flex items-center gap-6">
+                        <div class="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-2xl shadow-sm">🔐</div>
+                        <div>
+                            <h4 class="text-lg font-black text-emerald-900">تم إنشاء حساب الشريك بنجاح!</h4>
+                            <p class="text-sm font-bold text-emerald-600 mt-1">البريد: {{ session('new_partner_email') }} | كلمة المرور: <span class="bg-white px-2 py-1 rounded border border-emerald-100 font-mono">{{ session('new_partner_password') }}</span></p>
+                        </div>
+                    </div>
+                    <p class="text-[10px] font-black text-emerald-400 uppercase tracking-widest">يرجى تزويد الشريك بهذه البيانات للدخول</p>
+                </div>
+            @endif
+
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                 <div>
                     <nav class="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">
@@ -112,9 +125,17 @@
                                     </select>
                                 </div>
 
-                                <div x-show="isNew">
-                                    <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 mr-2">اسم الشريك الجديد</label>
-                                    <input type="text" name="new_partner_name" class="w-full premium-input" placeholder="الاسم الكامل">
+                                <div x-show="isNew" class="space-y-4">
+                                    <input type="hidden" name="is_new" :value="isNew ? 'true' : 'false'">
+                                    <div>
+                                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 mr-2">اسم الشريك الجديد</label>
+                                        <input type="text" name="new_partner_name" class="w-full premium-input" placeholder="الاسم الكامل">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 mr-2">البريد الإلكتروني</label>
+                                        <input type="email" name="new_partner_email" class="w-full premium-input" placeholder="example@mail.com">
+                                        <p class="text-[10px] text-gray-400 mt-2 mr-2">سيتم إنشاء حساب له وإرسال كلمة المرور.</p>
+                                    </div>
                                 </div>
 
                                 <div>
