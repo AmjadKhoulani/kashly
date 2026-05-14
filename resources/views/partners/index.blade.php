@@ -36,7 +36,7 @@
                             <p class="text-[10px] text-gray-400 font-black uppercase border-b border-gray-50 pb-2">المساهمات النشطة</p>
                             @foreach($partner->equities as $equity)
                                 <div class="flex justify-between items-center">
-                                    <span class="text-xs font-bold text-gray-600">{{ $equity->equitable->name }}</span>
+                                    <span class="text-xs font-bold text-gray-600">{{ $equity->equitable?->name ?? 'كيان محذوف' }}</span>
                                     <span class="text-xs font-black text-indigo-600">{{ number_format($equity->percentage, 1) }}%</span>
                                 </div>
                             @endforeach

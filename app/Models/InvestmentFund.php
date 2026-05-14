@@ -10,6 +10,18 @@ class InvestmentFund extends Model
     protected $fillable = [
         'user_id', 'name', 'capital', 'current_value', 'status', 'distribution_frequency', 'currency', 'icon'
     ];
+    
+    protected static function boot()
+    {
+        parent::boot();
+        
+        static::deleting(function ($fund) {
+            $fund->equities()->delete();
+            $fund->transactions()->delete();
+            $fund->assets()->delete();
+            $fund->distributions()->delete();
+        });
+    }
 
     public function equities()
     {
