@@ -138,33 +138,21 @@ class InvestmentFundController extends Controller
             }
 
             if ($request->equity_type === 'contribution') {
-                // Add to capital
                 $fund->increment('capital', $request->amount);
                 $fund->increment('current_value', $request->amount);
 
-                // Create or update equity for this partner
                 Equity::updateOrCreate(
                     ['partner_id' => $partnerId, 'equitable_id' => $fund->id, 'equitable_type' => InvestmentFund::class],
-                    ['amount' => $request->amount, 'equity_type' => 'contribution', 'percentage' => 0]
+                    ['amount' => $request->amount, 'equity_type' => 'contribution']
                 );
-
-                // Recalculate all contribution-based percentages
-                $allContributionEquities = Equity::where('equitable_id', $fund->id)
-                    ->where('equitable_type', InvestmentFund::class)
-                    ->where('equity_type', 'contribution')
-                    ->get();
-
-                foreach ($allContributionEquities as $eq) {
-                    $newPercent = ($eq->amount / $fund->capital) * 100;
-                    $eq->update(['percentage' => $newPercent]);
-                }
             } else {
-                // Fixed percentage
                 Equity::updateOrCreate(
                     ['partner_id' => $partnerId, 'equitable_id' => $fund->id, 'equitable_type' => InvestmentFund::class],
                     ['percentage' => $request->percentage, 'equity_type' => 'fixed', 'amount' => 0]
                 );
             }
+
+            $this->recalculateEquities($fund->id);
         });
         return back()->with('status', 'تم إضافة الشريك وتحديث الحصص بنجاح.');
     }
@@ -186,33 +174,50 @@ class InvestmentFundController extends Controller
             'percentage' => $request->percentage,
         ]);
 
-        // Recalculate capital if it's a contribution-based fund
-        $totalCapital = Equity::where('equitable_id', $fund->id)
-            ->where('equitable_type', InvestmentFund::class)
-            ->where('equity_type', 'contribution')
-            ->sum('amount');
-        
-        $fund->update(['capital' => $totalCapital]);
+        $this->recalculateEquities($fund->id);
 
         return back()->with('status', 'تم تحديث بيانات الحصة بنجاح.');
+    }
+
+    private function recalculateEquities($fundId)
+    {
+        $fund = InvestmentFund::findOrFail($fundId);
+        $allEquities = Equity::where('equitable_id', $fundId)
+            ->where('equitable_type', InvestmentFund::class)
+            ->get();
+
+        // 1. Calculate Total Contribution Amount
+        $totalContributionAmount = $allEquities->where('equity_type', 'contribution')->sum('amount');
+        
+        // 2. Calculate Total Fixed Percentage
+        $totalFixedPercentage = $allEquities->where('equity_type', 'fixed')->sum('percentage');
+        
+        // 3. Remaining percentage to be distributed among contribution partners
+        $remainingPercentage = max(0, 100 - $totalFixedPercentage);
+
+        foreach ($allEquities as $eq) {
+            if ($eq->equity_type === 'contribution') {
+                $myPercentage = $totalContributionAmount > 0 
+                    ? ($eq->amount / $totalContributionAmount) * $remainingPercentage 
+                    : 0;
+                $eq->update(['percentage' => $myPercentage]);
+            }
+        }
+
+        // Update fund capital to reflect the sum of all contributions
+        $fund->update(['capital' => $totalContributionAmount]);
     }
 
     public function removePartner($id)
     {
         $equity = Equity::findOrFail($id);
-        $fund = InvestmentFund::findOrFail($equity->equitable_id);
+        $fundId = $equity->equitable_id;
+        $fund = InvestmentFund::findOrFail($fundId);
         
         if ($fund->user_id !== auth()->id()) abort(403);
 
         $equity->delete();
-
-        // Recalculate capital
-        $totalCapital = Equity::where('equitable_id', $fund->id)
-            ->where('equitable_type', InvestmentFund::class)
-            ->where('equity_type', 'contribution')
-            ->sum('amount');
-        
-        $fund->update(['capital' => $totalCapital]);
+        $this->recalculateEquities($fundId);
 
         return back()->with('status', 'تم حذف الشريك من الصندوق بنجاح.');
     }
