@@ -41,6 +41,25 @@ class InvestmentFundController extends Controller
             'status' => 'active',
         ]);
 
+        // Auto-add creator as partner
+        $partner = \App\Models\Partner::firstOrCreate(
+            ['linked_user_id' => auth()->id()],
+            [
+                'user_id' => auth()->id(),
+                'name' => auth()->user()->name,
+                'email' => auth()->user()->email
+            ]
+        );
+
+        Equity::create([
+            'partner_id' => $partner->id,
+            'equitable_id' => $fund->id,
+            'equitable_type' => InvestmentFund::class,
+            'amount' => $fund->capital,
+            'percentage' => $fund->capital > 0 ? 100 : 0,
+            'equity_type' => 'contribution',
+        ]);
+
         return redirect()->route('funds.show', $fund->id)->with('success', 'تم إنشاء الكيان الاستثماري بنجاح');
     }
 
