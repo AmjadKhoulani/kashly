@@ -531,7 +531,7 @@
                                             </div>
                                         </div>
                                         <div class="flex items-center gap-2">
-                                            <button @click="reconcilingId = {{ $pm->id }}; reconcilingName = '{{ $pm->name }}'; reconcilingBalance = {{ $pm->balance }};" class="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center hover:bg-white/20 transition-all text-[10px]" title="مطابقة الرصيد">
+                                            <button @click="reconcilingId = {{ $pm->id }}; reconcilingName = `{{ $pm->name }}`; reconcilingBalance = {{ $pm->balance }};" class="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center hover:bg-white/20 transition-all text-[10px]" title="مطابقة الرصيد">
                                                 ⚖️
                                             </button>
                                             <span class="text-[10px] font-black bg-white/20 px-2 py-1 rounded-lg">{{ $pm->currency }}</span>
@@ -592,7 +592,7 @@
     </div>
 
     <!-- Fund Account Reconcile Modal -->
-    <div x-show="reconcilingId !== null" class="fixed inset-0 z-[150] flex items-center justify-center p-6 bg-gray-900/80 backdrop-blur-md" x-cloak x-transition>
+    <div x-show="reconcilingId" class="fixed inset-0 z-[150] flex items-center justify-center p-6 bg-gray-900/80 backdrop-blur-md" x-cloak x-transition>
         <div class="bg-white rounded-[3rem] w-full max-w-sm p-12 shadow-2xl relative text-right text-gray-900" @click.away="reconcilingId = null">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-3xl font-black">مطابقة رصيد</h3>
