@@ -100,7 +100,12 @@ class InvestmentFundController extends Controller
                 $partnerId = $partner->id;
                 
                 // Send Notification
-                $user->notify(new \App\Notifications\PartnerInvitedNotification($user->email, $password));
+                try {
+                    $user->notify(new \App\Notifications\PartnerInvitedNotification($user->email, $password));
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::error('Mail Error: ' . $e->getMessage());
+                    session()->flash('mail_error', 'فشل إرسال البريد الإلكتروني، لكن تم إنشاء الحساب بنجاح.');
+                }
 
                 // Store password in session for one-time display
                 session()->flash('new_partner_password', $password);
@@ -115,7 +120,7 @@ class InvestmentFundController extends Controller
                 // Create or update equity for this partner
                 Equity::updateOrCreate(
                     ['partner_id' => $partnerId, 'equitable_id' => $fund->id, 'equitable_type' => InvestmentFund::class],
-                    ['amount' => $request->amount, 'equity_type' => 'contribution']
+                    ['amount' => $request->amount, 'equity_type' => 'contribution', 'percentage' => 0]
                 );
 
                 // Recalculate all contribution-based percentages

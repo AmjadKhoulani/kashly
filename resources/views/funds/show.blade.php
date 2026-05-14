@@ -16,6 +16,16 @@
                 </div>
             @endif
 
+            @if(session('mail_error'))
+                <div class="bg-amber-50 border border-amber-100 p-6 rounded-[2rem] flex items-center gap-4 mt-6 shadow-sm">
+                    <div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-xl shadow-sm">⚠️</div>
+                    <div>
+                        <h4 class="text-sm font-black text-amber-900">تنبيه بخصوص البريد الإلكتروني</h4>
+                        <p class="text-xs font-bold text-amber-600 mt-1">{{ session('mail_error') }}</p>
+                    </div>
+                </div>
+            @endif
+
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                 <div>
                     <nav class="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">
