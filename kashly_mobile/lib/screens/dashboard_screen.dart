@@ -34,7 +34,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Scaffold(
       backgroundColor: Color(0xFFF8FAFC),
       appBar: AppBar(
-        title: Text('إمبراطوريتي المالية', style: TextStyle(fontWeight: FontWeight.black, color: Colors.indigo.shade900)),
+        title: Text('إمبراطوريتي المالية', style: TextStyle(fontWeight: FontWeight.w900, color: Colors.indigo.shade900)),
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
@@ -86,7 +86,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           Text('إجمالي الثروة التقديرية', style: TextStyle(color: Colors.white70, fontWeight: FontWeight.bold, fontSize: 14)),
           SizedBox(height: 10),
           Text(format.format(data?['estimated_total_usd'] ?? 0), 
-            style: TextStyle(color: Colors.white, fontSize: 42, fontWeight: FontWeight.black, letterSpacing: -2)),
+            style: TextStyle(color: Colors.white, fontSize: 42, fontWeight: FontWeight.w900, letterSpacing: -2)),
           SizedBox(height: 20),
           Wrap(
             spacing: 10,
@@ -105,7 +105,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(title, style: TextStyle(fontSize: 20, fontWeight: FontWeight.black, color: Colors.indigo.shade900)),
+        Text(title, style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: Colors.indigo.shade900)),
         Text('الكل', style: TextStyle(color: Colors.indigo, fontWeight: FontWeight.bold, fontSize: 12)),
       ],
     );
@@ -129,8 +129,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(w['name'], style: TextStyle(fontWeight: FontWeight.black, fontSize: 14)),
-                Text('\$${w['balance']}', style: TextStyle(color: Colors.indigo, fontWeight: FontWeight.black, fontSize: 18)),
+                Text(w['name'], style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14)),
+                Text('\$${w['balance']}', style: TextStyle(color: Colors.indigo, fontWeight: FontWeight.w900, fontSize: 18)),
               ],
             ),
           );
@@ -149,9 +149,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
         child: Row(
           children: [
             Container(
-              width: 50, h: 50,
-              decoration: BoxDecoration(color: t['type'] == 'income' ? Colors.emerald.withOpacity(0.1) : Colors.rose.withOpacity(0.1), borderRadius: BorderRadius.circular(15)),
-              child: Icon(t['type'] == 'income' ? Icons.trending_up : Icons.trending_down, color: t['type'] == 'income' ? Colors.emerald : Colors.rose),
+              width: 50, height: 50,
+              decoration: BoxDecoration(color: t['type'] == 'income' ? Colors.green.withOpacity(0.1) : Colors.red.withOpacity(0.1), borderRadius: BorderRadius.circular(15)),
+              child: Icon(t['type'] == 'income' ? Icons.trending_up : Icons.trending_down, color: t['type'] == 'income' ? Colors.green : Colors.red),
             ),
             SizedBox(width: 15),
             Expanded(child: Column(
@@ -162,7 +162,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ],
             )),
             Text('${t['type'] == 'income' ? '+' : '-'}\$${t['amount']}', 
-              style: TextStyle(fontWeight: FontWeight.black, color: t['type'] == 'income' ? Colors.emerald : Colors.rose)),
+              style: TextStyle(fontWeight: FontWeight.w900, color: t['type'] == 'income' ? Colors.green : Colors.red)),
           ],
         ),
       )).toList(),
