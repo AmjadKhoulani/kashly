@@ -22,45 +22,51 @@ class InvestmentFundController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'capital' => 'nullable|numeric|min:0',
-            'distribution_frequency' => 'required|string',
-            'currency' => 'required|string|size:3',
-            'icon' => 'nullable|string',
-        ]);
+        try {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'capital' => 'nullable|numeric|min:0',
+                'distribution_frequency' => 'required|string',
+                'currency' => 'required|string|size:3',
+            ]);
 
-        $fund = InvestmentFund::create([
-            'user_id' => auth()->id(),
-            'name' => $validated['name'],
-            'capital' => $validated['capital'] ?? 0,
-            'current_value' => $validated['capital'] ?? 0,
-            'distribution_frequency' => $validated['distribution_frequency'],
-            'currency' => $validated['currency'],
-            'icon' => $request->icon ?: '🏢',
-            'status' => 'active',
-        ]);
+            return DB::transaction(function () use ($validated) {
+                $fund = InvestmentFund::create([
+                    'user_id' => auth()->id(),
+                    'name' => $validated['name'],
+                    'capital' => $validated['capital'] ?? 0,
+                    'current_value' => $validated['capital'] ?? 0,
+                    'distribution_frequency' => $validated['distribution_frequency'],
+                    'currency' => $validated['currency'],
+                    'icon' => '🏢',
+                    'status' => 'active',
+                ]);
 
-        // Auto-add creator as partner (Fixed to avoid email collision)
-        $partner = \App\Models\Partner::updateOrCreate(
-            ['email' => auth()->user()->email],
-            [
-                'user_id' => auth()->id(),
-                'name' => auth()->user()->name,
-                'linked_user_id' => auth()->id()
-            ]
-        );
+                $partner = Partner::updateOrCreate(
+                    ['email' => auth()->user()->email],
+                    [
+                        'user_id' => auth()->id(),
+                        'name' => auth()->user()->name,
+                        'linked_user_id' => auth()->id()
+                    ]
+                );
 
-        Equity::create([
-            'partner_id' => $partner->id,
-            'equitable_id' => $fund->id,
-            'equitable_type' => 'App\Models\InvestmentFund',
-            'amount' => $fund->capital,
-            'percentage' => $fund->capital > 0 ? 100 : 0,
-            'equity_type' => 'contribution',
-        ]);
+                Equity::create([
+                    'partner_id' => $partner->id,
+                    'equitable_id' => $fund->id,
+                    'equitable_type' => 'App\Models\InvestmentFund',
+                    'amount' => $fund->capital,
+                    'percentage' => $fund->capital > 0 ? 100 : 0,
+                    'equity_type' => 'contribution',
+                ]);
 
-        return redirect()->route('funds.show', $fund->id)->with('success', 'تم إنشاء الكيان الاستثماري بنجاح');
+                return redirect()->route('funds.show', $fund->id)->with('success', 'تم إنشاء الكيان الاستثماري بنجاح');
+            });
+
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Fund Store Error: ' . $e->getMessage());
+            return back()->withInput()->with('error', 'حدث خطأ أثناء الحفظ: ' . $e->getMessage());
+        }
     }
 
     public function show($id)
