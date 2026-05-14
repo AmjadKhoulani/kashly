@@ -249,6 +249,10 @@
                                         <option value="أخرى">أخرى</option>
                                     </select>
                                 </div>
+                                <div>
+                                    <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 tracking-widest mr-2 text-right">عنوان الحركة / التفاصيل</label>
+                                    <input type="text" name="description" class="w-full premium-input text-right" placeholder="مثلاً: شراء أثاث مكتب، أرباح الربع الأول...">
+                                </div>
 
                                 <div>
                                     <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 tracking-widest mr-2 text-right">وسيلة الدفع / الحساب</label>

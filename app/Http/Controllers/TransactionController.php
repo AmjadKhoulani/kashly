@@ -58,7 +58,8 @@ class TransactionController extends Controller
 
         if ($currency !== 'USD') {
             $originalAmount = $validated['amount'];
-            $finalAmount = $originalAmount / $rate;
+            // Safeguard against division by zero
+            $finalAmount = $rate > 0 ? $originalAmount / $rate : $originalAmount;
         }
 
         $invoicePath = null;
