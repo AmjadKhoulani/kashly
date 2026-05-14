@@ -88,16 +88,35 @@
                     <div x-show="showPartnerModal" class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-gray-900/60 backdrop-blur-md" x-cloak x-transition>
                         <div class="bg-white rounded-[4rem] w-full max-w-lg p-12 shadow-2xl relative text-right" @click.away="showPartnerModal = false">
                             <h3 class="text-3xl font-black text-gray-900 mb-8">إضافة شريك للصندوق</h3>
-                            <form action="{{ route('funds.addPartner', $fund->id) }}" method="POST" class="space-y-6" x-data="{ type: 'contribution' }">
+                            <form action="{{ route('funds.addPartner', $fund->id) }}" method="POST" class="space-y-6" x-data="{ type: 'contribution', isNew: false }">
                                 @csrf
-                                <div>
+                                
+                                <div class="grid grid-cols-2 gap-4 p-2 bg-gray-50 rounded-[2rem] border border-gray-100 shadow-inner mb-6">
+                                    <label class="cursor-pointer">
+                                        <input type="radio" name="partner_source" value="existing" x-model="isNew" :value="false" class="hidden peer" checked>
+                                        <div class="py-3 text-center rounded-[1.5rem] font-black text-[10px] peer-checked:bg-white peer-checked:text-indigo-600 peer-checked:shadow-md transition-all">شريك موجود</div>
+                                    </label>
+                                    <label class="cursor-pointer">
+                                        <input type="radio" name="partner_source" value="new" x-model="isNew" :value="true" class="hidden peer">
+                                        <div class="py-3 text-center rounded-[1.5rem] font-black text-[10px] peer-checked:bg-white peer-checked:text-indigo-600 peer-checked:shadow-md transition-all">شريك جديد</div>
+                                    </label>
+                                </div>
+
+                                <div x-show="!isNew">
                                     <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 mr-2">اختيار الشريك</label>
                                     <select name="partner_id" class="w-full premium-input">
+                                        <option value="">-- اختر شريك --</option>
                                         @foreach(App\Models\Partner::where('user_id', auth()->id())->get() as $p)
                                             <option value="{{ $p->id }}">{{ $p->name }}</option>
                                         @endforeach
                                     </select>
                                 </div>
+
+                                <div x-show="isNew">
+                                    <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 mr-2">اسم الشريك الجديد</label>
+                                    <input type="text" name="new_partner_name" class="w-full premium-input" placeholder="الاسم الكامل">
+                                </div>
+
                                 <div>
                                     <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 mr-2">نوع الحصة</label>
                                     <select name="equity_type" x-model="type" class="w-full premium-input">

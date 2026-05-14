@@ -70,13 +70,24 @@ class InvestmentFundController extends Controller
     {
         $fund = InvestmentFund::findOrFail($id);
         $request->validate([
-            'partner_id' => 'required|exists:partners,id',
+            'partner_id' => 'required_without:new_partner_name|nullable|exists:partners,id',
+            'new_partner_name' => 'required_without:partner_id|nullable|string|max:255',
             'equity_type' => 'required|in:contribution,fixed',
-            'amount' => 'required_if:equity_type,contribution|numeric|min:0',
-            'percentage' => 'required_if:equity_type,fixed|numeric|min:0|max:100',
+            'amount' => 'required_if:equity_type,contribution|nullable|numeric|min:0',
+            'percentage' => 'required_if:equity_type,fixed|nullable|numeric|min:0|max:100',
         ]);
 
         DB::transaction(function () use ($fund, $request) {
+            $partnerId = $request->partner_id;
+
+            if ($request->filled('new_partner_name')) {
+                $partner = \App\Models\Partner::create([
+                    'user_id' => auth()->id(),
+                    'name' => $request->new_partner_name,
+                ]);
+                $partnerId = $partner->id;
+            }
+
             if ($request->equity_type === 'contribution') {
                 // Add to capital
                 $fund->increment('capital', $request->amount);
@@ -84,7 +95,7 @@ class InvestmentFundController extends Controller
 
                 // Create or update equity for this partner
                 Equity::updateOrCreate(
-                    ['partner_id' => $request->partner_id, 'equitable_id' => $fund->id, 'equitable_type' => InvestmentFund::class],
+                    ['partner_id' => $partnerId, 'equitable_id' => $fund->id, 'equitable_type' => InvestmentFund::class],
                     ['amount' => $request->amount, 'equity_type' => 'contribution']
                 );
 
@@ -101,7 +112,7 @@ class InvestmentFundController extends Controller
             } else {
                 // Fixed percentage
                 Equity::updateOrCreate(
-                    ['partner_id' => $request->partner_id, 'equitable_id' => $fund->id, 'equitable_type' => InvestmentFund::class],
+                    ['partner_id' => $partnerId, 'equitable_id' => $fund->id, 'equitable_type' => InvestmentFund::class],
                     ['percentage' => $request->percentage, 'equity_type' => 'fixed', 'amount' => 0]
                 );
             }
