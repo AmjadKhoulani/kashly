@@ -24,7 +24,7 @@ class InvestmentFundController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'capital' => 'required|numeric|min:0',
+            'capital' => 'nullable|numeric|min:0',
             'distribution_frequency' => 'required|string',
             'currency' => 'required|string|size:3',
             'icon' => 'nullable|string',
@@ -33,8 +33,8 @@ class InvestmentFundController extends Controller
         $fund = InvestmentFund::create([
             'user_id' => auth()->id(),
             'name' => $validated['name'],
-            'capital' => $validated['capital'],
-            'current_value' => $validated['capital'], // Initial value is capital
+            'capital' => $validated['capital'] ?? 0,
+            'current_value' => $validated['capital'] ?? 0,
             'distribution_frequency' => $validated['distribution_frequency'],
             'currency' => $validated['currency'],
             'icon' => $validated['icon'] ?? '🏘️',

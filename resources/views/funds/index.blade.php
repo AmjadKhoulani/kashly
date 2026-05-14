@@ -108,8 +108,9 @@
                         <input type="text" name="name" required class="w-full premium-input" placeholder="مثلاً: عمارة الياسمين، محفظة الأسهم...">
                     </div>
                     <div>
-                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 mr-2">رأس المال التأسيسي ($)</label>
-                        <input type="number" name="capital" required class="w-full premium-input text-2xl" placeholder="0.00">
+                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 mr-2">رأس المال التأسيسي (اختياري)</label>
+                        <input type="number" name="capital" class="w-full premium-input text-2xl" placeholder="0.00">
+                        <p class="text-[10px] text-gray-400 mt-2 mr-2">يمكنك تركه فارغاً إذا كان المشروع قيد التأسيس، وسيتم احتسابه من "مصاريف رأس المال".</p>
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div>

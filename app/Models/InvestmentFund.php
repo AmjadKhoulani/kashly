@@ -40,4 +40,14 @@ class InvestmentFund extends Model
     {
         return $this->hasMany(PaymentMethod::class, 'fund_id');
     }
+
+    public function getTotalInvestedCapitalAttribute()
+    {
+        $capitalExpenses = Transaction::where('transactionable_id', $this->id)
+            ->where('transactionable_type', self::class)
+            ->where('category', 'مصاريف رأس مال')
+            ->sum('amount');
+            
+        return ($this->capital ?? 0) + $capitalExpenses;
+    }
 }

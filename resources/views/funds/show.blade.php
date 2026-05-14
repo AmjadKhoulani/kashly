@@ -236,8 +236,8 @@
             <!-- Stats Overview -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div class="premium-card p-8">
-                    <p class="text-[10px] text-gray-400 font-black uppercase mb-2 tracking-widest">رأس المال</p>
-                    <p class="text-3xl font-black text-gray-900">${{ number_format($fund->capital, 0) }}</p>
+                    <p class="text-[10px] text-gray-400 font-black uppercase mb-2 tracking-widest">إجمالي رأس المال المستثمر</p>
+                    <p class="text-3xl font-black text-gray-900">${{ number_format($fund->total_invested_capital, 0) }}</p>
                 </div>
                 <div class="premium-card p-8">
                     <p class="text-[10px] text-gray-400 font-black uppercase mb-2 tracking-widest">القيمة الحالية</p>
