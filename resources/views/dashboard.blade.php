@@ -15,17 +15,17 @@
             </div>
 
             <!-- Main Stats Card -->
-            <div class="spendee-card p-10 text-center relative overflow-hidden">
+            <div class="premium-card p-10 text-center relative overflow-hidden">
                 <div class="absolute -right-10 -top-10 w-40 h-40 bg-indigo-500/5 rounded-full blur-3xl"></div>
                 <p class="text-gray-500 text-xs font-bold uppercase tracking-widest mb-2">إجمالي النقد المتاح (شخصي)</p>
-                <h2 class="text-5xl font-black text-gray-900 mb-8">${{ number_format($totalPersonalCash, 2) }}</h2>
+                <h2 class="text-5xl font-black text-gray-900 mb-8 tracking-tighter">${{ number_format($totalPersonalCash, 2) }}</h2>
                 
                 <div class="grid grid-cols-2 gap-4 border-t border-gray-50 pt-8">
                     <div class="text-right">
                         <p class="text-[10px] text-gray-400 font-bold uppercase mb-1">القطاع التجاري (أصول)</p>
                         <p class="text-xl font-black text-indigo-600">${{ number_format($totalBusinessValue, 2) }}</p>
                     </div>
-                    <div class="text-left border-r border-gray-50 pr-4">
+                    <div class="text-left border-r border-gray-100 pr-4">
                         <p class="text-[10px] text-gray-400 font-bold uppercase mb-1">عدد الصناديق</p>
                         <p class="text-xl font-black text-gray-900">{{ $funds->count() }}</p>
                     </div>
@@ -34,17 +34,17 @@
 
             <!-- Quick Actions -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="spendee-card p-6 flex items-center group cursor-pointer hover:bg-indigo-50 transition-colors">
-                    <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center text-xl ml-4 group-hover:scale-110 transition-transform">💼</div>
+                <div class="premium-card p-6 flex items-center group cursor-pointer hover:bg-indigo-50/50">
+                    <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center text-xl ml-4 group-hover:scale-110 transition-transform shadow-sm">💼</div>
                     <div>
-                        <p class="text-[10px] text-gray-400 font-bold uppercase">إدارة الاستثمارات</p>
+                        <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">إدارة الاستثمارات</p>
                         <h4 class="text-lg font-black text-gray-900">صناديق الاستثمار والشركاء</h4>
                     </div>
                 </div>
-                <div class="spendee-card p-6 flex items-center group cursor-pointer hover:bg-emerald-50 transition-colors">
-                    <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center text-xl ml-4 group-hover:scale-110 transition-transform">💰</div>
+                <div class="premium-card p-6 flex items-center group cursor-pointer hover:bg-emerald-50/50">
+                    <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center text-xl ml-4 group-hover:scale-110 transition-transform shadow-sm">💰</div>
                     <div>
-                        <p class="text-[10px] text-gray-400 font-bold uppercase">إدارة الدخل الشخصي</p>
+                        <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">إدارة الدخل الشخصي</p>
                         <h4 class="text-lg font-black text-gray-900">المحافظ والمصاريف الخاصة</h4>
                     </div>
                 </div>
@@ -52,12 +52,15 @@
 
             <!-- Charts & Activity -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div class="lg:col-span-2 spendee-card p-8">
-                    <h4 class="font-bold text-gray-900 mb-6">النشاط المالي (تجاري vs شخصي)</h4>
+                <div class="lg:col-span-2 premium-card p-8">
+                    <h4 class="font-black text-gray-900 mb-6 flex items-center gap-2">
+                        النشاط المالي (تجاري vs شخصي)
+                        <span class="w-2 h-2 bg-indigo-500 rounded-full"></span>
+                    </h4>
                     <div id="dashboardChart"></div>
                 </div>
-                <div class="spendee-card p-8">
-                    <h4 class="font-bold text-gray-900 mb-6">أحدث العمليات</h4>
+                <div class="premium-card p-8">
+                    <h4 class="font-black text-gray-900 mb-6">أحدث العمليات</h4>
                     <div class="space-y-6">
                         @forelse($recentTransactions as $transaction)
                             <div class="flex items-center justify-between">

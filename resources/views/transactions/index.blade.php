@@ -18,10 +18,10 @@
 
             <!-- Filters & Integration Card -->
             <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                <div class="lg:col-span-3 bg-white p-4 rounded-[2.5rem] border border-gray-50 shadow-sm flex items-center gap-2 overflow-x-auto">
-                    <button @click="filter = 'all'" :class="filter === 'all' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'bg-gray-50 text-gray-500'" class="px-8 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all">الكل</button>
-                    <button @click="filter = 'income'" :class="filter === 'income' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 'bg-gray-50 text-gray-500'" class="px-8 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all">الإيرادات</button>
-                    <button @click="filter = 'expense'" :class="filter === 'expense' ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/20' : 'bg-gray-50 text-gray-500'" class="px-8 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all">المصاريف</button>
+                <div class="flex items-center gap-4 bg-white/60 backdrop-blur-md p-2 rounded-[2.5rem] border border-white shadow-sm">
+                    <button @click="filter = 'all'" :class="filter === 'all' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200' : 'text-gray-500 hover:bg-gray-50'" class="px-8 py-3 rounded-[2rem] text-sm font-black transition-all">الكل</button>
+                    <button @click="filter = 'income'" :class="filter === 'income' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-200' : 'text-gray-500 hover:bg-gray-50'" class="px-8 py-3 rounded-[2rem] text-sm font-black transition-all">الإيرادات</button>
+                    <button @click="filter = 'expense'" :class="filter === 'expense' ? 'bg-rose-500 text-white shadow-lg shadow-rose-200' : 'text-gray-500 hover:bg-gray-50'" class="px-8 py-3 rounded-[2rem] text-sm font-black transition-all">المصاريف</button>
                 </div>
                 <div class="bg-indigo-50 p-4 rounded-[2.5rem] border border-indigo-100 flex items-center justify-between group cursor-pointer hover:bg-indigo-100 transition-all">
                     <div class="flex items-center gap-3">
@@ -33,9 +33,9 @@
             </div>
 
             <!-- Transactions List -->
-            <div class="space-y-4">
+            <div class="space-y-6">
                 @forelse($transactions as $transaction)
-                    <div x-show="filter === 'all' || filter === '{{ $transaction->type }}'" class="bg-white p-8 rounded-[3rem] border border-gray-50 shadow-sm hover:shadow-xl hover:shadow-gray-500/5 transition-all group">
+                    <div x-show="filter === 'all' || filter === '{{ $transaction->type }}'" class="premium-card p-8 group">
                         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                             <div class="flex items-center gap-6">
                                 <div class="w-16 h-16 {{ $transaction->type == 'income' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600' }} rounded-[1.5rem] flex items-center justify-center text-3xl transition-transform group-hover:scale-110">

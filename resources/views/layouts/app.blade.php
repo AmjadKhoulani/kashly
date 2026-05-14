@@ -29,12 +29,24 @@
         <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 
         <style>
-            body { font-family: 'Noto Sans Arabic', sans-serif; background-color: #F2F5F8; }
-            .spendee-card { background: white; border-radius: 24px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
+            body { font-family: 'Noto Sans Arabic', sans-serif; background-color: #F4F7FE; }
+            .premium-card { 
+                background: white; 
+                border-radius: 2rem; 
+                border: 1px solid rgba(226, 232, 240, 0.8);
+                box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.04), 0 8px 10px -6px rgba(0, 0, 0, 0.04); 
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            .premium-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.06), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+                border-color: rgba(79, 70, 229, 0.1);
+            }
+            [x-cloak] { display: none !important; }
         </style>
     </head>
-    <body class="font-sans antialiased bg-[#FDFDFC] text-[#1b1b18]">
-        <div class="min-h-screen bg-[#FDFDFC]">
+    <body class="font-sans antialiased bg-[#F4F7FE] text-gray-900">
+        <div class="min-h-screen bg-[#F4F7FE]">
             @include('layouts.navigation')
 
             <!-- Page Heading -->

@@ -164,19 +164,19 @@
 
             <!-- Stats Overview -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <div class="bg-white p-8 rounded-[3rem] shadow-sm border border-gray-100">
+                <div class="premium-card p-8">
                     <p class="text-[10px] text-gray-400 font-black uppercase mb-2 tracking-widest">رأس المال</p>
                     <p class="text-3xl font-black text-gray-900">${{ number_format($fund->capital, 0) }}</p>
                 </div>
-                <div class="bg-white p-8 rounded-[3rem] shadow-sm border border-gray-100">
+                <div class="premium-card p-8">
                     <p class="text-[10px] text-gray-400 font-black uppercase mb-2 tracking-widest">القيمة الحالية</p>
                     <p class="text-3xl font-black text-indigo-600">${{ number_format($fund->current_value, 0) }}</p>
                 </div>
-                <div class="bg-white p-8 rounded-[3rem] shadow-sm border border-gray-100">
+                <div class="premium-card p-8">
                     <p class="text-[10px] text-gray-400 font-black uppercase mb-2 tracking-widest">قيمة الأصول</p>
                     <p class="text-3xl font-black text-gray-900">${{ number_format($fund->assets->sum('value'), 0) }}</p>
                 </div>
-                <div class="bg-white p-8 rounded-[3rem] shadow-sm border border-gray-100">
+                <div class="premium-card p-8">
                     <p class="text-[10px] text-gray-400 font-black uppercase mb-2 tracking-widest">توزيع الأرباح</p>
                     <a href="{{ route('funds.distributions', $fund->id) }}" class="text-xl font-black text-emerald-600 hover:underline">عرض التقويم →</a>
                 </div>
@@ -186,13 +186,13 @@
                 <!-- Main Content -->
                 <div class="lg:col-span-2 space-y-10">
                     <!-- Assets Section -->
-                    <div class="bg-white rounded-[4rem] border border-gray-50 shadow-sm overflow-hidden">
+                    <div class="premium-card overflow-hidden">
                         <div class="px-10 py-8 border-b border-gray-50">
                             <h3 class="text-2xl font-black text-gray-900">الأصول والممتلكات</h3>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-10">
                             @foreach($fund->assets as $asset)
-                                <div class="bg-gray-50 p-6 rounded-[2rem] flex items-center gap-6">
+                                <div class="bg-gray-50/50 p-6 rounded-[2rem] border border-gray-100 flex items-center gap-6">
                                     <div class="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-2xl shadow-sm">
                                         {{ $asset->type == 'car' ? '🚗' : ($asset->type == 'furniture' ? '🪑' : '📦') }}
                                     </div>
@@ -209,7 +209,7 @@
                     </div>
 
                     <!-- Partners Table -->
-                    <div class="bg-white rounded-[4rem] border border-gray-50 shadow-sm overflow-hidden">
+                    <div class="premium-card overflow-hidden">
                         <div class="px-10 py-8 border-b border-gray-50 flex justify-between items-center">
                             <h3 class="text-2xl font-black text-gray-900">توزيع الحصص والشركاء</h3>
                         </div>
@@ -226,7 +226,7 @@
                                 </thead>
                                 <tbody class="divide-y divide-gray-50">
                                     @foreach($equities as $equity)
-                                        <tr class="hover:bg-gray-50/50 transition-colors group">
+                                        <tr class="hover:bg-gray-50/30 transition-colors group">
                                             <td class="px-10 py-8">
                                                 <div class="flex items-center gap-4">
                                                     <div class="w-12 h-12 bg-gray-100 rounded-2xl flex items-center justify-center text-lg font-black text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-all">
@@ -262,7 +262,7 @@
 
                 <!-- Sidebar (Activity) -->
                 <div class="space-y-10">
-                    <div class="bg-white p-10 rounded-[4rem] border border-gray-50 shadow-sm relative overflow-hidden">
+                    <div class="premium-card p-10 relative overflow-hidden">
                         <div class="absolute -right-20 -bottom-20 w-40 h-40 bg-emerald-500/5 rounded-full blur-3xl"></div>
                         <h3 class="text-2xl font-black text-gray-900 mb-8 relative z-10">العمليات الأخيرة</h3>
                         <div class="space-y-8 relative z-10">

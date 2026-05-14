@@ -16,21 +16,21 @@
 
             <!-- Global Stats Summary -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="bg-white p-8 rounded-[3rem] shadow-sm border border-gray-100 flex items-center justify-between">
+                <div class="premium-card p-8 flex items-center justify-between">
                     <div>
                         <p class="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">إجمالي رأس المال</p>
                         <p class="text-3xl font-black text-gray-900">${{ number_format($funds->sum('capital'), 0) }}</p>
                     </div>
-                    <div class="w-14 h-14 bg-indigo-50 rounded-2xl flex items-center justify-center text-2xl">🏛️</div>
+                    <div class="w-14 h-14 bg-indigo-50 rounded-2xl flex items-center justify-center text-2xl shadow-sm">🏛️</div>
                 </div>
-                <div class="bg-white p-8 rounded-[3rem] shadow-sm border border-gray-100 flex items-center justify-between">
+                <div class="premium-card p-8 flex items-center justify-between">
                     <div>
                         <p class="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">القيمة السوقية الحالية</p>
                         <p class="text-3xl font-black text-indigo-600">${{ number_format($funds->sum('current_value'), 0) }}</p>
                     </div>
-                    <div class="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center text-2xl">📈</div>
+                    <div class="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center text-2xl shadow-sm">📈</div>
                 </div>
-                <div class="bg-white p-8 rounded-[3rem] shadow-sm border border-gray-100 flex items-center justify-between">
+                <div class="premium-card p-8 flex items-center justify-between">
                     <div>
                         <p class="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">العائد الإجمالي</p>
                         @php
@@ -39,14 +39,14 @@
                         @endphp
                         <p class="text-3xl font-black text-emerald-600">+{{ number_format($profitPercent, 1) }}%</p>
                     </div>
-                    <div class="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center text-2xl">💰</div>
+                    <div class="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center text-2xl shadow-sm">💰</div>
                 </div>
             </div>
 
             <!-- Funds Grid -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 @foreach($funds as $fund)
-                    <a href="{{ route('funds.show', $fund->id) }}" class="bg-white p-10 rounded-[4rem] border border-gray-50 shadow-sm hover:shadow-2xl hover:shadow-indigo-500/5 transition-all group relative overflow-hidden block">
+                    <a href="{{ route('funds.show', $fund->id) }}" class="premium-card p-10 group relative overflow-hidden block">
                         <div class="absolute -right-10 -top-10 w-40 h-40 bg-indigo-500/5 rounded-full blur-3xl group-hover:bg-indigo-500/10 transition-colors"></div>
                         
                         <div class="flex justify-between items-start mb-12 relative z-10">
