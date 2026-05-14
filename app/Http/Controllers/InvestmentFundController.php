@@ -279,13 +279,16 @@ class InvestmentFundController extends Controller
 
     public function distributions($id)
     {
-        $fund = InvestmentFund::with('distributions')->findOrFail($id);
+        $fund = InvestmentFund::with(['distributions' => function($q) {
+            $q->latest();
+        }])->findOrFail($id);
+        
         $equities = Equity::where('equitable_id', $fund->id)
             ->where('equitable_type', InvestmentFund::class)
             ->with('partner')
             ->get();
 
-        // Calculate current period profit
+        // Calculate current period profit (since last distribution)
         $lastDistribution = Distribution::where('investment_fund_id', $id)->latest('distribution_date')->first();
         $query = Transaction::where('transactionable_id', $id)->where('transactionable_type', InvestmentFund::class);
         
@@ -297,7 +300,70 @@ class InvestmentFundController extends Controller
         $expense = (clone $query)->where('type', 'expense')->sum('amount');
         $netProfit = $income - $expense;
 
-        return view('funds.distributions', compact('fund', 'equities', 'netProfit', 'income', 'expense'));
+        $paymentMethods = PaymentMethod::where('fund_id', $id)->get();
+
+        return view('funds.distributions', compact('fund', 'equities', 'netProfit', 'income', 'expense', 'paymentMethods'));
+    }
+
+    public function executeDistribution(Request $request, $id)
+    {
+        $fund = InvestmentFund::findOrFail($id);
+        $request->validate([
+            'amount' => 'required|numeric|min:0',
+            'payment_method_id' => 'required|exists:payment_methods,id',
+            'distribution_date' => 'required|date',
+        ]);
+
+        return DB::transaction(function () use ($fund, $request) {
+            // 1. Create Distribution Master Record
+            $distribution = Distribution::create([
+                'investment_fund_id' => $fund->id,
+                'gross_amount' => $request->amount,
+                'net_amount' => $request->amount,
+                'distribution_date' => $request->distribution_date,
+                'status' => 'completed',
+            ]);
+
+            // 2. Create Partner Distribution Records
+            $equities = Equity::where('equitable_id', $fund->id)
+                ->where('equitable_type', InvestmentFund::class)
+                ->get();
+
+            foreach ($equities as $equity) {
+                if ($equity->percentage > 0) {
+                    $partnerAmount = ($equity->percentage / 100) * $request->amount;
+                    
+                    DB::table('partner_distributions')->insert([
+                        'distribution_id' => $distribution->id,
+                        'partner_id' => $equity->partner_id,
+                        'amount' => $partnerAmount,
+                        'percentage' => $equity->percentage,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
+            }
+
+            // 3. Create Transaction Record (Expense)
+            Transaction::create([
+                'user_id' => auth()->id(),
+                'amount' => $request->amount,
+                'type' => 'expense',
+                'category' => 'توزيع أرباح',
+                'description' => 'توزيع أرباح للفترة المنتهية في ' . $request->distribution_date,
+                'transactionable_id' => $fund->id,
+                'transactionable_type' => InvestmentFund::class,
+                'payment_method_id' => $request->payment_method_id,
+                'transaction_date' => $request->distribution_date,
+                'currency' => $fund->currency,
+            ]);
+
+            // 4. Update Payment Method Balance
+            $paymentMethod = PaymentMethod::find($request->payment_method_id);
+            $paymentMethod->decrement('balance', $request->amount);
+
+            return redirect()->route('funds.distributions', $fund->id)->with('status', 'تم تنفيذ وتوثيق توزيع الأرباح بنجاح.');
+        });
     }
     public function addPaymentMethod(Request $request, $id)
     {
