@@ -67,7 +67,7 @@ class TransactionController extends Controller
             $invoicePath = $request->file('invoice')->store('invoices', 'public');
         }
 
-        Transaction::create([
+        $transaction = Transaction::create([
             'amount' => $finalAmount,
             'original_amount' => $originalAmount,
             'currency' => $currency,
@@ -83,7 +83,31 @@ class TransactionController extends Controller
             'transaction_date' => $validated['transaction_date'],
         ]);
 
-        return back()->with('success', 'تم تسجيل العملية بنجاح');
+        // 1. Update InvestmentFund current_value if applicable
+        if ($validated['source_type'] === 'InvestmentFund') {
+            $fund = InvestmentFund::find($validated['source_id']);
+            if ($fund) {
+                if ($validated['type'] === 'income') {
+                    $fund->increment('current_value', $finalAmount);
+                } else {
+                    $fund->decrement('current_value', $finalAmount);
+                }
+            }
+        }
+
+        // 2. Update Payment Method balance if selected
+        if ($request->filled('payment_method_id')) {
+            $pm = PaymentMethod::find($request->input('payment_method_id'));
+            if ($pm) {
+                if ($validated['type'] === 'income') {
+                    $pm->increment('balance', $finalAmount);
+                } else {
+                    $pm->decrement('balance', $finalAmount);
+                }
+            }
+        }
+
+        return back()->with('success', 'تم تسجيل العملية وتحديث الأرصدة بنجاح');
     }
 
     public function update(Request $request, Transaction $transaction)
