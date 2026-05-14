@@ -99,7 +99,10 @@ class InvestmentFundController extends Controller
                 ]);
                 $partnerId = $partner->id;
                 
-                // Store password in session for one-time display (or email logic here)
+                // Send Notification
+                $user->notify(new \App\Notifications\PartnerInvitedNotification($user->email, $password));
+
+                // Store password in session for one-time display
                 session()->flash('new_partner_password', $password);
                 session()->flash('new_partner_email', $user->email);
             }
