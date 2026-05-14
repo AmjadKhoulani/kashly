@@ -28,7 +28,10 @@
                         </div>
 
                         <div class="relative z-10">
-                            <h3 class="text-xl font-black text-gray-900 mb-2">{{ $wallet->name }}</h3>
+                            <h3 class="text-xl font-black text-gray-900 mb-1">{{ $wallet->name }}</h3>
+                            @if($wallet->custodian_name)
+                                <p class="text-[10px] font-black text-amber-600 bg-amber-50 px-3 py-1 rounded-lg inline-block mb-4">بعهدة: {{ $wallet->custodian_name }}</p>
+                            @endif
                             <p class="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-6">الرصيد المتاح</p>
                             <p class="text-4xl font-black text-gray-900 tracking-tighter group-hover:text-indigo-600 transition-colors">
                                 ${{ number_format($wallet->balance, 2) }}
@@ -69,6 +72,11 @@
                         <div>
                             <label class="block text-[10px] font-black text-gray-400 uppercase mb-4 mr-2 tracking-widest">اسم المحفظة (مثلاً: كاش شخصي)</label>
                             <input type="text" name="name" required class="w-full premium-input" placeholder="مثلاً: محفظة الطوارئ">
+                        </div>
+
+                        <div>
+                            <label class="block text-[10px] font-black text-gray-400 uppercase mb-4 mr-2 tracking-widest">اسم الشخص المسؤول (اختياري)</label>
+                            <input type="text" name="custodian_name" class="w-full premium-input" placeholder="مثلاً: أحمد المندوب">
                         </div>
 
                         <div class="grid grid-cols-2 gap-6">

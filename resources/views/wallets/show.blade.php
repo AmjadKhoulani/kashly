@@ -14,7 +14,12 @@
                         <div class="w-16 h-16 bg-white border border-gray-100 rounded-3xl flex items-center justify-center text-3xl shadow-sm">
                             💰
                         </div>
-                        <h2 class="text-4xl font-black text-gray-900 tracking-tight">{{ $wallet->name }}</h2>
+                        <div>
+                            <h2 class="text-4xl font-black text-gray-900 tracking-tight">{{ $wallet->name }}</h2>
+                            @if($wallet->custodian_name)
+                                <p class="text-xs font-black text-amber-600 bg-amber-50 px-3 py-1 rounded-lg inline-block mt-2">بعهدة: {{ $wallet->custodian_name }}</p>
+                            @endif
+                        </div>
                     </div>
                 </div>
                 <div class="flex items-center gap-3">

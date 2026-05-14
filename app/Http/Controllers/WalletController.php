@@ -18,6 +18,7 @@ class WalletController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
+            'custodian_name' => 'nullable|string|max:255',
             'balance' => 'required|numeric|min:0',
             'currency' => 'required|string|size:3',
         ]);
@@ -25,6 +26,7 @@ class WalletController extends Controller
         Wallet::create([
             'user_id' => auth()->id(),
             'name' => $request->name,
+            'custodian_name' => $request->custodian_name,
             'balance' => $request->balance,
             'currency' => $request->currency,
         ]);
