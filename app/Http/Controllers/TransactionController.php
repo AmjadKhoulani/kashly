@@ -16,16 +16,27 @@ class TransactionController extends Controller
         $query = Transaction::where('user_id', auth()->id())
             ->with(['transactionable', 'paymentMethod']);
 
-        if ($request->has('source_type') && $request->has('source_id')) {
-            $query->where('transactionable_type', 'App\\Models\\' . $request->source_type)
-                  ->where('transactionable_id', $request->source_id);
+        // Advanced Filters
+        if ($request->filled('month')) {
+            $query->whereMonth('transaction_date', $request->month);
         }
-
-        if ($request->has('payment_method_id')) {
+        if ($request->filled('year')) {
+            $query->whereYear('transaction_date', $request->year);
+        }
+        if ($request->filled('type')) {
+            $query->where('type', $request->type);
+        }
+        if ($request->filled('source_type')) {
+            $query->where('transactionable_type', 'App\\Models\\' . $request->source_type);
+        }
+        if ($request->filled('source_id')) {
+            $query->where('transactionable_id', $request->source_id);
+        }
+        if ($request->filled('payment_method_id')) {
             $query->where('payment_method_id', $request->payment_method_id);
         }
 
-        $transactions = $query->latest()->paginate(20)->withQueryString();
+        $transactions = $query->latest('transaction_date')->paginate(50)->withQueryString();
 
         $businesses = Business::where('user_id', auth()->id())->get();
         $funds = InvestmentFund::where('user_id', auth()->id())->get();

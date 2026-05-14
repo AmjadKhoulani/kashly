@@ -1,4 +1,16 @@
 <x-app-layout>
+    <style>
+        @media print {
+            .no-print { display: none !important; }
+            .premium-card { 
+                box-shadow: none !important; 
+                border: 1px solid #eee !important;
+                break-inside: avoid;
+            }
+            body { background: white !important; }
+            .py-12 { padding-top: 0 !important; padding-bottom: 0 !important; }
+        }
+    </style>
     <div class="py-12 px-6" x-data="{ showModal: false, filter: 'all' }">
         <div class="max-w-7xl mx-auto space-y-10">
             
@@ -23,21 +35,64 @@
                 </div>
             </div>
 
-            <!-- Filters & Integration Card -->
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div class="lg:col-span-2 flex flex-wrap items-center gap-3 bg-white/60 backdrop-blur-md p-2 rounded-[2.5rem] border border-white shadow-sm">
-                    <button @click="filter = 'all'" :class="filter === 'all' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200' : 'text-gray-500 hover:bg-gray-50'" class="flex-1 md:flex-none px-10 py-3 rounded-[2rem] text-sm font-black transition-all">الكل</button>
-                    <button @click="filter = 'income'" :class="filter === 'income' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-200' : 'text-gray-500 hover:bg-gray-50'" class="flex-1 md:flex-none px-10 py-3 rounded-[2rem] text-sm font-black transition-all">الإيرادات</button>
-                    <button @click="filter = 'expense'" :class="filter === 'expense' ? 'bg-rose-500 text-white shadow-lg shadow-rose-200' : 'text-gray-500 hover:bg-gray-50'" class="flex-1 md:flex-none px-10 py-3 rounded-[2rem] text-sm font-black transition-all">المصاريف</button>
-                </div>
-                <div class="bg-indigo-50 p-6 rounded-[2.5rem] border border-indigo-100 flex items-center justify-between group cursor-pointer hover:bg-indigo-100 transition-all shadow-sm">
-                    <div class="flex items-center gap-3">
-                        <div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-xl shadow-sm">🔌</div>
-                        <span class="text-xs font-black text-indigo-900 uppercase tracking-widest">ربط الأنظمة</span>
+            <!-- Advanced Financial Filters & Reporting Hub -->
+            <form action="{{ route('transactions.index') }}" method="GET" class="bg-white/80 backdrop-blur-xl p-8 rounded-[3rem] border border-white shadow-2xl space-y-6 no-print">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <!-- Date Filter Group -->
+                    <div class="flex gap-2">
+                        <select name="month" class="flex-1 premium-input text-xs h-12">
+                            <option value="">كل الأشهر</option>
+                            @foreach(range(1, 12) as $m)
+                                <option value="{{ $m }}" {{ request('month') == $m ? 'selected' : '' }}>شهر {{ $m }}</option>
+                            @endforeach
+                        </select>
+                        <select name="year" class="flex-1 premium-input text-xs h-12">
+                            <option value="">كل السنوات</option>
+                            @foreach(range(date('Y'), date('Y')-5) as $y)
+                                <option value="{{ $y }}" {{ request('year') == $y ? 'selected' : '' }}>{{ $y }}</option>
+                            @endforeach
+                        </select>
                     </div>
-                    <svg class="w-6 h-6 text-indigo-400 group-hover:translate-x-[-4px] transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"></path></svg>
+
+                    <!-- Source Selection -->
+                    <select name="source_type" class="premium-input text-xs h-12">
+                        <option value="">جميع المصادر (صناديق ومحافظ)</option>
+                        <option value="InvestmentFund" {{ request('source_type') == 'InvestmentFund' ? 'selected' : '' }}>صناديق الاستثمار</option>
+                        <option value="Wallet" {{ request('source_type') == 'Wallet' ? 'selected' : '' }}>المحافظ الشخصية</option>
+                    </select>
+
+                    <!-- Transaction Type -->
+                    <select name="type" class="premium-input text-xs h-12">
+                        <option value="">جميع أنواع الحركات</option>
+                        <option value="income" {{ request('type') == 'income' ? 'selected' : '' }}>الإيرادات فقط</option>
+                        <option value="expense" {{ request('type') == 'expense' ? 'selected' : '' }}>المصاريف فقط</option>
+                    </select>
+
+                    <!-- Control Buttons -->
+                    <div class="flex gap-3">
+                        <button type="submit" class="flex-1 bg-indigo-600 text-white rounded-2xl font-black text-[10px] uppercase shadow-xl shadow-indigo-200 hover:scale-105 transition-all">تطبيق الفلترة</button>
+                        <a href="{{ route('transactions.index') }}" class="flex-1 bg-gray-50 text-gray-400 rounded-2xl font-black text-[10px] uppercase flex items-center justify-center border border-gray-100 hover:bg-gray-100 transition-all text-center">تصفير</a>
+                    </div>
                 </div>
-            </div>
+                
+                <div class="flex flex-col md:flex-row justify-between items-center pt-6 border-t border-gray-100 gap-4">
+                    <div class="flex items-center gap-6">
+                        <div class="flex flex-col">
+                            <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">إجمالي الإيرادات</span>
+                            <span class="text-lg font-black text-emerald-600">${{ number_format($transactions->where('type', 'income')->sum('amount'), 2) }}</span>
+                        </div>
+                        <div class="w-px h-8 bg-gray-100"></div>
+                        <div class="flex flex-col">
+                            <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">إجمالي المصاريف</span>
+                            <span class="text-lg font-black text-rose-600">${{ number_format($transactions->where('type', 'expense')->sum('amount'), 2) }}</span>
+                        </div>
+                    </div>
+                    <button type="button" onclick="window.print()" class="w-full md:w-auto bg-amber-500 text-white px-10 py-4 rounded-[2rem] text-sm font-black shadow-xl shadow-amber-200 hover:bg-amber-600 transition-all flex items-center justify-center gap-3">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002-2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                        توليد تقرير مالي مطبوع
+                    </button>
+                </div>
+            </form>
 
             <!-- Transactions List -->
             <div class="space-y-6">
