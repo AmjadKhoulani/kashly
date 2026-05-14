@@ -1,16 +1,16 @@
 <x-app-layout>
-    <div class="py-12 px-6">
+    <div class="py-12 px-6" x-data="{ showModal: false }">
         <div class="max-w-7xl mx-auto space-y-12">
             
             <!-- Header Section -->
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                 <div>
-                    <h2 class="text-4xl font-black text-gray-900 tracking-tight">صناديق الاستثمار</h2>
+                    <h2 class="text-4xl font-black text-gray-900 tracking-tight">الكيانات الاستثمارية</h2>
                     <p class="text-gray-500 font-bold mt-2">تتبع نمو محافظك العقارية والتجارية وإدارة حصص الشركاء.</p>
                 </div>
-                <button class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-[2rem] text-sm font-black shadow-xl shadow-indigo-500/20 flex items-center transition-all hover:scale-105">
+                <button @click="showModal = true" class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-[2rem] text-sm font-black shadow-xl shadow-indigo-500/20 flex items-center transition-all hover:scale-105">
                     <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path></svg>
-                    إنشاء صندوق استثماري
+                    إنشاء كيان استثماري جديد
                 </button>
             </div>
 
@@ -95,6 +95,44 @@
                 @endforeach
             </div>
 
+        </div>
+
+        <!-- Create Entity Modal -->
+        <div x-show="showModal" class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-gray-900/60 backdrop-blur-md" x-cloak x-transition>
+            <div class="bg-white rounded-[4rem] w-full max-w-lg p-12 shadow-2xl relative text-right" @click.away="showModal = false">
+                <h3 class="text-3xl font-black text-gray-900 mb-8">إنشاء كيان استثماري</h3>
+                <form action="{{ route('funds.store') }}" method="POST" class="space-y-6">
+                    @csrf
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 mr-2">اسم الكيان</label>
+                        <input type="text" name="name" required class="w-full bg-gray-50 border-0 rounded-[2rem] p-6 font-bold text-lg" placeholder="مثلاً: عمارة الياسمين، محفظة الأسهم...">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 mr-2">رأس المال التأسيسي ($)</label>
+                        <input type="number" name="capital" required class="w-full bg-gray-50 border-0 rounded-[2rem] p-6 font-black text-2xl" placeholder="0.00">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 mr-2">تكرار توزيع الأرباح</label>
+                            <select name="distribution_frequency" class="w-full bg-gray-50 border-0 rounded-[2rem] p-6 font-bold text-lg">
+                                <option value="1">شهري</option>
+                                <option value="3">كل 3 أشهر</option>
+                                <option value="6">كل 6 أشهر</option>
+                                <option value="12">سنوي</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 mr-2">العملة الأساسية</label>
+                            <select name="currency" class="w-full bg-gray-50 border-0 rounded-[2rem] p-6 font-bold text-lg">
+                                <option value="USD">USD</option>
+                                <option value="TRY">TRY</option>
+                                <option value="SAR">SAR</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full bg-indigo-600 text-white py-6 rounded-[2.5rem] font-black text-xl shadow-xl shadow-indigo-500/20 hover:bg-indigo-700 transition-all">تأكيد الإنشاء</button>
+                </form>
+            </div>
         </div>
     </div>
 </x-app-layout>

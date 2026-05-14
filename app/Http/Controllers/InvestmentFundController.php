@@ -20,6 +20,30 @@ class InvestmentFundController extends Controller
         return view('funds.index', compact('funds'));
     }
 
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'capital' => 'required|numeric|min:0',
+            'distribution_frequency' => 'required|string',
+            'currency' => 'required|string|size:3',
+            'icon' => 'nullable|string',
+        ]);
+
+        $fund = InvestmentFund::create([
+            'user_id' => auth()->id(),
+            'name' => $validated['name'],
+            'capital' => $validated['capital'],
+            'current_value' => $validated['capital'], // Initial value is capital
+            'distribution_frequency' => $validated['distribution_frequency'],
+            'currency' => $validated['currency'],
+            'icon' => $validated['icon'] ?? '🏘️',
+            'status' => 'active',
+        ]);
+
+        return redirect()->route('funds.show', $fund->id)->with('success', 'تم إنشاء الكيان الاستثماري بنجاح');
+    }
+
     public function show($id)
     {
         $fund = InvestmentFund::where('user_id', auth()->id())

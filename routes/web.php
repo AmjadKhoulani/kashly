@@ -19,6 +19,7 @@ Route::get('/', function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/funds', [InvestmentFundController::class, 'index'])->name('funds.index');
+    Route::post('/funds', [InvestmentFundController::class, 'store'])->name('funds.store');
     Route::get('/funds/{id}', [InvestmentFundController::class, 'show'])->name('funds.show');
     Route::post('/funds/{id}/partners', [InvestmentFundController::class, 'addPartner'])->name('funds.addPartner');
     Route::post('/funds/{id}/add-asset', [InvestmentFundController::class, 'addAsset'])->name('funds.addAsset');
