@@ -378,62 +378,73 @@
 
                     <!-- Partners Table -->
                     <div class="premium-card overflow-hidden">
-                        <div class="px-10 py-8 border-b border-gray-50 bg-gray-50/30">
+                        <div class="px-10 py-8 border-b border-gray-50 bg-gray-50/30 flex justify-between items-center">
                             <h3 class="text-2xl font-black text-gray-900">توزيع الحصص والشركاء</h3>
+                            <div class="flex items-center gap-2">
+                                <span class="w-3 h-3 bg-emerald-500 rounded-full animate-pulse"></span>
+                                <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">مباشر</span>
+                            </div>
                         </div>
                         <div class="overflow-x-auto">
-                            <table class="w-full text-right overflow-hidden">
-                                <thead class="bg-indigo-50/50">
+                            <table class="w-full text-right border-collapse">
+                                <thead class="bg-gray-50/50 border-b border-gray-100">
                                     <tr>
-                                        <th class="px-10 py-6 text-[10px] font-black text-indigo-900 uppercase tracking-widest">الشريك</th>
-                                        <th class="px-10 py-6 text-[10px] font-black text-indigo-900 uppercase tracking-widest text-center">الحصة</th>
-                                        <th class="px-10 py-6 text-[10px] font-black text-indigo-900 uppercase tracking-widest text-center">المساهمة</th>
-                                        <th class="px-10 py-6 text-[10px] font-black text-indigo-900 uppercase tracking-widest text-center">النسبة</th>
-                                        <th class="px-10 py-6 text-[10px] font-black text-indigo-900 uppercase tracking-widest text-center">القيمة الحالية</th>
-                                        <th class="px-10 py-6 text-[10px] font-black text-indigo-900 uppercase tracking-widest text-center">إجراءات</th>
+                                        <th class="px-10 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">الشريك</th>
+                                        <th class="px-6 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">نوع الحصة</th>
+                                        <th class="px-6 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">المساهمة</th>
+                                        <th class="px-6 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">النسبة</th>
+                                        <th class="px-6 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">القيمة الحالية</th>
+                                        <th class="px-10 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest text-left">إجراءات</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-50" x-data="{ editingEquity: null }">
                                     @foreach($equities as $equity)
-                                        <tr class="hover:bg-gray-50/30 transition-colors group">
+                                        <tr class="hover:bg-indigo-50/30 transition-all group">
                                             <td class="px-10 py-8">
                                                 <div class="flex items-center gap-5">
-                                                    <div class="w-12 h-12 bg-gradient-to-br from-indigo-50 to-indigo-100 text-indigo-600 rounded-[1.2rem] flex items-center justify-center font-black shadow-sm group-hover:scale-110 transition-transform">
+                                                    <div class="w-14 h-14 bg-white border border-gray-100 text-indigo-600 rounded-2xl flex items-center justify-center font-black shadow-sm group-hover:scale-110 group-hover:border-indigo-200 transition-all duration-300">
                                                         {{ mb_substr($equity->partner->name, 0, 1) }}
                                                     </div>
                                                     <div>
-                                                        <span class="font-black text-gray-900 block">{{ $equity->partner->name }}</span>
+                                                        <span class="font-black text-gray-900 block text-base">{{ $equity->partner->name }}</span>
                                                         @if($equity->partner->linked_user_id == auth()->id())
-                                                            <span class="text-[8px] font-black bg-indigo-600 text-white px-2 py-0.5 rounded-full uppercase tracking-tighter">أنت (المدير)</span>
+                                                            <span class="text-[9px] font-black bg-indigo-100 text-indigo-700 px-2.5 py-1 rounded-full uppercase tracking-tighter mt-1 inline-block">أنت (المدير)</span>
+                                                        @else
+                                                            <span class="text-[9px] font-black bg-gray-100 text-gray-500 px-2.5 py-1 rounded-full uppercase tracking-tighter mt-1 inline-block">شريك</span>
                                                         @endif
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td class="px-10 py-8 text-center">
-                                                <span class="px-4 py-1.5 {{ $equity->equity_type == 'fixed' ? 'bg-purple-50 text-purple-600' : 'bg-blue-50 text-blue-600' }} rounded-xl text-[10px] font-black shadow-sm border border-current/10">
+                                            <td class="px-6 py-8 text-center">
+                                                <span class="px-4 py-2 {{ $equity->equity_type == 'fixed' ? 'bg-purple-50 text-purple-600' : 'bg-blue-50 text-blue-600' }} rounded-xl text-[10px] font-black border border-current/10">
                                                     {{ $equity->equity_type == 'fixed' ? 'نسبة ثابتة' : 'مساهمة مالية' }}
                                                 </span>
                                             </td>
-                                            <td class="px-10 py-8 text-center font-black text-gray-600">${{ number_format($equity->amount, 0) }}</td>
-                                            <td class="px-10 py-8 text-center">
-                                                <div class="inline-flex items-center gap-2 bg-gray-50 px-3 py-1.5 rounded-xl border border-gray-100 shadow-inner">
-                                                    <span class="font-black text-gray-900">{{ number_format($equity->percentage, 1) }}%</span>
+                                            <td class="px-6 py-8 text-center">
+                                                <span class="font-black text-gray-900 text-lg">${{ number_format($equity->amount, 0) }}</span>
+                                            </td>
+                                            <td class="px-6 py-8 text-center">
+                                                <div class="inline-flex flex-col items-center">
+                                                    <span class="font-black text-indigo-600 text-xl tracking-tighter">{{ number_format($equity->percentage, 1) }}%</span>
+                                                    <div class="w-16 h-1.5 bg-gray-100 rounded-full mt-2 overflow-hidden shadow-inner">
+                                                        <div class="h-full bg-indigo-500 rounded-full" style="width: {{ $equity->percentage }}%"></div>
+                                                    </div>
                                                 </div>
                                             </td>
-                                            <td class="px-10 py-8 text-center">
-                                                <p class="font-black text-emerald-600 text-lg tracking-tighter">${{ number_format(($equity->percentage / 100) * $fund->current_value, 0) }}</p>
+                                            <td class="px-6 py-8 text-center">
+                                                <p class="font-black text-emerald-600 text-2xl tracking-tighter">${{ number_format(($equity->percentage / 100) * $fund->current_value, 0) }}</p>
                                             </td>
-                                            <td class="px-10 py-8 text-center">
-                                                <div class="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    <button @click="editingEquity = {{ $equity->id }}" class="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center hover:bg-indigo-600 hover:text-white transition-all">
-                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                            <td class="px-10 py-8 text-left">
+                                                <div class="flex items-center justify-start gap-3 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-4 group-hover:translate-x-0">
+                                                    <button @click="editingEquity = {{ $equity->id }}" class="w-12 h-12 bg-white border border-gray-100 text-gray-400 rounded-2xl flex items-center justify-center hover:border-indigo-600 hover:text-indigo-600 hover:shadow-lg hover:shadow-indigo-500/10 transition-all">
+                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.3" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                                                     </button>
                                                     @if($equity->partner->linked_user_id !== auth()->id())
                                                         <form action="{{ route('funds.removePartner', $equity->id) }}" method="POST" onsubmit="return confirm('هل أنت متأكد من استبعاد هذا الشريك؟')">
                                                             @csrf
                                                             @method('DELETE')
-                                                            <button type="submit" class="w-10 h-10 bg-rose-50 text-rose-600 rounded-xl flex items-center justify-center hover:bg-rose-600 hover:text-white transition-all">
-                                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                                            <button type="submit" class="w-12 h-12 bg-white border border-gray-100 text-gray-400 rounded-2xl flex items-center justify-center hover:border-rose-600 hover:text-rose-600 hover:shadow-lg hover:shadow-rose-500/10 transition-all">
+                                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.3" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                                             </button>
                                                         </form>
                                                     @endif
@@ -441,9 +452,12 @@
 
                                                 <!-- Edit Equity Modal -->
                                                 <template x-if="editingEquity === {{ $equity->id }}">
-                                                    <div class="fixed inset-0 z-[110] flex items-center justify-center p-6 bg-gray-900/60 backdrop-blur-md">
-                                                        <div class="bg-white rounded-[4rem] w-full max-w-lg p-12 shadow-2xl relative text-right" @click.away="editingEquity = null">
-                                                            <h3 class="text-3xl font-black text-gray-900 mb-8">تعديل حصة {{ $equity->partner->name }}</h3>
+                                                    <div class="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-gray-900/40 backdrop-blur-sm">
+                                                        <div class="bg-white rounded-[3.5rem] w-full max-w-md p-10 shadow-2xl relative text-right" @click.away="editingEquity = null">
+                                                            <div class="flex items-center gap-4 mb-8">
+                                                                <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center text-xl">✍️</div>
+                                                                <h3 class="text-2xl font-black text-gray-900">تعديل حصة الشريك</h3>
+                                                            </div>
                                                             <form action="{{ route('funds.updateEquity', $equity->id) }}" method="POST" class="space-y-6">
                                                                 @csrf
                                                                 @method('PUT')
@@ -456,8 +470,8 @@
                                                                     <input type="number" step="0.1" name="percentage" value="{{ $equity->percentage }}" class="w-full premium-input text-2xl">
                                                                 </div>
                                                                 <div class="flex gap-4 pt-4">
-                                                                    <button type="submit" class="flex-1 bg-indigo-600 text-white py-5 rounded-[2rem] font-black text-lg shadow-xl shadow-indigo-500/20">تحديث</button>
-                                                                    <button type="button" @click="editingEquity = null" class="px-8 bg-gray-50 text-gray-400 py-5 rounded-[2rem] font-black text-lg">إلغاء</button>
+                                                                    <button type="submit" class="flex-1 bg-indigo-600 text-white py-5 rounded-[2rem] font-black text-lg shadow-xl shadow-indigo-500/20 hover:bg-indigo-700 transition-all">حفظ التغييرات</button>
+                                                                    <button type="button" @click="editingEquity = null" class="px-8 bg-gray-50 text-gray-400 py-5 rounded-[2rem] font-black text-lg hover:bg-gray-100 transition-all">إلغاء</button>
                                                                 </div>
                                                             </form>
                                                         </div>
