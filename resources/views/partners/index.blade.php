@@ -1,80 +1,114 @@
 <x-app-layout>
-    <div class="py-12">
-        <div class="max-w-5xl mx-auto sm:px-6 lg:px-8 space-y-8">
+    <div class="py-12 px-6">
+        <div class="max-w-7xl mx-auto space-y-12">
             
-            <div class="flex justify-between items-center px-4">
+            <!-- Header -->
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                 <div>
-                    <h2 class="text-3xl font-black text-gray-900">إدارة الشركاء</h2>
-                    <p class="text-gray-500 text-sm mt-1">قائمة بجميع الشركاء المساهمين في الصناديق والمشاريع.</p>
+                    <h2 class="text-4xl font-black text-gray-900 tracking-tight">إدارة الشركاء 🤝</h2>
+                    <p class="text-gray-500 font-bold mt-1">إدارة قائمة الشركاء المساهمين، حساباتهم، وتوزيع حصصهم المالية.</p>
                 </div>
-                <button class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-2xl text-sm font-black shadow-lg shadow-indigo-500/20 flex items-center">
-                    <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
-                    شريك جديد
+                <button class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-[2rem] text-sm font-black shadow-xl shadow-indigo-500/20 flex items-center transition-all hover:scale-105">
+                    <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path></svg>
+                    إضافة شريك خارجي
                 </button>
             </div>
 
             @if (session('status'))
-                <div class="bg-emerald-50 border border-emerald-100 text-emerald-600 px-6 py-4 rounded-2xl font-bold text-sm mx-4">
+                <div class="bg-emerald-50 border border-emerald-100 text-emerald-600 px-8 py-6 rounded-[2rem] font-bold shadow-sm">
                     {{ session('status') }}
                 </div>
             @endif
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 @forelse($partners as $partner)
-                    <div class="spendee-card p-6 flex flex-col justify-between">
-                        <div class="flex items-center mb-6">
-                            <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center text-xl font-black ml-4">
-                                {{ mb_substr($partner->name, 0, 1) }}
-                            </div>
-                            <div>
-                                <h4 class="text-lg font-black text-gray-900">{{ $partner->name }}</h4>
-                                <p class="text-[10px] text-gray-400 font-bold uppercase">{{ $partner->phone ?? 'بدون رقم هاتف' }}</p>
-                            </div>
-                        </div>
-
-                        <div class="space-y-4 mb-6">
-                            <p class="text-[10px] text-gray-400 font-black uppercase border-b border-gray-50 pb-2">المساهمات النشطة</p>
-                            @foreach($partner->equities as $equity)
-                                <div class="flex justify-between items-center">
-                                    <span class="text-xs font-bold text-gray-600">{{ $equity->equitable?->name ?? 'كيان محذوف' }}</span>
-                                    <span class="text-xs font-black text-indigo-600">{{ number_format($equity->percentage, 1) }}%</span>
+                    <div class="premium-card p-10 flex flex-col justify-between group relative overflow-hidden">
+                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-indigo-500/5 rounded-full blur-2xl group-hover:bg-indigo-500/10 transition-all"></div>
+                        
+                        <div class="relative">
+                            <div class="flex justify-between items-start mb-8">
+                                <div class="w-16 h-16 bg-gradient-to-br from-indigo-500 to-indigo-600 text-white rounded-3xl flex items-center justify-center text-2xl font-black shadow-lg shadow-indigo-500/20">
+                                    {{ mb_substr($partner->name, 0, 1) }}
                                 </div>
-                            @endforeach
-                            @if($partner->equities->isEmpty())
-                                <p class="text-center text-[10px] text-gray-400 py-2 italic">لا توجد مساهمات مسجلة</p>
-                            @endif
+                                <form action="{{ route('partners.destroy', $partner) }}" method="POST" onsubmit="return confirm('هل أنت متأكد من حذف هذا الشريك؟')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="w-10 h-10 bg-rose-50 text-rose-600 rounded-xl flex items-center justify-center hover:bg-rose-600 hover:text-white transition-all shadow-sm">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                    </button>
+                                </form>
+                            </div>
+
+                            <h4 class="text-2xl font-black text-gray-900 mb-1 tracking-tight">{{ $partner->name }}</h4>
+                            <p class="text-sm font-bold text-gray-400 mb-8">{{ $partner->email }}</p>
+
+                            <div class="space-y-6 mb-8">
+                                <p class="text-[10px] text-gray-400 font-black uppercase tracking-widest flex items-center gap-2">
+                                    <span class="w-1.5 h-1.5 bg-indigo-600 rounded-full"></span>
+                                    المساهمات النشطة
+                                </p>
+                                <div class="space-y-3">
+                                    @foreach($partner->equities as $equity)
+                                        <div class="flex justify-between items-center bg-gray-50/50 p-4 rounded-2xl border border-gray-50/50">
+                                            <span class="text-xs font-black text-gray-600">{{ $equity->equitable?->name ?? 'كيان محذوف' }}</span>
+                                            <span class="text-xs font-black text-indigo-600 bg-white px-3 py-1 rounded-lg shadow-sm">{{ number_format($equity->percentage, 1) }}%</span>
+                                        </div>
+                                    @endforeach
+                                    @if($partner->equities->isEmpty())
+                                        <div class="text-center py-6 border-2 border-dashed border-gray-100 rounded-[2rem]">
+                                            <p class="text-[10px] text-gray-400 font-black uppercase tracking-widest italic">لا توجد مساهمات</p>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
                         </div>
 
-                        <!-- Link Account Section -->
-                        <div class="mb-6 p-4 bg-gray-50 rounded-2xl">
-                            <p class="text-[10px] text-gray-400 font-black uppercase mb-3">حساب الشريك للدخول</p>
+                        <!-- Account Status -->
+                        <div class="pt-8 border-t border-gray-50 mt-auto">
                             @if($partner->linkedUser)
-                                <div class="flex items-center gap-2">
-                                    <div class="w-2 h-2 bg-emerald-500 rounded-full"></div>
-                                    <span class="text-xs font-bold text-gray-700">{{ $partner->linkedUser->email }}</span>
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 bg-emerald-100 text-emerald-600 rounded-lg flex items-center justify-center text-sm shadow-inner">👤</div>
+                                        <div>
+                                            <p class="text-[10px] text-gray-400 font-black uppercase tracking-widest">حساب نشط</p>
+                                            <p class="text-xs font-bold text-gray-700">{{ $partner->linkedUser->email }}</p>
+                                        </div>
+                                    </div>
+                                    <span class="w-2 h-2 bg-emerald-500 rounded-full shadow-lg shadow-emerald-500/40 animate-pulse"></span>
                                 </div>
                             @else
-                                <form action="{{ route('partners.link', $partner) }}" method="POST" class="flex gap-2">
-                                    @csrf
-                                    <input type="email" name="email" required placeholder="البريد الإلكتروني" class="flex-1 bg-white border-0 rounded-xl px-3 py-2 text-[10px] font-bold focus:ring-1 focus:ring-indigo-600">
-                                    <button type="submit" class="bg-indigo-600 text-white px-3 py-2 rounded-xl text-[10px] font-black shadow-sm">ربط</button>
-                                </form>
+                                <div class="bg-amber-50/50 p-4 rounded-2xl border border-amber-50">
+                                    <p class="text-[10px] text-amber-600 font-black uppercase tracking-widest mb-3">ربط حساب خارجي</p>
+                                    <form action="{{ route('partners.link', $partner) }}" method="POST" class="flex gap-2">
+                                        @csrf
+                                        <input type="email" name="email" required placeholder="example@mail.com" class="flex-1 bg-white border-0 rounded-xl px-4 py-3 text-xs font-bold shadow-sm focus:ring-2 focus:ring-indigo-600">
+                                        <button type="submit" class="bg-indigo-600 text-white px-4 py-3 rounded-xl text-xs font-black shadow-md hover:bg-indigo-700 transition-all">ربط</button>
+                                    </form>
+                                </div>
                             @endif
                         </div>
 
-                        <div class="flex justify-between items-center pt-4 border-t border-gray-50">
+                        <div class="mt-8 flex justify-between items-end">
                             <div>
-                                <p class="text-[10px] text-gray-400 font-black uppercase">إجمالي الاستثمار</p>
-                                <p class="text-lg font-black text-gray-900">${{ number_format($partner->equities->sum('amount'), 0) }}</p>
+                                <p class="text-[10px] text-gray-400 font-black uppercase tracking-widest">إجمالي رأس المال</p>
+                                <p class="text-3xl font-black text-gray-900 tracking-tighter">${{ number_format($partner->equities->sum('amount'), 0) }}</p>
                             </div>
-                            <button class="text-gray-400 hover:text-indigo-600 transition-colors">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path></svg>
-                            </button>
+                            <div class="text-left">
+                                <p class="text-[10px] text-gray-400 font-black uppercase tracking-widest">القيمة الحالية</p>
+                                @php
+                                    $currentVal = $partner->equities->sum(function($eq) {
+                                        return $eq->equitable ? ($eq->percentage / 100) * $eq->equitable->current_value : 0;
+                                    });
+                                @endphp
+                                <p class="text-xl font-black text-emerald-600 tracking-tighter">${{ number_format($currentVal, 0) }}</p>
+                            </div>
                         </div>
                     </div>
                 @empty
-                    <div class="col-span-full spendee-card p-20 text-center">
-                        <p class="text-gray-400 font-bold">لا يوجد شركاء مسجلين حالياً.</p>
+                    <div class="col-span-full premium-card p-24 text-center">
+                        <div class="text-6xl mb-6">🏜️</div>
+                        <h4 class="text-2xl font-black text-gray-900 mb-2">لا يوجد شركاء بعد</h4>
+                        <p class="text-gray-400 font-bold">ابدأ بإضافة أول شريك خارجي لإدارة مساهماته وحصصه.</p>
                     </div>
                 @endforelse
             </div>

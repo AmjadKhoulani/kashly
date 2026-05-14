@@ -20,10 +20,22 @@ class PartnerController extends Controller
                 $query->whereNull('linked_user_id')
                       ->orWhere('linked_user_id', '!=', auth()->id());
             })
-            ->with('equities.equitable', 'linkedUser')
+            ->with(['equities.equitable', 'linkedUser'])
+            ->latest()
             ->get();
 
         return view('partners.index', compact('partners'));
+    }
+
+    public function destroy(Partner $partner)
+    {
+        if ($partner->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $partner->delete();
+
+        return back()->with('status', 'تم حذف الشريك بنجاح.');
     }
 
     public function linkAccount(Request $request, Partner $partner)

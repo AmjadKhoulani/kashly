@@ -27,6 +27,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/funds/{id}/distributions', [InvestmentFundController::class, 'distributions'])->name('funds.distributions');
     Route::delete('/funds/{id}', [InvestmentFundController::class, 'destroy'])->name('funds.destroy');
     Route::get('/partners', [PartnerController::class, 'index'])->name('partners.index');
+    Route::delete('/partners/{partner}', [PartnerController::class, 'destroy'])->name('partners.destroy');
     Route::post('/partners/{partner}/link', [PartnerController::class, 'linkAccount'])->name('partners.link');
     Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions.index');
     Route::post('/transactions', [TransactionController::class, 'store'])->name('transactions.store');
