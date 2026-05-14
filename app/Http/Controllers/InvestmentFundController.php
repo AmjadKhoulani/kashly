@@ -228,4 +228,12 @@ class InvestmentFundController extends Controller
 
         return back()->with('success', 'تمت إضافة الحساب للصندوق بنجاح');
     }
+
+    public function destroy($id)
+    {
+        $fund = InvestmentFund::where('user_id', auth()->id())->findOrFail($id);
+        $fund->delete();
+
+        return redirect()->route('funds.index')->with('success', 'تم حذف الكيان الاستثماري بنجاح');
+    }
 }
