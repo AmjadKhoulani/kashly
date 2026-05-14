@@ -11,12 +11,21 @@ use Illuminate\Http\Request;
 
 class TransactionController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $transactions = Transaction::where('user_id', auth()->id())
-            ->with(['transactionable', 'paymentMethod'])
-            ->latest()
-            ->paginate(20);
+        $query = Transaction::where('user_id', auth()->id())
+            ->with(['transactionable', 'paymentMethod']);
+
+        if ($request->has('source_type') && $request->has('source_id')) {
+            $query->where('transactionable_type', 'App\\Models\\' . $request->source_type)
+                  ->where('transactionable_id', $request->source_id);
+        }
+
+        if ($request->has('payment_method_id')) {
+            $query->where('payment_method_id', $request->payment_method_id);
+        }
+
+        $transactions = $query->latest()->paginate(20)->withQueryString();
 
         $businesses = Business::where('user_id', auth()->id())->get();
         $funds = InvestmentFund::where('user_id', auth()->id())->get();

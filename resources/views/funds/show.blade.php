@@ -308,7 +308,7 @@
                                 </div>
                             @endforelse
                         </div>
-                        <a href="{{ route('transactions.index') }}" class="block w-full mt-10 py-4 bg-gray-50 rounded-2xl text-[10px] font-black text-gray-400 uppercase tracking-widest text-center hover:bg-gray-100 transition-colors">عرض كافة العمليات</a>
+                        <a href="{{ route('transactions.index', ['source_type' => 'InvestmentFund', 'source_id' => $fund->id]) }}" class="block w-full mt-10 py-4 bg-gray-50 rounded-2xl text-[10px] font-black text-gray-400 uppercase tracking-widest text-center hover:bg-gray-100 transition-colors">عرض كافة العمليات</a>
                     </div>
                 </div>
             </div>

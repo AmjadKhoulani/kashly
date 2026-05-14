@@ -6,7 +6,14 @@
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                 <div>
                     <h2 class="text-4xl font-black text-gray-900 tracking-tight">العمليات المالية</h2>
-                    <p class="text-gray-500 font-bold mt-2">سجل ذكي لجميع التدفقات المالية وتوزيعات الأرباح.</p>
+                    @if(request()->has('source_id'))
+                        <div class="flex items-center gap-2 mt-2">
+                            <p class="text-indigo-600 font-bold">عرض العمليات الخاصة بـ: {{ $transactions->first()->transactionable->name ?? 'مصدر محدد' }}</p>
+                            <a href="{{ route('transactions.index') }}" class="text-[10px] font-black text-rose-500 bg-rose-50 px-2 py-1 rounded-md uppercase">إلغاء الفلترة ×</a>
+                        </div>
+                    @else
+                        <p class="text-gray-500 font-bold mt-2">سجل ذكي لجميع التدفقات المالية وتوزيعات الأرباح.</p>
+                    @endif
                 </div>
                 <div class="flex items-center gap-4">
                     <button @click="showModal = true" class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-[2rem] text-sm font-black shadow-xl shadow-indigo-500/20 flex items-center transition-all hover:scale-105">
