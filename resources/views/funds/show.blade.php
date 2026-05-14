@@ -117,28 +117,28 @@
 
                                 <div class="flex items-center gap-4 mb-4">
                                     <input type="checkbox" x-model="multiCurrency" class="rounded-lg text-indigo-600 focus:ring-indigo-600">
-                                    <span class="text-xs font-black text-gray-500 uppercase mr-1">دفع بغير الدولار؟</span>
+                                    <span class="text-xs font-black text-gray-500 uppercase mr-1 text-right">دفع بغير الدولار؟</span>
                                 </div>
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4" x-show="multiCurrency">
                                     <div>
-                                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-2 mr-2">العملة</label>
+                                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-2 mr-2 text-right">العملة</label>
                                         <input type="text" name="currency" class="w-full bg-gray-50 border-0 rounded-2xl p-4 font-black" placeholder="مثلاً: TRY, EUR">
                                     </div>
                                     <div>
-                                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-2 mr-2">سعر الصرف</label>
+                                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-2 mr-2 text-right">سعر الصرف</label>
                                         <input type="number" step="0.000001" name="exchange_rate" class="w-full bg-gray-50 border-0 rounded-2xl p-4 font-black" placeholder="1.00">
                                     </div>
                                 </div>
 
                                 <div>
-                                    <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 tracking-widest mr-2">المبلغ</label>
-                                    <input type="number" step="0.01" name="amount" required class="w-full bg-gray-50 border-0 rounded-[2rem] p-6 font-black text-3xl focus:ring-4 focus:ring-indigo-600/10 transition-all" placeholder="0.00">
+                                    <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 tracking-widest mr-2 text-right">المبلغ</label>
+                                    <input type="number" step="0.01" name="amount" required class="w-full bg-gray-50 border-0 rounded-[2rem] p-6 font-black text-3xl focus:ring-4 focus:ring-indigo-600/10 transition-all text-right" placeholder="0.00">
                                 </div>
 
                                 <div>
-                                    <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 tracking-widest mr-2">وصف العملية</label>
-                                    <input type="text" name="category" required class="w-full bg-gray-50 border-0 rounded-[2rem] p-6 font-bold text-lg focus:ring-4 focus:ring-indigo-600/10 transition-all" placeholder="مثلاً: توزيع أرباح ربع سنوية">
+                                    <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 tracking-widest mr-2 text-right">وصف العملية</label>
+                                    <input type="text" name="category" required class="w-full bg-gray-50 border-0 rounded-[2rem] p-6 font-bold text-lg focus:ring-4 focus:ring-indigo-600/10 transition-all text-right" placeholder="مثلاً: توزيع أرباح ربع سنوية">
                                 </div>
 
                                 <input type="hidden" name="transaction_date" value="{{ date('Y-m-d') }}">
@@ -260,7 +260,7 @@
                                             {{ $transaction->type == 'income' ? '📈' : '📉' }}
                                         </div>
                                         <div>
-                                            <p class="text-sm font-black text-gray-900">{{ $transaction->description }}</p>
+                                            <p class="text-sm font-black text-gray-900">{{ $transaction->description ?: $transaction->category }}</p>
                                             <div class="flex items-center gap-2">
                                                 <p class="text-[10px] text-gray-400 font-bold uppercase tracking-tighter">{{ $transaction->transaction_date->format('Y/m/d') }}</p>
                                                 @if($transaction->currency !== 'USD')
@@ -284,44 +284,44 @@
                     </div>
                 </div>
             </div>
+        </div>
     </div>
 </x-app-layout>
 
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            var options = {
-                series: [{
-                    name: 'قيمة الصندوق',
-                    data: [{{ $fund->capital }}, {{ ($fund->capital + $fund->current_value) / 2 }}, {{ $fund->current_value }}]
-                }],
-                chart: {
-                    type: 'area',
-                    height: 320,
-                    toolbar: { show: false },
-                    fontFamily: 'Noto Sans Arabic, sans-serif',
-                },
-                colors: ['#4f46e5'],
-                dataLabels: { enabled: false },
-                stroke: { curve: 'smooth', width: 4 },
-                xaxis: {
-                    categories: ['التأسيس', 'نصف المدة', 'الحالي'],
-                    labels: { style: { colors: '#9ca3af', fontWeight: 900, fontSize: '10px' } }
-                },
-                yaxis: { show: false },
-                grid: { borderColor: '#f9fafb' },
-                fill: {
-                    type: 'gradient',
-                    gradient: {
-                        shadeIntensity: 1,
-                        opacityFrom: 0.3,
-                        opacityTo: 0.05,
-                    }
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var options = {
+            series: [{
+                name: 'قيمة الصندوق',
+                data: [{{ $fund->capital }}, {{ ($fund->capital + $fund->current_value) / 2 }}, {{ $fund->current_value }}]
+            }],
+            chart: {
+                type: 'area',
+                height: 320,
+                toolbar: { show: false },
+                fontFamily: 'Noto Sans Arabic, sans-serif',
+            },
+            colors: ['#4f46e5'],
+            dataLabels: { enabled: false },
+            stroke: { curve: 'smooth', width: 4 },
+            xaxis: {
+                categories: ['التأسيس', 'نصف المدة', 'الحالي'],
+                labels: { style: { colors: '#9ca3af', fontWeight: 900, fontSize: '10px' } }
+            },
+            yaxis: { show: false },
+            grid: { borderColor: '#f9fafb' },
+            fill: {
+                type: 'gradient',
+                gradient: {
+                    shadeIntensity: 1,
+                    opacityFrom: 0.3,
+                    opacityTo: 0.05,
                 }
-            };
+            }
+        };
 
-            var chart = new ApexCharts(document.querySelector("#fundChart"), options);
-            chart.render();
-        });
-    </script>
-</x-app-layout>
+        var chart = new ApexCharts(document.querySelector("#fundChart"), options);
+        chart.render();
+    });
+</script>
