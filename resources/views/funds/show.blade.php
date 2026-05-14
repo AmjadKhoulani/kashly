@@ -1,5 +1,11 @@
 <x-app-layout>
-    <div class="py-12 px-6" x-data="{ editingEquity: null }">
+    <div class="py-12 px-6" x-data="{ 
+        editingEquity: null, 
+        showModal: false, 
+        showAssetModal: false, 
+        showPartnerModal: false, 
+        showAccountModal: false 
+    }">
         <div class="max-w-7xl mx-auto space-y-12">
             
             <!-- Breadcrumbs & Header -->
@@ -41,7 +47,7 @@
                     </div>
                 </div>
                 
-                <div class="flex flex-wrap items-center gap-3" x-data="{ showModal: false, showAssetModal: false, showPartnerModal: false, showAccountModal: false }">
+                <div class="flex flex-wrap items-center gap-3">
                     <button @click="showAccountModal = true" class="bg-white border border-gray-100 text-gray-900 px-6 py-4 rounded-[2rem] text-sm font-black shadow-sm hover:bg-gray-50 transition-all">حسابات الصندوق</button>
                     <button @click="showPartnerModal = true" class="bg-white border border-gray-100 text-gray-900 px-6 py-4 rounded-[2rem] text-sm font-black shadow-sm hover:bg-gray-50 transition-all">إضافة شريك</button>
                     <button @click="showAssetModal = true" class="bg-white border border-gray-100 text-gray-900 px-6 py-4 rounded-[2rem] text-sm font-black shadow-sm hover:bg-gray-50 transition-all">إضافة أصل</button>
