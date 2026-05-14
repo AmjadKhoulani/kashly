@@ -95,7 +95,19 @@ class TransactionController extends Controller
             }
         }
 
-        // 2. Update Payment Method balance if selected
+        // 2. Update Wallet balance if applicable
+        if ($validated['source_type'] === 'Wallet') {
+            $wallet = Wallet::find($validated['source_id']);
+            if ($wallet) {
+                if ($validated['type'] === 'income') {
+                    $wallet->increment('balance', $finalAmount);
+                } else {
+                    $wallet->decrement('balance', $finalAmount);
+                }
+            }
+        }
+
+        // 3. Update Payment Method balance if selected
         if ($request->filled('payment_method_id')) {
             $pm = PaymentMethod::find($request->input('payment_method_id'));
             if ($pm) {

@@ -38,6 +38,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/transactions/{transaction}', [TransactionController::class, 'destroy'])->name('transactions.destroy');
     Route::get('/integrations', [IntegrationsController::class, 'index'])->name('integrations.index');
     Route::resource('payment-methods', PaymentMethodController::class);
+    Route::resource('wallets', WalletController::class);
 });
 
 // Super Admin Routes
