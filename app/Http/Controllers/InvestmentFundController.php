@@ -41,13 +41,13 @@ class InvestmentFundController extends Controller
             'status' => 'active',
         ]);
 
-        // Auto-add creator as partner
-        $partner = \App\Models\Partner::firstOrCreate(
-            ['linked_user_id' => auth()->id()],
+        // Auto-add creator as partner (Fixed to avoid email collision)
+        $partner = \App\Models\Partner::updateOrCreate(
+            ['email' => auth()->user()->email],
             [
                 'user_id' => auth()->id(),
                 'name' => auth()->user()->name,
-                'email' => auth()->user()->email
+                'linked_user_id' => auth()->id()
             ]
         );
 
