@@ -30,6 +30,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/funds/{id}/add-payment-method', [InvestmentFundController::class, 'addPaymentMethod'])->name('funds.addPaymentMethod');
     Route::get('/funds/{id}/distributions', [InvestmentFundController::class, 'distributions'])->name('funds.distributions');
     Route::post('/funds/{id}/distributions', [InvestmentFundController::class, 'executeDistribution'])->name('funds.executeDistribution');
+    Route::post('/funds/{fundId}/accounts/{accountId}/reconcile', [InvestmentFundController::class, 'reconcileAccount'])->name('funds.reconcileAccount');
     Route::delete('/funds/{id}', [InvestmentFundController::class, 'destroy'])->name('funds.destroy');
     Route::get('/partners', [PartnerController::class, 'index'])->name('partners.index');
     Route::delete('/partners/{partner}', [PartnerController::class, 'destroy'])->name('partners.destroy');
@@ -39,6 +40,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/transactions/{transaction}', [TransactionController::class, 'destroy'])->name('transactions.destroy');
     Route::get('/integrations', [IntegrationsController::class, 'index'])->name('integrations.index');
     Route::resource('payment-methods', PaymentMethodController::class);
+    Route::post('/wallets/{id}/reconcile', [WalletController::class, 'reconcile'])->name('wallets.reconcile');
     Route::resource('wallets', WalletController::class);
 });
 

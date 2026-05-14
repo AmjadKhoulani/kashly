@@ -514,7 +514,7 @@
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path></svg>
                             </button>
                         </div>
-                        <div class="space-y-6 relative z-10">
+                        <div class="space-y-6 relative z-10" x-data="{ reconcilingId: null, reconcilingName: '', reconcilingBalance: 0 }">
                             @forelse($paymentMethods as $pm)
                                 <div class="bg-white/10 p-5 rounded-3xl border border-white/10 backdrop-blur-sm hover:bg-white/15 transition-all">
                                     <div class="flex justify-between items-start mb-3">
@@ -527,15 +527,38 @@
                                                 <p class="text-[10px] font-bold opacity-40">{{ $pm->type == 'bank' ? 'حساب بنكي' : 'محفظة رقمية' }}</p>
                                             </div>
                                         </div>
-                                        <span class="text-[10px] font-black bg-white/20 px-2 py-1 rounded-lg">{{ $pm->currency }}</span>
+                                        <div class="flex items-center gap-2">
+                                            <button @click="reconcilingId = {{ $pm->id }}; reconcilingName = '{{ $pm->name }}'; reconcilingBalance = {{ $pm->balance }};" class="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center hover:bg-white/20 transition-all text-[10px]" title="مطابقة الرصيد">
+                                                ⚖️
+                                            </button>
+                                            <span class="text-[10px] font-black bg-white/20 px-2 py-1 rounded-lg">{{ $pm->currency }}</span>
+                                        </div>
                                     </div>
-                                    <p class="text-2xl font-black tracking-tighter">${{ number_format($pm->balance, 2) }}</p>
+                                    <p class="text-2xl font-black tracking-tighter">${{ number_format($pm->balance, 0) }}</p>
                                 </div>
                             @empty
                                 <div class="text-center py-10 border-2 border-dashed border-white/20 rounded-[2.5rem]">
                                     <p class="text-xs font-black opacity-40 uppercase tracking-widest italic">لا توجد حسابات مضافة</p>
                                 </div>
                             @endforelse
+
+                            <!-- Fund Account Reconcile Modal -->
+                            <div x-show="reconcilingId !== null" class="fixed inset-0 z-[110] flex items-center justify-center p-6 bg-gray-900/80 backdrop-blur-md" x-cloak x-transition>
+                                <div class="bg-white rounded-[3rem] w-full max-w-sm p-10 shadow-2xl relative text-right text-gray-900" @click.away="reconcilingId = null">
+                                    <h3 class="text-2xl font-black mb-4">مطابقة: <span x-text="reconcilingName"></span></h3>
+                                    <p class="text-xs font-bold text-gray-500 mb-8 leading-relaxed">أدخل الرصيد الفعلي الحالي في هذا الحساب.</p>
+                                    
+                                    <form :action="'/funds/{{ $fund->id }}/accounts/' + reconcilingId + '/reconcile'" method="POST" class="space-y-6">
+                                        @csrf
+                                        <div>
+                                            <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 mr-2 tracking-widest">المبلغ الحقيقي الحالي ($)</label>
+                                            <input type="number" name="actual_balance" required step="0.01" class="w-full premium-input border-gray-100 text-gray-900" :placeholder="'الرصيد الحالي: ' + reconcilingBalance">
+                                        </div>
+
+                                        <button type="submit" class="w-full bg-indigo-600 text-white py-5 rounded-[2rem] font-black text-lg shadow-xl shadow-indigo-500/20 hover:bg-indigo-700 transition-all">تأكيد المطابقة</button>
+                                    </form>
+                                </div>
+                            </div>
                         </div>
                     </div>
 

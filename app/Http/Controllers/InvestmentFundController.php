@@ -365,6 +365,47 @@ class InvestmentFundController extends Controller
             return redirect()->route('funds.distributions', $fund->id)->with('status', 'تم تنفيذ وتوثيق توزيع الأرباح بنجاح.');
         });
     }
+    public function reconcileAccount(Request $request, $fundId, $accountId)
+    {
+        $fund = InvestmentFund::findOrFail($fundId);
+        $paymentMethod = PaymentMethod::where('fund_id', $fundId)->findOrFail($accountId);
+        $request->validate(['actual_balance' => 'required|numeric|min:0']);
+
+        $difference = $request->actual_balance - $paymentMethod->balance;
+
+        if ($difference == 0) {
+            return back()->with('status', 'الرصيد مطابق تماماً.');
+        }
+
+        return DB::transaction(function () use ($fund, $paymentMethod, $difference, $request) {
+            // 1. Create Adjustment Transaction
+            Transaction::create([
+                'user_id' => auth()->id(),
+                'amount' => abs($difference),
+                'type' => $difference > 0 ? 'income' : 'expense',
+                'category' => 'تسوية رصيد',
+                'description' => 'مطابقة رصيد حساب: ' . $paymentMethod->name . ' - المبلغ الحقيقي: ' . $request->actual_balance,
+                'transactionable_id' => $fund->id,
+                'transactionable_type' => InvestmentFund::class,
+                'payment_method_id' => $paymentMethod->id,
+                'transaction_date' => now(),
+                'currency' => $fund->currency,
+            ]);
+
+            // 2. Update Payment Method Balance
+            $paymentMethod->update(['balance' => $request->actual_balance]);
+
+            // 3. Update Fund current_value
+            if ($difference > 0) {
+                $fund->increment('current_value', abs($difference));
+            } else {
+                $fund->decrement('current_value', abs($difference));
+            }
+
+            return back()->with('status', 'تمت مطابقة رصيد الحساب وتحديث القيمة الحالية للصندوق.');
+        });
+    }
+
     public function addPaymentMethod(Request $request, $id)
     {
         $fund = InvestmentFund::findOrFail($id);

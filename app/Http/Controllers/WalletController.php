@@ -45,6 +45,38 @@ class WalletController extends Controller
         return view('wallets.show', compact('wallet', 'transactions'));
     }
 
+    public function reconcile(Request $request, $id)
+    {
+        $wallet = Wallet::where('user_id', auth()->id())->findOrFail($id);
+        $request->validate(['actual_balance' => 'required|numeric|min:0']);
+
+        $difference = $request->actual_balance - $wallet->balance;
+
+        if ($difference == 0) {
+            return back()->with('success', 'الرصيد مطابق تماماً، لا حاجة للتعديل.');
+        }
+
+        \Illuminate\Support\Facades\DB::transaction(function () use ($wallet, $difference, $request) {
+            // Create Adjustment Transaction
+            Transaction::create([
+                'user_id' => auth()->id(),
+                'amount' => abs($difference),
+                'type' => $difference > 0 ? 'income' : 'expense',
+                'category' => 'تسوية رصيد',
+                'description' => 'مطابقة رصيد يدوية - المبلغ الحقيقي: ' . $request->actual_balance,
+                'transactionable_id' => $wallet->id,
+                'transactionable_type' => Wallet::class,
+                'transaction_date' => now(),
+                'currency' => $wallet->currency,
+            ]);
+
+            // Update Wallet Balance
+            $wallet->update(['balance' => $request->actual_balance]);
+        });
+
+        return back()->with('success', 'تمت مطابقة الرصيد بنجاح وتسجيل عملية تسوية بالفرق.');
+    }
+
     public function destroy(Wallet $wallet)
     {
         if ($wallet->user_id !== auth()->id()) abort(403);

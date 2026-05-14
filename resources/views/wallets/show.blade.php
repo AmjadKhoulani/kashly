@@ -22,7 +22,11 @@
                         </div>
                     </div>
                 </div>
-                <div class="flex items-center gap-3">
+                <div class="flex items-center gap-3" x-data="{ showModal: false, showReconcile: false }">
+                    <button @click="showReconcile = true" class="bg-white border border-amber-200 text-amber-600 px-8 py-5 rounded-[2rem] font-black text-sm shadow-sm hover:bg-amber-50 transition-all flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+                        مطابقة الرصيد
+                    </button>
                     <button @click="showModal = true" class="bg-indigo-600 hover:bg-indigo-700 text-white px-10 py-5 rounded-[2rem] font-black text-lg shadow-xl shadow-indigo-500/20 transition-all hover:scale-105">إضافة عملية</button>
                     <form action="{{ route('wallets.destroy', $wallet->id) }}" method="POST" onsubmit="return confirm('هل أنت متأكد من حذف هذه المحفظة؟ لا يمكن التراجع عن هذه الخطوة.')">
                         @csrf
@@ -125,6 +129,26 @@
                     </table>
                 </div>
             </div>
+        </div>
+    </div>
+
+    </div>
+
+    <!-- Reconcile Modal -->
+    <div x-show="showReconcile" class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-gray-900/60 backdrop-blur-md" x-cloak x-transition>
+        <div class="bg-white rounded-[4rem] w-full max-w-md p-12 shadow-2xl relative text-right" @click.away="showReconcile = false">
+            <h3 class="text-3xl font-black text-gray-900 mb-8">مطابقة رصيد</h3>
+            <p class="text-gray-500 font-bold mb-8 text-sm leading-relaxed">أدخل المبلغ الحقيقي الموجود في هذه المحفظة حالياً. سيقوم النظام تلقائياً بإنشاء عملية تسوية بالفرق إذا وجد.</p>
+            
+            <form action="{{ route('wallets.reconcile', $wallet->id) }}" method="POST" class="space-y-8">
+                @csrf
+                <div>
+                    <label class="block text-[10px] font-black text-gray-400 uppercase mb-4 tracking-widest mr-2">المبلغ الحقيقي الحالي ($)</label>
+                    <input type="number" name="actual_balance" required step="0.01" class="w-full premium-input" placeholder="مثلاً: 500.00">
+                </div>
+
+                <button type="submit" class="w-full bg-amber-500 text-white py-6 rounded-[2.5rem] font-black text-xl shadow-xl shadow-amber-500/20 hover:bg-amber-600 transition-all">تأكيد المطابقة</button>
+            </form>
         </div>
     </div>
 
