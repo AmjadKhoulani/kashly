@@ -385,12 +385,30 @@
                             <table class="w-full text-right">
                                 <thead class="bg-gray-50/80">
                                     <tr>
-                                        <th class="px-10 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">الشريك</th>
-                                        <th class="px-6 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">نوع الحصة</th>
-                                        <th class="px-6 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">المساهمة</th>
-                                        <th class="px-6 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">النسبة</th>
-                                        <th class="px-6 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">القيمة الحالية</th>
-                                        <th class="px-10 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">إجراءات</th>
+                                        <th class="px-10 py-6 text-right">
+                                            <span class="block text-[10px] font-black text-gray-400 uppercase tracking-widest">الشريك</span>
+                                            <span class="block text-[8px] font-bold text-gray-300 mt-0.5">الاسم المسجل للنظام</span>
+                                        </th>
+                                        <th class="px-6 py-6 text-center">
+                                            <span class="block text-[10px] font-black text-gray-400 uppercase tracking-widest">نوع الحصة</span>
+                                            <span class="block text-[8px] font-bold text-gray-300 mt-0.5">آلية حساب الملكية</span>
+                                        </th>
+                                        <th class="px-6 py-6 text-center">
+                                            <span class="block text-[10px] font-black text-gray-400 uppercase tracking-widest">المساهمة</span>
+                                            <span class="block text-[8px] font-bold text-gray-300 mt-0.5">رأس المال المدفوع</span>
+                                        </th>
+                                        <th class="px-6 py-6 text-center">
+                                            <span class="block text-[10px] font-black text-gray-400 uppercase tracking-widest">النسبة</span>
+                                            <span class="block text-[8px] font-bold text-gray-300 mt-0.5">الحصة من الإجمالي</span>
+                                        </th>
+                                        <th class="px-6 py-6 text-center">
+                                            <span class="block text-[10px] font-black text-gray-400 uppercase tracking-widest text-emerald-600/60">القيمة الحالية</span>
+                                            <span class="block text-[8px] font-bold text-emerald-300/60 mt-0.5">قيمة الحصة اليوم</span>
+                                        </th>
+                                        <th class="px-10 py-6 text-center">
+                                            <span class="block text-[10px] font-black text-gray-400 uppercase tracking-widest">إجراءات</span>
+                                            <span class="block text-[8px] font-bold text-gray-300 mt-0.5">تعديل أو استبعاد</span>
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-100">
