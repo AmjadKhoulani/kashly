@@ -1,6 +1,26 @@
 <x-app-layout>
     <div class="py-12 px-6" x-data="{ showModal: false }">
         <div class="max-w-7xl mx-auto space-y-12">
+
+            @if(session('error'))
+                <div class="bg-rose-50 border border-rose-100 p-6 rounded-[2rem] flex items-center gap-4 shadow-sm">
+                    <div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-xl shadow-sm">⚠️</div>
+                    <div>
+                        <h4 class="text-sm font-black text-rose-900">حدث خطأ أثناء المعالجة</h4>
+                        <p class="text-xs font-bold text-rose-600 mt-1">{{ session('error') }}</p>
+                    </div>
+                </div>
+            @endif
+
+            @if(session('success'))
+                <div class="bg-emerald-50 border border-emerald-100 p-6 rounded-[2rem] flex items-center gap-4 shadow-sm">
+                    <div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-xl shadow-sm">✅</div>
+                    <div>
+                        <h4 class="text-sm font-black text-emerald-900">تمت العملية بنجاح</h4>
+                        <p class="text-xs font-bold text-emerald-600 mt-1">{{ session('success') }}</p>
+                    </div>
+                </div>
+            @endif
             
             <!-- Header Section -->
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
