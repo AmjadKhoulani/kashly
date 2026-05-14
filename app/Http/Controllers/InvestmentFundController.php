@@ -129,4 +129,25 @@ class InvestmentFundController extends Controller
 
         return view('funds.distributions', compact('fund', 'equities', 'netProfit', 'income', 'expense'));
     }
+    public function addPaymentMethod(Request $request, $id)
+    {
+        $fund = InvestmentFund::findOrFail($id);
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'type' => 'required|string|in:bank,cash,credit_card,debit_card,other',
+            'balance' => 'required|numeric',
+            'currency' => 'required|string|size:3',
+        ]);
+
+        PaymentMethod::create([
+            'user_id' => auth()->id(),
+            'fund_id' => $fund->id,
+            'name' => $request->name,
+            'type' => $request->type,
+            'balance' => $request->balance,
+            'currency' => $request->currency,
+        ]);
+
+        return back()->with('success', 'تمت إضافة الحساب للصندوق بنجاح');
+    }
 }

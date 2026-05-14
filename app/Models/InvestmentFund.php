@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class InvestmentFund extends Model
 {
@@ -30,8 +31,13 @@ class InvestmentFund extends Model
         return $this->hasMany(FundAsset::class);
     }
 
-    public function distributions()
+    public function distributions(): HasMany
     {
         return $this->hasMany(Distribution::class);
+    }
+
+    public function paymentMethods(): HasMany
+    {
+        return $this->hasMany(PaymentMethod::class, 'fund_id');
     }
 }

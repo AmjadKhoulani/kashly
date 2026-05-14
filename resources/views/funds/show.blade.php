@@ -18,10 +18,71 @@
                     </div>
                 </div>
                 
-                <div class="flex items-center gap-3" x-data="{ showModal: false, showAssetModal: false, showPartnerModal: false }">
+                <div class="flex items-center gap-3" x-data="{ showModal: false, showAssetModal: false, showPartnerModal: false, showAccountModal: false }">
+                    <button @click="showAccountModal = true" class="bg-white border border-gray-100 text-gray-900 px-6 py-4 rounded-[2rem] text-sm font-black shadow-sm hover:bg-gray-50 transition-all">حسابات الصندوق</button>
                     <button @click="showPartnerModal = true" class="bg-white border border-gray-100 text-gray-900 px-6 py-4 rounded-[2rem] text-sm font-black shadow-sm hover:bg-gray-50 transition-all">إضافة شريك</button>
                     <button @click="showAssetModal = true" class="bg-white border border-gray-100 text-gray-900 px-6 py-4 rounded-[2rem] text-sm font-black shadow-sm hover:bg-gray-50 transition-all">إضافة أصل</button>
                     <button @click="showModal = true" class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-[2rem] text-sm font-black shadow-xl shadow-indigo-500/20 transition-all hover:scale-105">إضافة عملية</button>
+
+                    <!-- Fund Accounts Modal -->
+                    <div x-show="showAccountModal" class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-gray-900/60 backdrop-blur-md" x-cloak x-transition>
+                        <div class="bg-white rounded-[4rem] w-full max-w-2xl p-12 shadow-2xl relative text-right overflow-y-auto max-h-[90vh]" @click.away="showAccountModal = false">
+                            <h3 class="text-3xl font-black text-gray-900 mb-8">حسابات الصندوق</h3>
+                            
+                            <!-- Existing Accounts List -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10">
+                                @foreach($fund->paymentMethods as $pm)
+                                    <div class="p-6 bg-gray-50 rounded-3xl border border-gray-100 flex items-center gap-4">
+                                        <div class="text-2xl">
+                                            @switch($pm->type)
+                                                @case('bank') 🏛️ @break
+                                                @case('cash') 💵 @break
+                                                @case('credit_card') 💳 @break
+                                                @default 💰
+                                            @endswitch
+                                        </div>
+                                        <div>
+                                            <p class="font-black text-gray-900">{{ $pm->name }}</p>
+                                            <p class="text-xs font-bold text-indigo-600">{{ number_format($pm->balance, 0) }} {{ $pm->currency }}</p>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+
+                            <hr class="border-gray-100 mb-10">
+
+                            <h4 class="text-xl font-black text-gray-900 mb-6">إضافة حساب جديد للصندوق</h4>
+                            <form action="{{ route('funds.addPaymentMethod', $fund->id) }}" method="POST" class="space-y-6">
+                                @csrf
+                                <div>
+                                    <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 mr-2">اسم الحساب</label>
+                                    <input type="text" name="name" required class="w-full bg-gray-50 border-0 rounded-[2rem] p-6 font-bold text-lg" placeholder="مثلاً: خزينة الصندوق، حساب بنكي للصندوق...">
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 mr-2">النوع</label>
+                                        <select name="type" class="w-full bg-gray-50 border-0 rounded-[2rem] p-6 font-bold text-lg">
+                                            <option value="bank">حساب بنكي</option>
+                                            <option value="cash">نقد / كاش</option>
+                                            <option value="credit_card">بطاقة ائتمان</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 mr-2">العملة</label>
+                                        <select name="currency" class="w-full bg-gray-50 border-0 rounded-[2rem] p-6 font-bold text-lg">
+                                            <option value="USD">USD</option>
+                                            <option value="TRY">TRY</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 mr-2">الرصيد الافتتاحي</label>
+                                    <input type="number" name="balance" required class="w-full bg-gray-50 border-0 rounded-[2rem] p-6 font-black text-xl" placeholder="0.00">
+                                </div>
+                                <button type="submit" class="w-full bg-indigo-600 text-white py-6 rounded-[2.5rem] font-black text-xl shadow-xl shadow-indigo-500/20">حفظ الحساب</button>
+                            </form>
+                        </div>
+                    </div>
 
                     <!-- Partner Modal -->
                     <div x-show="showPartnerModal" class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-gray-900/60 backdrop-blur-md" x-cloak x-transition>
@@ -140,11 +201,11 @@
                                     <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 tracking-widest mr-2 text-right">التصنيف</label>
                                     <select name="category" required class="w-full bg-gray-50 border-0 rounded-[2rem] p-6 font-bold text-lg focus:ring-4 focus:ring-indigo-600/10 transition-all text-right">
                                         <option value="أرباح">أرباح</option>
+                                        <option value="مصاريف رأس مال">مصاريف رأس مال (تأسيس/أصول)</option>
                                         <option value="رواتب">رواتب</option>
                                         <option value="إيجار">إيجار</option>
                                         <option value="تسويق">تسويق</option>
                                         <option value="صيانة">صيانة</option>
-                                        <option value="تأسيس">تأسيس</option>
                                         <option value="أخرى">أخرى</option>
                                     </select>
                                 </div>
