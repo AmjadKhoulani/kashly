@@ -116,10 +116,21 @@
                     </div>
 
                     <!-- Partner Modal -->
-                    <div x-show="showPartnerModal" class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-gray-900/60 backdrop-blur-md" x-cloak x-transition>
+                    <div x-show="showPartnerModal" class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-gray-900/60 backdrop-blur-md" x-cloak x-transition x-init="@if($errors->has('new_partner_email') || $errors->has('new_partner_name') || $errors->has('partner_id')) showPartnerModal = true @endif">
                         <div class="bg-white rounded-[4rem] w-full max-w-lg p-12 shadow-2xl relative text-right" @click.away="showPartnerModal = false">
                             <h3 class="text-3xl font-black text-gray-900 mb-8">إضافة شريك للصندوق</h3>
-                            <form action="{{ route('funds.addPartner', $fund->id) }}" method="POST" class="space-y-6" x-data="{ type: 'contribution', partnerSource: 'existing' }">
+                            
+                            @if ($errors->any())
+                                <div class="bg-rose-50 border border-rose-100 text-rose-600 p-6 rounded-3xl mb-8 text-sm font-bold">
+                                    <ul class="list-disc list-inside">
+                                        @foreach ($errors->all() as $error)
+                                            <li>{{ $error }}</li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            @endif
+
+                            <form action="{{ route('funds.addPartner', $fund->id) }}" method="POST" class="space-y-6" x-data="{ type: 'contribution', partnerSource: '{{ old('partner_source', 'existing') }}' }">
                                 @csrf
                                 
                                 <div class="grid grid-cols-2 gap-4 p-2 bg-gray-50 rounded-[2rem] border border-gray-100 shadow-inner mb-6">
@@ -138,7 +149,7 @@
                                     <select name="partner_id" class="w-full premium-input">
                                         <option value="">-- اختر شريك --</option>
                                         @foreach(App\Models\Partner::where('user_id', auth()->id())->where(function($q) { $q->whereNull('linked_user_id')->orWhere('linked_user_id', '!=', auth()->id()); })->get() as $p)
-                                            <option value="{{ $p->id }}">{{ $p->name }}</option>
+                                            <option value="{{ $p->id }}" {{ old('partner_id') == $p->id ? 'selected' : '' }}>{{ $p->name }}</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -147,11 +158,11 @@
                                     <input type="hidden" name="is_new" :value="partnerSource === 'new' ? 'true' : 'false'">
                                     <div>
                                         <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 mr-2">اسم الشريك الجديد</label>
-                                        <input type="text" name="new_partner_name" class="w-full premium-input" placeholder="الاسم الكامل">
+                                        <input type="text" name="new_partner_name" value="{{ old('new_partner_name') }}" class="w-full premium-input" placeholder="الاسم الكامل">
                                     </div>
                                     <div>
                                         <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 mr-2">البريد الإلكتروني</label>
-                                        <input type="email" name="new_partner_email" class="w-full premium-input" placeholder="example@mail.com">
+                                        <input type="email" name="new_partner_email" value="{{ old('new_partner_email') }}" class="w-full premium-input" placeholder="example@mail.com">
                                         <p class="text-[10px] text-gray-400 mt-2 mr-2">سيتم إنشاء حساب له وإرسال كلمة المرور.</p>
                                     </div>
                                 </div>
@@ -159,20 +170,22 @@
                                 <div>
                                     <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 mr-2">نوع الحصة</label>
                                     <select name="equity_type" x-model="type" class="w-full premium-input">
-                                        <option value="contribution">بناءً على مبلغ مساهمة (رأس مال)</option>
-                                        <option value="fixed">نسبة مئوية ثابتة</option>
+                                        <option value="contribution" {{ old('equity_type') == 'contribution' ? 'selected' : '' }}>بناءً على مبلغ مساهمة (رأس مال)</option>
+                                        <option value="fixed" {{ old('equity_type') == 'fixed' ? 'selected' : '' }}>نسبة مئوية ثابتة</option>
                                     </select>
                                 </div>
                                 <div x-show="type === 'contribution'">
                                     <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 mr-2">مبلغ المساهمة ($)</label>
-                                    <input type="number" name="amount" class="w-full premium-input text-2xl">
+                                    <input type="number" name="amount" value="{{ old('amount') }}" class="w-full premium-input text-2xl">
                                 </div>
                                 <div x-show="type === 'fixed'">
-                                    <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 mr-2">النسبة المئوية (%)</label>
-                                    <input type="number" name="percentage" class="w-full premium-input text-2xl" placeholder="مثلاً: 25">
+                                    <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 mr-2">الالنسبة المئوية (%)</label>
+                                    <input type="number" name="percentage" value="{{ old('percentage') }}" class="w-full premium-input text-2xl" placeholder="مثلاً: 25">
                                 </div>
                                 <button type="submit" class="w-full bg-indigo-600 text-white py-6 rounded-[2.5rem] font-black text-xl shadow-xl shadow-indigo-500/20">تأكيد الإضافة</button>
                             </form>
+                        </div>
+                    </div>
                         </div>
                     </div>
 
@@ -414,8 +427,42 @@
                     </div>
                 </div>
 
-                <!-- Sidebar (Activity) -->
+                <!-- Sidebar -->
                 <div class="space-y-10">
+                    <!-- Accounts Widget -->
+                    <div class="premium-card p-10 relative overflow-hidden bg-indigo-900 text-white shadow-2xl shadow-indigo-900/20">
+                        <div class="absolute -right-20 -top-20 w-60 h-60 bg-white/10 rounded-full blur-3xl"></div>
+                        <div class="flex justify-between items-center mb-8 relative z-10">
+                            <h3 class="text-2xl font-black">حسابات الصندوق 💳</h3>
+                            <button @click="showAccountModal = true" class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center hover:bg-white/30 transition-all">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path></svg>
+                            </button>
+                        </div>
+                        <div class="space-y-6 relative z-10">
+                            @forelse($paymentMethods as $pm)
+                                <div class="bg-white/10 p-5 rounded-3xl border border-white/10 backdrop-blur-sm hover:bg-white/15 transition-all">
+                                    <div class="flex justify-between items-start mb-3">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center text-lg">
+                                                {{ $pm->type == 'bank' ? '🏦' : ($pm->type == 'wallet' ? '📱' : '💵') }}
+                                            </div>
+                                            <div>
+                                                <p class="text-xs font-black opacity-60 uppercase tracking-widest">{{ $pm->name }}</p>
+                                                <p class="text-[10px] font-bold opacity-40">{{ $pm->type == 'bank' ? 'حساب بنكي' : 'محفظة رقمية' }}</p>
+                                            </div>
+                                        </div>
+                                        <span class="text-[10px] font-black bg-white/20 px-2 py-1 rounded-lg">{{ $pm->currency }}</span>
+                                    </div>
+                                    <p class="text-2xl font-black tracking-tighter">${{ number_format($pm->balance, 2) }}</p>
+                                </div>
+                            @empty
+                                <div class="text-center py-10 border-2 border-dashed border-white/20 rounded-[2.5rem]">
+                                    <p class="text-xs font-black opacity-40 uppercase tracking-widest italic">لا توجد حسابات مضافة</p>
+                                </div>
+                            @endforelse
+                        </div>
+                    </div>
+
                     <div class="premium-card p-10 relative overflow-hidden">
                         <div class="absolute -right-20 -bottom-20 w-40 h-40 bg-emerald-500/5 rounded-full blur-3xl"></div>
                         <h3 class="text-2xl font-black text-gray-900 mb-8 relative z-10">العمليات الأخيرة</h3>

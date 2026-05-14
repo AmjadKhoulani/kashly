@@ -80,7 +80,7 @@ class InvestmentFundController extends Controller
             ->latest()
             ->get();
 
-        $paymentMethods = PaymentMethod::where('user_id', auth()->id())->get();
+        $paymentMethods = PaymentMethod::where('fund_id', $fund->id)->get();
 
         return view('funds.show', compact('fund', 'equities', 'transactions', 'paymentMethods'));
     }
