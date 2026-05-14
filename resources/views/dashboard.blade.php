@@ -11,7 +11,10 @@
                 <div class="flex items-center gap-4">
                     <div class="hidden md:flex flex-col items-end">
                         <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">إجمالي الثروة التقديرية</span>
-                        <span class="text-2xl font-black text-emerald-600">${{ number_format($totalPersonalCash + $totalBusinessValue + $funds->sum('current_value'), 0) }}</span>
+                        <div class="flex items-baseline gap-2">
+                            <span class="text-2xl font-black text-emerald-600">${{ number_format($estimatedTotalUSD, 0) }}</span>
+                            <span class="text-[10px] font-black text-gray-400">تقريباً</span>
+                        </div>
                     </div>
                     <button class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-[2rem] text-sm font-black shadow-xl shadow-indigo-500/20 flex items-center transition-all hover:scale-105">
                         <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path></svg>
@@ -28,7 +31,14 @@
                         <div class="w-14 h-14 bg-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center text-2xl shadow-inner">💵</div>
                         <span class="text-[10px] font-black text-indigo-400 bg-indigo-50 px-3 py-1 rounded-full uppercase tracking-widest">نقد متاح</span>
                     </div>
-                    <h2 class="text-4xl font-black text-gray-900 mb-2 tracking-tighter">${{ number_format($totalPersonalCash, 0) }}</h2>
+                    <h2 class="text-4xl font-black text-gray-900 mb-2 tracking-tighter">${{ number_format($wallets->where('currency', 'USD')->sum('balance'), 0) }}</h2>
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        @foreach($totalByCurrency as $curr => $val)
+                            @if($curr !== 'USD')
+                                <span class="text-[10px] font-black text-indigo-600 bg-white/50 px-2 py-1 rounded border border-indigo-100">{{ number_format($val, 0) }} {{ $curr }}</span>
+                            @endif
+                        @endforeach
+                    </div>
                     <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">إجمالي رصيد المحافظ الشخصية</p>
                 </div>
 

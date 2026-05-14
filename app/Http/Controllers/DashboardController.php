@@ -14,14 +14,42 @@ class DashboardController extends Controller
     {
         $user = auth()->user();
 
-        // Commercial Stats
-        $businesses = Business::where('user_id', $user->id)->get();
-        $funds = InvestmentFund::where('user_id', $user->id)->get();
-        $totalBusinessValue = $businesses->sum('total_value') + $funds->sum('current_value');
-
-        // Personal Stats
+        // Multi-currency stats
         $wallets = Wallet::where('user_id', $user->id)->get();
-        $totalPersonalCash = $wallets->sum('balance');
+        $funds = InvestmentFund::where('user_id', $user->id)->get();
+        $businesses = Business::where('user_id', $user->id)->get();
+
+        $totalByCurrency = [];
+        
+        // Sum Wallets
+        foreach($wallets as $wallet) {
+            $totalByCurrency[$wallet->currency] = ($totalByCurrency[$wallet->currency] ?? 0) + $wallet->balance;
+        }
+
+        // Sum Funds
+        foreach($funds as $fund) {
+            $totalByCurrency[$fund->currency] = ($totalByCurrency[$fund->currency] ?? 0) + $fund->current_value;
+        }
+
+        // Calculate Estimated Total in USD
+        $estimatedTotalUSD = 0;
+        foreach($totalByCurrency as $curr => $val) {
+            if ($curr === 'USD') {
+                $estimatedTotalUSD += $val;
+            } else {
+                // Find last transaction with this currency to get rate, fallback to 1 if not found
+                $lastRate = Transaction::where('user_id', $user->id)
+                    ->where('currency', $curr)
+                    ->where('exchange_rate', '>', 1) // Only real rates
+                    ->latest()
+                    ->value('exchange_rate') ?? 1;
+
+                $estimatedTotalUSD += ($lastRate > 0) ? $val / $lastRate : $val;
+            }
+        }
+
+        $totalPersonalCash = $wallets->sum('balance'); // Keep for legacy if needed, but we'll use breakdown
+        $totalBusinessValue = $businesses->sum('total_value') + $funds->sum('current_value');
 
         // Recent Transactions
         $recentTransactions = Transaction::where('user_id', $user->id)
@@ -60,6 +88,8 @@ class DashboardController extends Controller
         return view('dashboard', compact(
             'totalBusinessValue',
             'totalPersonalCash',
+            'estimatedTotalUSD',
+            'totalByCurrency',
             'recentTransactions',
             'businesses',
             'funds',
