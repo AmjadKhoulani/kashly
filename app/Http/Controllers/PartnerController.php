@@ -16,6 +16,10 @@ class PartnerController extends Controller
     public function index()
     {
         $partners = Partner::where('user_id', auth()->id())
+            ->where(function($query) {
+                $query->whereNull('linked_user_id')
+                      ->orWhere('linked_user_id', '!=', auth()->id());
+            })
             ->with('equities.equitable', 'linkedUser')
             ->get();
 
