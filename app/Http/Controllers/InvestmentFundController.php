@@ -84,11 +84,33 @@ class InvestmentFundController extends Controller
             ->where('transactionable_type', InvestmentFund::class)
             ->with('paymentMethod')
             ->latest()
+            ->limit(5)
             ->get();
 
         $paymentMethods = PaymentMethod::where('fund_id', $fund->id)->get();
 
         return view('funds.show', compact('fund', 'equities', 'transactions', 'paymentMethods'));
+    }
+
+    public function fundTransactions($id)
+    {
+        $fund = InvestmentFund::where('user_id', auth()->id())->findOrFail($id);
+        
+        $transactions = Transaction::where('transactionable_id', $fund->id)
+            ->where('transactionable_type', InvestmentFund::class)
+            ->with('paymentMethod')
+            ->latest()
+            ->paginate(20);
+
+        $income = Transaction::where('transactionable_id', $fund->id)
+            ->where('transactionable_type', InvestmentFund::class)
+            ->where('type', 'income')->sum('amount');
+            
+        $expense = Transaction::where('transactionable_id', $fund->id)
+            ->where('transactionable_type', InvestmentFund::class)
+            ->where('type', 'expense')->sum('amount');
+
+        return view('funds.transactions', compact('fund', 'transactions', 'income', 'expense'));
     }
 
     public function addPartner(Request $request, $id)

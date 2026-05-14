@@ -21,6 +21,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/funds', [InvestmentFundController::class, 'index'])->name('funds.index');
     Route::post('/funds', [InvestmentFundController::class, 'store'])->name('funds.store');
     Route::get('/funds/{id}', [InvestmentFundController::class, 'show'])->name('funds.show');
+    Route::get('/funds/{id}/transactions', [InvestmentFundController::class, 'fundTransactions'])->name('funds.transactions');
     Route::post('/funds/{id}/add-partner', [InvestmentFundController::class, 'addPartner'])->name('funds.addPartner');
     Route::put('/equities/{id}', [InvestmentFundController::class, 'updateEquity'])->name('funds.updateEquity');
     Route::delete('/equities/{id}', [InvestmentFundController::class, 'removePartner'])->name('funds.removePartner');
