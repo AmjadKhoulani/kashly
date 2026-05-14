@@ -247,9 +247,20 @@
                     <p class="text-[10px] text-gray-400 font-black uppercase mb-2 tracking-widest">قيمة الأصول</p>
                     <p class="text-3xl font-black text-gray-900">${{ number_format($fund->assets->sum('value'), 0) }}</p>
                 </div>
+                @php
+                    $income = \App\Models\Transaction::where('transactionable_id', $fund->id)
+                        ->where('transactionable_type', \App\Models\InvestmentFund::class)
+                        ->where('type', 'income')->sum('amount');
+                    $expense = \App\Models\Transaction::where('transactionable_id', $fund->id)
+                        ->where('transactionable_type', \App\Models\InvestmentFund::class)
+                        ->where('type', 'expense')->sum('amount');
+                    $profit = $income - $expense;
+                @endphp
                 <div class="premium-card p-8">
-                    <p class="text-[10px] text-gray-400 font-black uppercase mb-2 tracking-widest">توزيع الأرباح</p>
-                    <a href="{{ route('funds.distributions', $fund->id) }}" class="text-xl font-black text-emerald-600 hover:underline">عرض التقويم →</a>
+                    <p class="text-[10px] text-gray-400 font-black uppercase mb-2 tracking-widest">صافي الأرباح/الخسائر</p>
+                    <p class="text-3xl font-black {{ $profit >= 0 ? 'text-emerald-600' : 'text-rose-600' }}">
+                        {{ $profit >= 0 ? '+' : '' }}${{ number_format($profit, 0) }}
+                    </p>
                 </div>
             </div>
 

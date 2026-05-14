@@ -58,7 +58,29 @@
                                     <div class="flex items-center gap-3 mt-1">
                                         <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">{{ $transaction->transaction_date->format('Y/m/d') }}</span>
                                         <span class="w-1 h-1 bg-gray-200 rounded-full"></span>
-                                        <span class="text-[10px] font-black text-indigo-600 uppercase tracking-widest">{{ $transaction->category }}</span>
+                                        @php
+                                            $categoryColor = match($transaction->category) {
+                                                'أرباح' => 'text-emerald-600 bg-emerald-50',
+                                                'مصاريف رأس مال' => 'text-orange-600 bg-orange-50',
+                                                'رواتب' => 'text-blue-600 bg-blue-50',
+                                                'إيجار' => 'text-purple-600 bg-purple-50',
+                                                'تسويق' => 'text-pink-600 bg-pink-50',
+                                                'صيانة' => 'text-amber-600 bg-amber-50',
+                                                default => 'text-gray-600 bg-gray-50'
+                                            };
+                                            $categoryIcon = match($transaction->category) {
+                                                'أرباح' => '📈',
+                                                'مصاريف رأس مال' => '🏗️',
+                                                'رواتب' => '👤',
+                                                'إيجار' => '🏠',
+                                                'تسويق' => '📢',
+                                                'صيانة' => '🛠️',
+                                                default => '📦'
+                                            };
+                                        @endphp
+                                        <span class="text-[10px] font-black px-3 py-1 rounded-lg uppercase tracking-widest {{ $categoryColor }}">
+                                            {{ $categoryIcon }} {{ $transaction->category }}
+                                        </span>
                                     </div>
                                 </div>
                             </div>
