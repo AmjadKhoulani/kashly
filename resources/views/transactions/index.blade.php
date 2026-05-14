@@ -37,16 +37,16 @@
 
             <!-- Advanced Financial Filters & Reporting Hub -->
             <form action="{{ route('transactions.index') }}" method="GET" class="bg-white/80 backdrop-blur-xl p-8 rounded-[3rem] border border-white shadow-2xl space-y-6 no-print">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
                     <!-- Date Filter Group -->
                     <div class="flex gap-2">
-                        <select name="month" class="flex-1 premium-input text-xs h-12">
+                        <select name="month" class="flex-1 premium-input text-[10px] h-12">
                             <option value="">كل الأشهر</option>
                             @foreach(range(1, 12) as $m)
                                 <option value="{{ $m }}" {{ request('month') == $m ? 'selected' : '' }}>شهر {{ $m }}</option>
                             @endforeach
                         </select>
-                        <select name="year" class="flex-1 premium-input text-xs h-12">
+                        <select name="year" class="flex-1 premium-input text-[10px] h-12">
                             <option value="">كل السنوات</option>
                             @foreach(range(date('Y'), date('Y')-5) as $y)
                                 <option value="{{ $y }}" {{ request('year') == $y ? 'selected' : '' }}>{{ $y }}</option>
@@ -54,24 +54,45 @@
                         </select>
                     </div>
 
-                    <!-- Source Selection -->
-                    <select name="source_type" class="premium-input text-xs h-12">
-                        <option value="">جميع المصادر (صناديق ومحافظ)</option>
+                    <!-- Source & Type -->
+                    <select name="source_type" class="premium-input text-[10px] h-12">
+                        <option value="">جميع المصادر</option>
                         <option value="InvestmentFund" {{ request('source_type') == 'InvestmentFund' ? 'selected' : '' }}>صناديق الاستثمار</option>
                         <option value="Wallet" {{ request('source_type') == 'Wallet' ? 'selected' : '' }}>المحافظ الشخصية</option>
                     </select>
 
-                    <!-- Transaction Type -->
-                    <select name="type" class="premium-input text-xs h-12">
-                        <option value="">جميع أنواع الحركات</option>
-                        <option value="income" {{ request('type') == 'income' ? 'selected' : '' }}>الإيرادات فقط</option>
-                        <option value="expense" {{ request('type') == 'expense' ? 'selected' : '' }}>المصاريف فقط</option>
+                    <select name="type" class="premium-input text-[10px] h-12">
+                        <option value="">جميع الأنواع</option>
+                        <option value="income" {{ request('type') == 'income' ? 'selected' : '' }}>الإيرادات</option>
+                        <option value="expense" {{ request('type') == 'expense' ? 'selected' : '' }}>المصاريف</option>
                     </select>
 
-                    <!-- Control Buttons -->
-                    <div class="flex gap-3">
-                        <button type="submit" class="flex-1 bg-indigo-600 text-white rounded-2xl font-black text-[10px] uppercase shadow-xl shadow-indigo-200 hover:scale-105 transition-all">تطبيق الفلترة</button>
-                        <a href="{{ route('transactions.index') }}" class="flex-1 bg-gray-50 text-gray-400 rounded-2xl font-black text-[10px] uppercase flex items-center justify-center border border-gray-100 hover:bg-gray-100 transition-all text-center">تصفير</a>
+                    <!-- Category & Currency -->
+                    <select name="category" class="premium-input text-[10px] h-12">
+                        <option value="">كل التصنيفات</option>
+                        @foreach(['أرباح', 'رواتب', 'إيجار', 'تسويق', 'صيانة', 'تأسيس', 'أخرى'] as $cat)
+                            <option value="{{ $cat }}" {{ request('category') == $cat ? 'selected' : '' }}>{{ $cat }}</option>
+                        @endforeach
+                    </select>
+
+                    <select name="currency" class="premium-input text-[10px] h-12">
+                        <option value="">كل العملات</option>
+                        <option value="USD" {{ request('currency') == 'USD' ? 'selected' : '' }}>USD ($)</option>
+                        <option value="SYP" {{ request('currency') == 'SYP' ? 'selected' : '' }}>SYP (ل.س)</option>
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
+                    <select name="payment_method_id" class="premium-input text-[10px] h-12">
+                        <option value="">جميع الحسابات البنكية / الكاش</option>
+                        @foreach($paymentMethods as $pm)
+                            <option value="{{ $pm->id }}" {{ request('payment_method_id') == $pm->id ? 'selected' : '' }}>{{ $pm->name }} ({{ $pm->currency }})</option>
+                        @endforeach
+                    </select>
+
+                    <div class="md:col-span-2 flex gap-3">
+                        <button type="submit" class="flex-1 bg-indigo-600 text-white rounded-2xl font-black text-[10px] uppercase shadow-xl shadow-indigo-200 hover:scale-105 transition-all">تطبيق الفلاتر</button>
+                        <a href="{{ route('transactions.index') }}" class="w-32 bg-gray-50 text-gray-400 rounded-2xl font-black text-[10px] uppercase flex items-center justify-center border border-gray-100 hover:bg-gray-100 transition-all text-center">تصفير</a>
                     </div>
                 </div>
                 

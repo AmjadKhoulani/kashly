@@ -26,6 +26,12 @@ class TransactionController extends Controller
         if ($request->filled('type')) {
             $query->where('type', $request->type);
         }
+        if ($request->filled('category')) {
+            $query->where('category', $request->category);
+        }
+        if ($request->filled('currency')) {
+            $query->where('currency', $request->currency);
+        }
         if ($request->filled('source_type')) {
             $query->where('transactionable_type', 'App\\Models\\' . $request->source_type);
         }
