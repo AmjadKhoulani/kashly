@@ -37,7 +37,7 @@ class InvestmentFundController extends Controller
             'current_value' => $validated['capital'] ?? 0,
             'distribution_frequency' => $validated['distribution_frequency'],
             'currency' => $validated['currency'],
-            'icon' => $validated['icon'] ?? '🏘️',
+            'icon' => $request->icon ?: '🏢',
             'status' => 'active',
         ]);
 
@@ -54,7 +54,7 @@ class InvestmentFundController extends Controller
         Equity::create([
             'partner_id' => $partner->id,
             'equitable_id' => $fund->id,
-            'equitable_type' => InvestmentFund::class,
+            'equitable_type' => 'App\Models\InvestmentFund',
             'amount' => $fund->capital,
             'percentage' => $fund->capital > 0 ? 100 : 0,
             'equity_type' => 'contribution',
