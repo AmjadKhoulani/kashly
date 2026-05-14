@@ -8,6 +8,7 @@ use App\Models\Equity;
 use App\Models\Transaction;
 use App\Models\FundAsset;
 use App\Models\Distribution;
+use App\Models\PaymentMethod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -32,10 +33,13 @@ class InvestmentFundController extends Controller
 
         $transactions = Transaction::where('transactionable_id', $fund->id)
             ->where('transactionable_type', InvestmentFund::class)
+            ->with('paymentMethod')
             ->latest()
             ->get();
 
-        return view('funds.show', compact('fund', 'equities', 'transactions'));
+        $paymentMethods = PaymentMethod::where('user_id', auth()->id())->get();
+
+        return view('funds.show', compact('fund', 'equities', 'transactions', 'paymentMethods'));
     }
 
     public function addPartner(Request $request, $id)

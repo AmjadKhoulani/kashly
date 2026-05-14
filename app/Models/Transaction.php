@@ -4,11 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
 class Transaction extends Model
 {
     protected $fillable = [
         'amount', 'type', 'category', 'description', 'transactionable_type', 'transactionable_id', 'user_id', 'transaction_date',
-        'currency', 'exchange_rate', 'original_amount', 'invoice_path'
+        'currency', 'exchange_rate', 'original_amount', 'invoice_path', 'payment_method_id'
     ];
 
     protected $casts = [
@@ -23,8 +25,13 @@ class Transaction extends Model
         return $this->morphTo();
     }
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function paymentMethod(): BelongsTo
+    {
+        return $this->belongsTo(PaymentMethod::class);
     }
 }

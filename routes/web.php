@@ -8,6 +8,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PartnerController;
 use App\Http\Controllers\IntegrationsController;
 use App\Http\Controllers\SuperAdminController;
+use App\Http\Controllers\PaymentMethodController;
 use App\Http\Controllers\PartnerDashboardController;
 use Illuminate\Support\Facades\Route;
 
@@ -28,6 +29,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/transactions', [TransactionController::class, 'store'])->name('transactions.store');
     Route::delete('/transactions/{transaction}', [TransactionController::class, 'destroy'])->name('transactions.destroy');
     Route::get('/integrations', [IntegrationsController::class, 'index'])->name('integrations.index');
+    Route::resource('payment-methods', PaymentMethodController::class);
 });
 
 // Super Admin Routes

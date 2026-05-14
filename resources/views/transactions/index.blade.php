@@ -74,8 +74,15 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="px-3 py-1 bg-gray-50 rounded-lg text-[10px] font-black text-gray-400 uppercase">
-                                    {{ $transaction->transactionable->name ?? 'مصدر خارجي' }}
+                                <div class="flex items-center gap-2">
+                                    <div class="px-3 py-1 bg-gray-50 rounded-lg text-[10px] font-black text-gray-400 uppercase">
+                                        {{ $transaction->transactionable->name ?? 'مصدر خارجي' }}
+                                    </div>
+                                    @if($transaction->paymentMethod)
+                                        <div class="px-3 py-1 bg-indigo-50 rounded-lg text-[10px] font-black text-indigo-400 uppercase">
+                                            🏦 {{ $transaction->paymentMethod->name }}
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -163,6 +170,16 @@
                             <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 tracking-widest mr-2">التاريخ</label>
                             <input type="date" name="transaction_date" value="{{ date('Y-m-d') }}" required class="w-full bg-gray-50 border-0 rounded-[2rem] p-6 font-bold text-lg focus:ring-4 focus:ring-indigo-600/10 transition-all">
                         </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 tracking-widest mr-2">وسيلة الدفع / الحساب</label>
+                        <select name="payment_method_id" class="w-full bg-gray-50 border-0 rounded-[2rem] p-6 font-bold text-lg focus:ring-4 focus:ring-indigo-600/10 transition-all">
+                            <option value="">-- اختر الحساب --</option>
+                            @foreach($paymentMethods as $pm)
+                                <option value="{{ $pm->id }}">{{ $pm->name }} ({{ number_format($pm->balance, 0) }} {{ $pm->currency }})</option>
+                            @endforeach
+                        </select>
                     </div>
 
                     <div>

@@ -150,6 +150,16 @@
                                 </div>
 
                                 <div>
+                                    <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 tracking-widest mr-2 text-right">وسيلة الدفع / الحساب</label>
+                                    <select name="payment_method_id" class="w-full bg-gray-50 border-0 rounded-[2rem] p-6 font-bold text-lg focus:ring-4 focus:ring-indigo-600/10 transition-all text-right">
+                                        <option value="">-- اختر الحساب --</option>
+                                        @foreach($paymentMethods as $pm)
+                                            <option value="{{ $pm->id }}">{{ $pm->name }} ({{ number_format($pm->balance, 0) }} {{ $pm->currency }})</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <div>
                                     <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 tracking-widest mr-2 text-right">توثيق العملية (فاتورة/إيصال)</label>
                                     <input type="file" name="invoice" class="w-full bg-gray-50 border-0 rounded-[2rem] p-6 font-bold text-sm focus:ring-4 focus:ring-indigo-600/10 transition-all">
                                 </div>
