@@ -160,8 +160,55 @@ class InvestmentFundController extends Controller
                 );
             }
         });
-
         return back()->with('status', 'تم إضافة الشريك وتحديث الحصص بنجاح.');
+    }
+
+    public function updateEquity(Request $request, $id)
+    {
+        $equity = Equity::findOrFail($id);
+        $fund = InvestmentFund::findOrFail($equity->equitable_id);
+        
+        if ($fund->user_id !== auth()->id()) abort(403);
+
+        $request->validate([
+            'amount' => 'required|numeric|min:0',
+            'percentage' => 'required|numeric|min:0|max:100',
+        ]);
+
+        $equity->update([
+            'amount' => $request->amount,
+            'percentage' => $request->percentage,
+        ]);
+
+        // Recalculate capital if it's a contribution-based fund
+        $totalCapital = Equity::where('equitable_id', $fund->id)
+            ->where('equitable_type', InvestmentFund::class)
+            ->where('equity_type', 'contribution')
+            ->sum('amount');
+        
+        $fund->update(['capital' => $totalCapital]);
+
+        return back()->with('status', 'تم تحديث بيانات الحصة بنجاح.');
+    }
+
+    public function removePartner($id)
+    {
+        $equity = Equity::findOrFail($id);
+        $fund = InvestmentFund::findOrFail($equity->equitable_id);
+        
+        if ($fund->user_id !== auth()->id()) abort(403);
+
+        $equity->delete();
+
+        // Recalculate capital
+        $totalCapital = Equity::where('equitable_id', $fund->id)
+            ->where('equitable_type', InvestmentFund::class)
+            ->where('equity_type', 'contribution')
+            ->sum('amount');
+        
+        $fund->update(['capital' => $totalCapital]);
+
+        return back()->with('status', 'تم حذف الشريك من الصندوق بنجاح.');
     }
 
     public function addAsset(Request $request, $id)

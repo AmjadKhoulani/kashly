@@ -160,10 +160,10 @@
             var options = {
                 series: [{
                     name: 'تجاري',
-                    data: [31, 40, 28, 51, 42, 109, 100]
+                    data: @json($chartData['commercial'])
                 }, {
                     name: 'شخصي',
-                    data: [11, 32, 45, 32, 34, 52, 41]
+                    data: @json($chartData['personal'])
                 }],
                 chart: {
                     height: 350,
@@ -175,7 +175,7 @@
                 dataLabels: { enabled: false },
                 stroke: { curve: 'smooth', width: 4 },
                 xaxis: {
-                    categories: ["سبت", "أحد", "إثن", "ثلا", "أرب", "خمي", "جمع"],
+                    categories: @json($chartData['days']),
                     labels: { style: { colors: '#9ca3af', fontFamily: 'Almarai', fontWeight: 700 } }
                 },
                 yaxis: { 

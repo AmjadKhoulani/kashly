@@ -384,35 +384,41 @@
                             <h3 class="text-2xl font-black text-gray-900">توزيع الحصص والشركاء</h3>
                         </div>
                         <div class="overflow-x-auto">
-                            <table class="w-full text-right">
+                            <table class="w-full text-right overflow-hidden">
                                 <thead class="bg-indigo-50/50">
                                     <tr>
-                                        <th class="px-10 py-5 text-[10px] font-black text-indigo-900 uppercase tracking-widest">الشريك</th>
-                                        <th class="px-10 py-5 text-[10px] font-black text-indigo-900 uppercase tracking-widest">نوع الحصة</th>
-                                        <th class="px-10 py-5 text-[10px] font-black text-indigo-900 uppercase tracking-widest">المساهمة</th>
-                                        <th class="px-10 py-5 text-[10px] font-black text-indigo-900 uppercase tracking-widest">النسبة</th>
-                                        <th class="px-10 py-5 text-[10px] font-black text-indigo-900 uppercase tracking-widest">القيمة الحالية</th>
+                                        <th class="px-10 py-6 text-[10px] font-black text-indigo-900 uppercase tracking-widest">الشريك</th>
+                                        <th class="px-10 py-6 text-[10px] font-black text-indigo-900 uppercase tracking-widest text-center">الحصة</th>
+                                        <th class="px-10 py-6 text-[10px] font-black text-indigo-900 uppercase tracking-widest text-center">المساهمة</th>
+                                        <th class="px-10 py-6 text-[10px] font-black text-indigo-900 uppercase tracking-widest text-center">النسبة</th>
+                                        <th class="px-10 py-6 text-[10px] font-black text-indigo-900 uppercase tracking-widest text-center">القيمة الحالية</th>
+                                        <th class="px-10 py-6 text-[10px] font-black text-indigo-900 uppercase tracking-widest text-center">إجراءات</th>
                                     </tr>
                                 </thead>
-                                <tbody class="divide-y divide-gray-50">
+                                <tbody class="divide-y divide-gray-50" x-data="{ editingEquity: null }">
                                     @foreach($equities as $equity)
                                         <tr class="hover:bg-gray-50/30 transition-colors group">
-                                            <td class="px-10 py-6">
-                                                <div class="flex items-center gap-4">
-                                                    <div class="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center font-black">
+                                            <td class="px-10 py-8">
+                                                <div class="flex items-center gap-5">
+                                                    <div class="w-12 h-12 bg-gradient-to-br from-indigo-50 to-indigo-100 text-indigo-600 rounded-[1.2rem] flex items-center justify-center font-black shadow-sm group-hover:scale-110 transition-transform">
                                                         {{ mb_substr($equity->partner->name, 0, 1) }}
                                                     </div>
-                                                    <span class="font-black text-gray-900">{{ $equity->partner->name }}</span>
+                                                    <div>
+                                                        <span class="font-black text-gray-900 block">{{ $equity->partner->name }}</span>
+                                                        @if($equity->partner->linked_user_id == auth()->id())
+                                                            <span class="text-[8px] font-black bg-indigo-600 text-white px-2 py-0.5 rounded-full uppercase tracking-tighter">أنت (المدير)</span>
+                                                        @endif
+                                                    </div>
                                                 </div>
                                             </td>
-                                            <td class="px-10 py-6">
-                                                <span class="px-3 py-1 {{ $equity->equity_type == 'fixed' ? 'bg-purple-50 text-purple-600' : 'bg-blue-50 text-blue-600' }} rounded-lg text-[10px] font-black">
+                                            <td class="px-10 py-8 text-center">
+                                                <span class="px-4 py-1.5 {{ $equity->equity_type == 'fixed' ? 'bg-purple-50 text-purple-600' : 'bg-blue-50 text-blue-600' }} rounded-xl text-[10px] font-black shadow-sm border border-current/10">
                                                     {{ $equity->equity_type == 'fixed' ? 'نسبة ثابتة' : 'مساهمة مالية' }}
                                                 </span>
                                             </td>
-                                            <td class="px-10 py-6 font-bold text-gray-600">${{ number_format($equity->amount, 0) }}</td>
-                                            <td class="px-10 py-6">
-                                                <div class="flex items-center gap-2">
+                                            <td class="px-10 py-8 text-center font-black text-gray-600">${{ number_format($equity->amount, 0) }}</td>
+                                            <td class="px-10 py-8 text-center">
+                                                <div class="inline-flex items-center gap-2 bg-gray-50 px-3 py-1.5 rounded-xl border border-gray-100 shadow-inner">
                                                     <span class="font-black text-gray-900">{{ number_format($equity->percentage, 1) }}%</span>
                                                 </div>
                                             </td>
