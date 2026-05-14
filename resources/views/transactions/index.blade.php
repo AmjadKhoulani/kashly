@@ -24,18 +24,18 @@
             </div>
 
             <!-- Filters & Integration Card -->
-            <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                <div class="flex items-center gap-4 bg-white/60 backdrop-blur-md p-2 rounded-[2.5rem] border border-white shadow-sm">
-                    <button @click="filter = 'all'" :class="filter === 'all' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200' : 'text-gray-500 hover:bg-gray-50'" class="px-8 py-3 rounded-[2rem] text-sm font-black transition-all">الكل</button>
-                    <button @click="filter = 'income'" :class="filter === 'income' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-200' : 'text-gray-500 hover:bg-gray-50'" class="px-8 py-3 rounded-[2rem] text-sm font-black transition-all">الإيرادات</button>
-                    <button @click="filter = 'expense'" :class="filter === 'expense' ? 'bg-rose-500 text-white shadow-lg shadow-rose-200' : 'text-gray-500 hover:bg-gray-50'" class="px-8 py-3 rounded-[2rem] text-sm font-black transition-all">المصاريف</button>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2 flex flex-wrap items-center gap-3 bg-white/60 backdrop-blur-md p-2 rounded-[2.5rem] border border-white shadow-sm">
+                    <button @click="filter = 'all'" :class="filter === 'all' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200' : 'text-gray-500 hover:bg-gray-50'" class="flex-1 md:flex-none px-10 py-3 rounded-[2rem] text-sm font-black transition-all">الكل</button>
+                    <button @click="filter = 'income'" :class="filter === 'income' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-200' : 'text-gray-500 hover:bg-gray-50'" class="flex-1 md:flex-none px-10 py-3 rounded-[2rem] text-sm font-black transition-all">الإيرادات</button>
+                    <button @click="filter = 'expense'" :class="filter === 'expense' ? 'bg-rose-500 text-white shadow-lg shadow-rose-200' : 'text-gray-500 hover:bg-gray-50'" class="flex-1 md:flex-none px-10 py-3 rounded-[2rem] text-sm font-black transition-all">المصاريف</button>
                 </div>
-                <div class="bg-indigo-50 p-4 rounded-[2.5rem] border border-indigo-100 flex items-center justify-between group cursor-pointer hover:bg-indigo-100 transition-all">
+                <div class="bg-indigo-50 p-6 rounded-[2.5rem] border border-indigo-100 flex items-center justify-between group cursor-pointer hover:bg-indigo-100 transition-all shadow-sm">
                     <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-lg">🔌</div>
-                        <span class="text-[10px] font-black text-indigo-900 uppercase">ربط الأنظمة</span>
+                        <div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-xl shadow-sm">🔌</div>
+                        <span class="text-xs font-black text-indigo-900 uppercase tracking-widest">ربط الأنظمة</span>
                     </div>
-                    <svg class="w-5 h-5 text-indigo-400 group-hover:translate-x-[-4px] transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"></path></svg>
+                    <svg class="w-6 h-6 text-indigo-400 group-hover:translate-x-[-4px] transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"></path></svg>
                 </div>
             </div>
 
