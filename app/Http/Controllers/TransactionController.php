@@ -36,6 +36,7 @@ class TransactionController extends Controller
             'transaction_date' => 'required|date',
             'currency' => 'nullable|string',
             'exchange_rate' => 'nullable|numeric',
+            'invoice' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:4096',
         ]);
 
         $finalAmount = $validated['amount'];
@@ -45,7 +46,12 @@ class TransactionController extends Controller
 
         if ($currency !== 'USD') {
             $originalAmount = $validated['amount'];
-            $finalAmount = $originalAmount / $rate; // Convert to USD for storage
+            $finalAmount = $originalAmount / $rate;
+        }
+
+        $invoicePath = null;
+        if ($request->hasFile('invoice')) {
+            $invoicePath = $request->file('invoice')->store('invoices', 'public');
         }
 
         Transaction::create([
@@ -56,6 +62,7 @@ class TransactionController extends Controller
             'type' => $validated['type'],
             'category' => $validated['category'],
             'description' => $validated['description'],
+            'invoice_path' => $invoicePath,
             'transactionable_type' => "App\\Models\\" . $validated['source_type'],
             'transactionable_id' => $validated['source_id'],
             'user_id' => auth()->id(),

@@ -8,7 +8,7 @@ class Transaction extends Model
 {
     protected $fillable = [
         'amount', 'type', 'category', 'description', 'transactionable_type', 'transactionable_id', 'user_id', 'transaction_date',
-        'currency', 'exchange_rate', 'original_amount'
+        'currency', 'exchange_rate', 'original_amount', 'invoice_path'
     ];
 
     protected $casts = [

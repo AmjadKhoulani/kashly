@@ -91,7 +91,7 @@
 
                     <!-- Transaction Modal -->
                     <div x-show="showModal" class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-gray-900/60 backdrop-blur-md" x-cloak x-transition>
-                        <div class="bg-white rounded-[4rem] w-full max-w-lg p-12 shadow-2xl relative text-right" @click.away="showModal = false">
+                        <div class="bg-white rounded-[4rem] w-full max-w-lg p-12 shadow-2xl relative text-right overflow-y-auto max-h-[90vh]" @click.away="showModal = false">
                             <div class="flex justify-between items-center mb-10">
                                 <h3 class="text-3xl font-black text-gray-900">تسجيل عملية</h3>
                                 <button @click="showModal = false" class="text-gray-400 hover:text-gray-900 transition-colors">
@@ -99,7 +99,7 @@
                                 </button>
                             </div>
 
-                            <form action="{{ route('transactions.store') }}" method="POST" class="space-y-6" x-data="{ multiCurrency: false }">
+                            <form action="{{ route('transactions.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6" x-data="{ multiCurrency: false }">
                                 @csrf
                                 <input type="hidden" name="source_type" value="InvestmentFund">
                                 <input type="hidden" name="source_id" value="{{ $fund->id }}">
@@ -137,8 +137,21 @@
                                 </div>
 
                                 <div>
-                                    <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 tracking-widest mr-2 text-right">وصف العملية</label>
-                                    <input type="text" name="category" required class="w-full bg-gray-50 border-0 rounded-[2rem] p-6 font-bold text-lg focus:ring-4 focus:ring-indigo-600/10 transition-all text-right" placeholder="مثلاً: توزيع أرباح ربع سنوية">
+                                    <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 tracking-widest mr-2 text-right">التصنيف</label>
+                                    <select name="category" required class="w-full bg-gray-50 border-0 rounded-[2rem] p-6 font-bold text-lg focus:ring-4 focus:ring-indigo-600/10 transition-all text-right">
+                                        <option value="أرباح">أرباح</option>
+                                        <option value="رواتب">رواتب</option>
+                                        <option value="إيجار">إيجار</option>
+                                        <option value="تسويق">تسويق</option>
+                                        <option value="صيانة">صيانة</option>
+                                        <option value="تأسيس">تأسيس</option>
+                                        <option value="أخرى">أخرى</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 tracking-widest mr-2 text-right">توثيق العملية (فاتورة/إيصال)</label>
+                                    <input type="file" name="invoice" class="w-full bg-gray-50 border-0 rounded-[2rem] p-6 font-bold text-sm focus:ring-4 focus:ring-indigo-600/10 transition-all">
                                 </div>
 
                                 <input type="hidden" name="transaction_date" value="{{ date('Y-m-d') }}">
@@ -260,7 +273,12 @@
                                             {{ $transaction->type == 'income' ? '📈' : '📉' }}
                                         </div>
                                         <div>
-                                            <p class="text-sm font-black text-gray-900">{{ $transaction->description ?: $transaction->category }}</p>
+                                            <p class="text-sm font-black text-gray-900 flex items-center gap-2">
+                                                {{ $transaction->description ?: $transaction->category }}
+                                                @if($transaction->invoice_path)
+                                                    <a href="{{ asset('storage/' . $transaction->invoice_path) }}" target="_blank" class="w-5 h-5 bg-indigo-50 text-indigo-600 rounded flex items-center justify-center text-[8px]">📄</a>
+                                                @endif
+                                            </p>
                                             <div class="flex items-center gap-2">
                                                 <p class="text-[10px] text-gray-400 font-bold uppercase tracking-tighter">{{ $transaction->transaction_date->format('Y/m/d') }}</p>
                                                 @if($transaction->currency !== 'USD')
