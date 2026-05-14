@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="py-12 px-6" x-data="{ showModal: false }">
+    <div class="py-12 px-6" x-data="{ showModal: false, showReconcile: false }">
         <div class="max-w-7xl mx-auto space-y-12">
             
             <!-- Breadcrumbs & Header -->
@@ -22,7 +22,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="flex items-center gap-3" x-data="{ showModal: false, showReconcile: false }">
+                <div class="flex items-center gap-3">
                     <button @click="showReconcile = true" class="bg-white border border-amber-200 text-amber-600 px-8 py-5 rounded-[2rem] font-black text-sm shadow-sm hover:bg-amber-50 transition-all flex items-center gap-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
                         مطابقة الرصيد
@@ -127,11 +127,7 @@
                             @endforelse
                         </tbody>
                     </table>
-                </div>
-            </div>
         </div>
-    </div>
-
     </div>
 
     <!-- Reconcile Modal -->
