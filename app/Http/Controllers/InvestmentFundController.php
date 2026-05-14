@@ -235,8 +235,11 @@ class InvestmentFundController extends Controller
             }
         }
 
-        // Update fund capital to reflect the sum of all contributions
-        $fund->update(['capital' => $totalContributionAmount]);
+        // Update fund capital and current_value to reflect the sum of all contributions
+        $fund->update([
+            'capital' => $totalContributionAmount,
+            'current_value' => $totalContributionAmount // Sync current value with total capital for accuracy
+        ]);
     }
 
     public function removePartner($id)
