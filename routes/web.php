@@ -9,6 +9,7 @@ use App\Http\Controllers\PartnerController;
 use App\Http\Controllers\IntegrationsController;
 use App\Http\Controllers\SuperAdminController;
 use App\Http\Controllers\PaymentMethodController;
+use App\Http\Controllers\WalletController;
 use App\Http\Controllers\PartnerDashboardController;
 use Illuminate\Support\Facades\Route;
 
