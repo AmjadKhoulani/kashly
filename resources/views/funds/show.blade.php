@@ -137,7 +137,7 @@
                                     <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 mr-2">اختيار الشريك</label>
                                     <select name="partner_id" class="w-full premium-input">
                                         <option value="">-- اختر شريك --</option>
-                                        @foreach(App\Models\Partner::where('user_id', auth()->id())->get() as $p)
+                                        @foreach(App\Models\Partner::where('user_id', auth()->id())->where(function($q) { $q->whereNull('linked_user_id')->orWhere('linked_user_id', '!=', auth()->id()); })->get() as $p)
                                             <option value="{{ $p->id }}">{{ $p->name }}</option>
                                         @endforeach
                                     </select>
