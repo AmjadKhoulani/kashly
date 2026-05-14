@@ -41,9 +41,10 @@
                     </div>
                 </div>
                 
-                <div class="flex items-center gap-3" x-data="{ showModal: false, showAssetModal: false, showPartnerModal: false, showAccountModal: false }">
+                <div class="flex flex-wrap items-center gap-3" x-data="{ showModal: false, showAssetModal: false, showPartnerModal: false, showAccountModal: false }">
                     <button @click="showAccountModal = true" class="bg-white border border-gray-100 text-gray-900 px-6 py-4 rounded-[2rem] text-sm font-black shadow-sm hover:bg-gray-50 transition-all">حسابات الصندوق</button>
                     <button @click="showPartnerModal = true" class="bg-white border border-gray-100 text-gray-900 px-6 py-4 rounded-[2rem] text-sm font-black shadow-sm hover:bg-gray-50 transition-all">إضافة شريك</button>
+                    <button @click="showAssetModal = true" class="bg-white border border-gray-100 text-gray-900 px-6 py-4 rounded-[2rem] text-sm font-black shadow-sm hover:bg-gray-50 transition-all">إضافة أصل</button>
                     <a href="{{ route('funds.distributions', $fund->id) }}" class="bg-emerald-500 hover:bg-emerald-600 text-white px-8 py-4 rounded-[2rem] text-sm font-black shadow-xl shadow-emerald-500/20 transition-all hover:scale-105 flex items-center gap-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         توزيع أرباح
