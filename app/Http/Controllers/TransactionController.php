@@ -53,8 +53,8 @@ class TransactionController extends Controller
 
         $finalAmount = $validated['amount'];
         $originalAmount = null;
-        $currency = $request->input('currency', 'USD');
-        $rate = $request->input('exchange_rate', 1);
+        $currency = $request->filled('currency') ? $request->input('currency') : 'USD';
+        $rate = $request->filled('exchange_rate') ? $request->input('exchange_rate') : 1;
 
         if ($currency !== 'USD') {
             $originalAmount = $validated['amount'];
