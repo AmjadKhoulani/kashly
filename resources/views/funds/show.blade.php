@@ -434,29 +434,35 @@
                                                 </div>
 
                                                 <!-- Edit Modal -->
-                                                <template x-if="editingEquity === {{ $equity->id }}">
-                                                    <div class="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-gray-900/60 backdrop-blur-sm">
-                                                        <div class="bg-white rounded-[3rem] w-full max-w-md p-10 shadow-2xl relative text-right" @click.away="editingEquity = null">
-                                                            <h3 class="text-2xl font-black text-gray-900 mb-8">تعديل الحصة</h3>
-                                                            <form action="{{ route('funds.updateEquity', $equity->id) }}" method="POST" class="space-y-6">
-                                                                @csrf
-                                                                @method('PUT')
-                                                                <div>
-                                                                    <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 mr-2">المبلغ ($)</label>
-                                                                    <input type="number" name="amount" value="{{ $equity->amount }}" class="w-full premium-input">
-                                                                </div>
-                                                                <div>
-                                                                    <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 mr-2">النسبة (%)</label>
-                                                                    <input type="number" step="0.1" name="percentage" value="{{ $equity->percentage }}" class="w-full premium-input">
-                                                                </div>
-                                                                <div class="flex gap-4 pt-4">
-                                                                    <button type="submit" class="flex-1 bg-indigo-600 text-white py-4 rounded-2xl font-black shadow-lg shadow-indigo-500/20">حفظ</button>
-                                                                    <button type="button" @click="editingEquity = null" class="px-6 bg-gray-50 text-gray-400 py-4 rounded-2xl font-black">إلغاء</button>
-                                                                </div>
-                                                            </form>
+                                                <div x-show="editingEquity === {{ $equity->id }}" 
+                                                     class="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-gray-900/60 backdrop-blur-sm" 
+                                                     x-cloak 
+                                                     x-transition>
+                                                    <div class="bg-white rounded-[3rem] w-full max-w-md p-10 shadow-2xl relative text-right" @click.away="editingEquity = null">
+                                                        <div class="flex justify-between items-center mb-6">
+                                                            <h3 class="text-2xl font-black text-gray-900">تعديل الحصة</h3>
+                                                            <button @click="editingEquity = null" class="text-gray-400 hover:text-gray-900">
+                                                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                                            </button>
                                                         </div>
+                                                        <form action="{{ route('funds.updateEquity', $equity->id) }}" method="POST" class="space-y-6">
+                                                            @csrf
+                                                            @method('PUT')
+                                                            <div>
+                                                                <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 mr-2">المبلغ ($)</label>
+                                                                <input type="number" name="amount" value="{{ $equity->amount }}" class="w-full premium-input">
+                                                            </div>
+                                                            <div>
+                                                                <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 mr-2">النسبة (%)</label>
+                                                                <input type="number" step="0.1" name="percentage" value="{{ $equity->percentage }}" class="w-full premium-input">
+                                                            </div>
+                                                            <div class="flex gap-4 pt-4">
+                                                                <button type="submit" class="flex-1 bg-indigo-600 text-white py-4 rounded-2xl font-black shadow-lg shadow-indigo-500/20 hover:bg-indigo-700 transition-all">حفظ</button>
+                                                                <button type="button" @click="editingEquity = null" class="px-6 bg-gray-50 text-gray-400 py-4 rounded-2xl font-black">إلغاء</button>
+                                                            </div>
+                                                        </form>
                                                     </div>
-                                                </template>
+                                                </div>
                                             </td>
                                         </tr>
                                     @endforeach
