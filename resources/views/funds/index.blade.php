@@ -105,16 +105,16 @@
                     @csrf
                     <div>
                         <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 mr-2">اسم الكيان</label>
-                        <input type="text" name="name" required class="w-full bg-gray-50 border-0 rounded-[2rem] p-6 font-bold text-lg" placeholder="مثلاً: عمارة الياسمين، محفظة الأسهم...">
+                        <input type="text" name="name" required class="w-full premium-input" placeholder="مثلاً: عمارة الياسمين، محفظة الأسهم...">
                     </div>
                     <div>
                         <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 mr-2">رأس المال التأسيسي ($)</label>
-                        <input type="number" name="capital" required class="w-full bg-gray-50 border-0 rounded-[2rem] p-6 font-black text-2xl" placeholder="0.00">
+                        <input type="number" name="capital" required class="w-full premium-input text-2xl" placeholder="0.00">
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 mr-2">تكرار توزيع الأرباح</label>
-                            <select name="distribution_frequency" class="w-full bg-gray-50 border-0 rounded-[2rem] p-6 font-bold text-lg">
+                            <select name="distribution_frequency" class="w-full premium-input">
                                 <option value="1">شهري</option>
                                 <option value="3">كل 3 أشهر</option>
                                 <option value="6">كل 6 أشهر</option>
@@ -123,7 +123,7 @@
                         </div>
                         <div>
                             <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 mr-2">العملة الأساسية</label>
-                            <select name="currency" class="w-full bg-gray-50 border-0 rounded-[2rem] p-6 font-bold text-lg">
+                            <select name="currency" class="w-full premium-input">
                                 <option value="USD">USD</option>
                                 <option value="TRY">TRY</option>
                                 <option value="SAR">SAR</option>

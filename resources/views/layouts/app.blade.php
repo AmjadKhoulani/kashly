@@ -32,15 +32,31 @@
             body { font-family: 'Noto Sans Arabic', sans-serif; background-color: #F4F7FE; }
             .premium-card { 
                 background: white; 
-                border-radius: 2rem; 
-                border: 1px solid rgba(226, 232, 240, 0.8);
-                box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.04), 0 8px 10px -6px rgba(0, 0, 0, 0.04); 
-                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                border-radius: 3rem; 
+                border: 1px solid rgba(0, 0, 0, 0.03);
+                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.03), 0 4px 6px -4px rgba(0, 0, 0, 0.03);
+                transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             }
             .premium-card:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.06), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+                transform: translateY(-4px);
+                box-shadow: 0 25px 35px -10px rgba(79, 70, 229, 0.08);
                 border-color: rgba(79, 70, 229, 0.1);
+            }
+            .premium-input {
+                background-color: #f9fafb;
+                border: 1px solid #e5e7eb;
+                border-radius: 1.5rem;
+                padding: 1.25rem 1.5rem;
+                font-weight: 700;
+                transition: all 0.3s ease;
+                box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.01);
+                color: #111827;
+            }
+            .premium-input:focus {
+                background-color: white;
+                border-color: #4f46e5;
+                box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1), inset 0 2px 4px 0 rgba(0, 0, 0, 0.01);
+                outline: none;
             }
             [x-cloak] { display: none !important; }
         </style>

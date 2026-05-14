@@ -139,7 +139,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 tracking-widest mr-2">المصدر</label>
-                            <select name="source_type" class="w-full bg-gray-50 border-0 rounded-[2rem] p-6 font-bold text-lg focus:ring-4 focus:ring-indigo-600/10 transition-all">
+                            <select name="source_type" class="w-full premium-input">
                                 <option value="InvestmentFund">صندوق استثمار</option>
                                 <option value="Business">مشروع تجاري</option>
                                 <option value="Wallet">محفظة شخصية</option>
@@ -147,7 +147,7 @@
                         </div>
                         <div>
                             <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 tracking-widest mr-2">تحديد المصدر</label>
-                            <select name="source_id" class="w-full bg-gray-50 border-0 rounded-[2rem] p-6 font-bold text-lg focus:ring-4 focus:ring-indigo-600/10 transition-all">
+                            <select name="source_id" class="w-full premium-input">
                                 @foreach($funds as $f) <option value="{{ $f->id }}">{{ $f->name }}</option> @endforeach
                                 @foreach($businesses as $b) <option value="{{ $b->id }}">{{ $b->name }}</option> @endforeach
                                 @foreach($wallets as $w) <option value="{{ $w->id }}">{{ $w->name }}</option> @endforeach
@@ -157,13 +157,13 @@
 
                     <div>
                         <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 tracking-widest mr-2">المبلغ ($)</label>
-                        <input type="number" step="0.01" name="amount" required class="w-full bg-gray-50 border-0 rounded-[2rem] p-6 font-black text-3xl focus:ring-4 focus:ring-indigo-600/10 transition-all" placeholder="0.00">
+                        <input type="number" step="0.01" name="amount" required class="w-full premium-input text-3xl" placeholder="0.00">
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 tracking-widest mr-2">التصنيف</label>
-                            <select name="category" required class="w-full bg-gray-50 border-0 rounded-[2rem] p-6 font-bold text-lg focus:ring-4 focus:ring-indigo-600/10 transition-all">
+                            <select name="category" required class="w-full premium-input">
                                 <option value="أرباح">أرباح</option>
                                 <option value="رواتب">رواتب</option>
                                 <option value="إيجار">إيجار</option>
@@ -175,13 +175,13 @@
                         </div>
                         <div>
                             <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 tracking-widest mr-2">التاريخ</label>
-                            <input type="date" name="transaction_date" value="{{ date('Y-m-d') }}" required class="w-full bg-gray-50 border-0 rounded-[2rem] p-6 font-bold text-lg focus:ring-4 focus:ring-indigo-600/10 transition-all">
+                            <input type="date" name="transaction_date" value="{{ date('Y-m-d') }}" required class="w-full premium-input">
                         </div>
                     </div>
 
                     <div>
                         <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 tracking-widest mr-2">وسيلة الدفع / الحساب</label>
-                        <select name="payment_method_id" class="w-full bg-gray-50 border-0 rounded-[2rem] p-6 font-bold text-lg focus:ring-4 focus:ring-indigo-600/10 transition-all">
+                        <select name="payment_method_id" class="w-full premium-input">
                             <option value="">-- اختر الحساب --</option>
                             @foreach($paymentMethods as $pm)
                                 <option value="{{ $pm->id }}">{{ $pm->name }} ({{ number_format($pm->balance, 0) }} {{ $pm->currency }})</option>

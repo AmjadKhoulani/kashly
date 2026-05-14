@@ -56,12 +56,12 @@
                                 @csrf
                                 <div>
                                     <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 mr-2">اسم الحساب</label>
-                                    <input type="text" name="name" required class="w-full bg-gray-50 border-0 rounded-[2rem] p-6 font-bold text-lg" placeholder="مثلاً: خزينة الصندوق، حساب بنكي للصندوق...">
+                                    <input type="text" name="name" required class="w-full premium-input" placeholder="مثلاً: خزينة الصندوق، حساب بنكي للصندوق...">
                                 </div>
                                 <div class="grid grid-cols-2 gap-4">
                                     <div>
                                         <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 mr-2">النوع</label>
-                                        <select name="type" class="w-full bg-gray-50 border-0 rounded-[2rem] p-6 font-bold text-lg">
+                                        <select name="type" class="w-full premium-input">
                                             <option value="bank">حساب بنكي</option>
                                             <option value="cash">نقد / كاش</option>
                                             <option value="credit_card">بطاقة ائتمان</option>
@@ -69,7 +69,7 @@
                                     </div>
                                     <div>
                                         <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 mr-2">العملة</label>
-                                        <select name="currency" class="w-full bg-gray-50 border-0 rounded-[2rem] p-6 font-bold text-lg">
+                                        <select name="currency" class="w-full premium-input">
                                             <option value="USD">USD</option>
                                             <option value="TRY">TRY</option>
                                         </select>
@@ -77,7 +77,7 @@
                                 </div>
                                 <div>
                                     <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 mr-2">الرصيد الافتتاحي</label>
-                                    <input type="number" name="balance" required class="w-full bg-gray-50 border-0 rounded-[2rem] p-6 font-black text-xl" placeholder="0.00">
+                                    <input type="number" name="balance" required class="w-full premium-input text-2xl" placeholder="0.00">
                                 </div>
                                 <button type="submit" class="w-full bg-indigo-600 text-white py-6 rounded-[2.5rem] font-black text-xl shadow-xl shadow-indigo-500/20">حفظ الحساب</button>
                             </form>
@@ -92,7 +92,7 @@
                                 @csrf
                                 <div>
                                     <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 mr-2">اختيار الشريك</label>
-                                    <select name="partner_id" class="w-full bg-gray-50 border-0 rounded-[2rem] p-6 font-bold text-lg">
+                                    <select name="partner_id" class="w-full premium-input">
                                         @foreach(App\Models\Partner::where('user_id', auth()->id())->get() as $p)
                                             <option value="{{ $p->id }}">{{ $p->name }}</option>
                                         @endforeach
@@ -100,18 +100,18 @@
                                 </div>
                                 <div>
                                     <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 mr-2">نوع الحصة</label>
-                                    <select name="equity_type" x-model="type" class="w-full bg-gray-50 border-0 rounded-[2rem] p-6 font-bold text-lg">
+                                    <select name="equity_type" x-model="type" class="w-full premium-input">
                                         <option value="contribution">بناءً على مبلغ مساهمة (رأس مال)</option>
                                         <option value="fixed">نسبة مئوية ثابتة</option>
                                     </select>
                                 </div>
                                 <div x-show="type === 'contribution'">
                                     <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 mr-2">مبلغ المساهمة ($)</label>
-                                    <input type="number" name="amount" class="w-full bg-gray-50 border-0 rounded-[2rem] p-6 font-black text-2xl">
+                                    <input type="number" name="amount" class="w-full premium-input text-2xl">
                                 </div>
                                 <div x-show="type === 'fixed'">
                                     <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 mr-2">النسبة المئوية (%)</label>
-                                    <input type="number" name="percentage" class="w-full bg-gray-50 border-0 rounded-[2rem] p-6 font-black text-2xl" placeholder="مثلاً: 25">
+                                    <input type="number" name="percentage" class="w-full premium-input text-2xl" placeholder="مثلاً: 25">
                                 </div>
                                 <button type="submit" class="w-full bg-indigo-600 text-white py-6 rounded-[2.5rem] font-black text-xl shadow-xl shadow-indigo-500/20">تأكيد الإضافة</button>
                             </form>
@@ -126,11 +126,11 @@
                                 @csrf
                                 <div>
                                     <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 mr-2">اسم الأصل</label>
-                                    <input type="text" name="name" required class="w-full bg-gray-50 border-0 rounded-[2rem] p-6 font-bold text-lg" placeholder="مثلاً: سيارة توصيل، مكتب...">
+                                    <input type="text" name="name" required class="w-full premium-input" placeholder="مثلاً: سيارة توصيل، مكتب...">
                                 </div>
                                 <div>
                                     <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 mr-2">نوع الأصل</label>
-                                    <select name="type" class="w-full bg-gray-50 border-0 rounded-[2rem] p-6 font-bold text-lg">
+                                    <select name="type" class="w-full premium-input">
                                         <option value="car">سيارة</option>
                                         <option value="furniture">أثاث</option>
                                         <option value="inventory">بضاعة / مخزون</option>
@@ -139,11 +139,11 @@
                                 </div>
                                 <div>
                                     <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 mr-2">القيمة التقديرية ($)</label>
-                                    <input type="number" name="value" required class="w-full bg-gray-50 border-0 rounded-[2rem] p-6 font-black text-2xl">
+                                    <input type="number" name="value" required class="w-full premium-input text-2xl">
                                 </div>
                                 <div>
                                     <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 mr-2">تاريخ الشراء</label>
-                                    <input type="date" name="purchase_date" value="{{ date('Y-m-d') }}" required class="w-full bg-gray-50 border-0 rounded-[2rem] p-6 font-bold text-lg">
+                                    <input type="date" name="purchase_date" value="{{ date('Y-m-d') }}" required class="w-full premium-input">
                                 </div>
                                 <button type="submit" class="w-full bg-indigo-600 text-white py-6 rounded-[2.5rem] font-black text-xl shadow-xl shadow-indigo-500/20">حفظ الأصل</button>
                             </form>
@@ -165,14 +165,14 @@
                                 <input type="hidden" name="source_type" value="InvestmentFund">
                                 <input type="hidden" name="source_id" value="{{ $fund->id }}">
                                 
-                                <div class="grid grid-cols-2 gap-4 p-2 bg-gray-50 rounded-[2rem]">
+                                <div class="grid grid-cols-2 gap-4 p-2 bg-gray-50 rounded-[2rem] border border-gray-100 shadow-inner">
                                     <label class="cursor-pointer">
                                         <input type="radio" name="type" value="income" class="hidden peer" checked>
-                                        <div class="py-4 text-center rounded-[1.5rem] font-black text-xs peer-checked:bg-white peer-checked:text-emerald-600 peer-checked:shadow-sm transition-all">إيراد / أرباح</div>
+                                        <div class="py-4 text-center rounded-[1.5rem] font-black text-xs peer-checked:bg-white peer-checked:text-emerald-600 peer-checked:shadow-md transition-all">إيراد / أرباح</div>
                                     </label>
                                     <label class="cursor-pointer">
                                         <input type="radio" name="type" value="expense" class="hidden peer">
-                                        <div class="py-4 text-center rounded-[1.5rem] font-black text-xs peer-checked:bg-white peer-checked:text-rose-600 peer-checked:shadow-sm transition-all">مصروف / تكلفة</div>
+                                        <div class="py-4 text-center rounded-[1.5rem] font-black text-xs peer-checked:bg-white peer-checked:text-rose-600 peer-checked:shadow-md transition-all">مصروف / تكلفة</div>
                                     </label>
                                 </div>
 
@@ -184,22 +184,22 @@
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4" x-show="multiCurrency">
                                     <div>
                                         <label class="block text-[10px] font-black text-gray-400 uppercase mb-2 mr-2 text-right">العملة</label>
-                                        <input type="text" name="currency" class="w-full bg-gray-50 border-0 rounded-2xl p-4 font-black" placeholder="مثلاً: TRY, EUR">
+                                        <input type="text" name="currency" class="w-full premium-input" placeholder="مثلاً: TRY, EUR">
                                     </div>
                                     <div>
                                         <label class="block text-[10px] font-black text-gray-400 uppercase mb-2 mr-2 text-right">سعر الصرف</label>
-                                        <input type="number" step="0.000001" name="exchange_rate" class="w-full bg-gray-50 border-0 rounded-2xl p-4 font-black" placeholder="1.00">
+                                        <input type="number" step="0.000001" name="exchange_rate" class="w-full premium-input" placeholder="1.00">
                                     </div>
                                 </div>
 
                                 <div>
                                     <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 tracking-widest mr-2 text-right">المبلغ</label>
-                                    <input type="number" step="0.01" name="amount" required class="w-full bg-gray-50 border-0 rounded-[2rem] p-6 font-black text-3xl focus:ring-4 focus:ring-indigo-600/10 transition-all text-right" placeholder="0.00">
+                                    <input type="number" step="0.01" name="amount" required class="w-full premium-input text-3xl text-right" placeholder="0.00">
                                 </div>
 
                                 <div>
                                     <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 tracking-widest mr-2 text-right">التصنيف</label>
-                                    <select name="category" required class="w-full bg-gray-50 border-0 rounded-[2rem] p-6 font-bold text-lg focus:ring-4 focus:ring-indigo-600/10 transition-all text-right">
+                                    <select name="category" required class="w-full premium-input text-right">
                                         <option value="أرباح">أرباح</option>
                                         <option value="مصاريف رأس مال">مصاريف رأس مال (تأسيس/أصول)</option>
                                         <option value="رواتب">رواتب</option>
@@ -212,7 +212,7 @@
 
                                 <div>
                                     <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 tracking-widest mr-2 text-right">وسيلة الدفع / الحساب</label>
-                                    <select name="payment_method_id" class="w-full bg-gray-50 border-0 rounded-[2rem] p-6 font-bold text-lg focus:ring-4 focus:ring-indigo-600/10 transition-all text-right">
+                                    <select name="payment_method_id" class="w-full premium-input text-right">
                                         <option value="">-- اختر الحساب --</option>
                                         @foreach($paymentMethods as $pm)
                                             <option value="{{ $pm->id }}">{{ $pm->name }} ({{ number_format($pm->balance, 0) }} {{ $pm->currency }})</option>
@@ -222,7 +222,7 @@
 
                                 <div>
                                     <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 tracking-widest mr-2 text-right">توثيق العملية (فاتورة/إيصال)</label>
-                                    <input type="file" name="invoice" class="w-full bg-gray-50 border-0 rounded-[2rem] p-6 font-bold text-sm focus:ring-4 focus:ring-indigo-600/10 transition-all">
+                                    <input type="file" name="invoice" class="w-full premium-input text-sm">
                                 </div>
 
                                 <input type="hidden" name="transaction_date" value="{{ date('Y-m-d') }}">
