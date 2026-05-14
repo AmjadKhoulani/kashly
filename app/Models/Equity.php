@@ -6,6 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Equity extends Model
 {
+    protected $fillable = [
+        'partner_id', 'equitable_id', 'equitable_type', 'percentage', 'amount', 'equity_type'
+    ];
+
     protected $casts = [
         'percentage' => 'decimal:2',
         'amount' => 'decimal:2',

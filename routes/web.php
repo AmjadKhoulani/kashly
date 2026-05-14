@@ -19,10 +19,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/funds', [InvestmentFundController::class, 'index'])->name('funds.index');
     Route::get('/funds/{id}', [InvestmentFundController::class, 'show'])->name('funds.show');
+    Route::post('/funds/{id}/partners', [InvestmentFundController::class, 'addPartner'])->name('funds.addPartner');
+    Route::post('/funds/{id}/assets', [InvestmentFundController::class, 'addAsset'])->name('funds.addAsset');
+    Route::get('/funds/{id}/distributions', [InvestmentFundController::class, 'distributions'])->name('funds.distributions');
     Route::get('/partners', [PartnerController::class, 'index'])->name('partners.index');
     Route::post('/partners/{partner}/link', [PartnerController::class, 'linkAccount'])->name('partners.link');
     Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions.index');
     Route::post('/transactions', [TransactionController::class, 'store'])->name('transactions.store');
+    Route::delete('/transactions/{transaction}', [TransactionController::class, 'destroy'])->name('transactions.destroy');
     Route::get('/integrations', [IntegrationsController::class, 'index'])->name('integrations.index');
 });
 

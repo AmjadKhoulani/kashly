@@ -51,14 +51,26 @@
                                 </div>
                             </div>
                             
-                            <div class="flex flex-col md:items-end gap-2 w-full md:w-auto border-t md:border-t-0 border-gray-50 pt-4 md:pt-0">
+                            <div class="flex flex-col md:items-end gap-2 w-full md:w-auto border-t md:border-t-0 border-gray-50 pt-4 md:pt-0" x-data="{ openMenu: false }">
                                 <div class="flex items-center gap-3">
                                     <p class="text-2xl font-black {{ $transaction->type == 'income' ? 'text-emerald-600' : 'text-rose-600' }}">
                                         {{ $transaction->type == 'income' ? '+' : '-' }}${{ number_format($transaction->amount, 2) }}
                                     </p>
-                                    <div class="px-3 py-1 bg-gray-50 rounded-lg text-[10px] font-black text-gray-400 uppercase">
-                                        {{ $transaction->transactionable->name ?? 'مصدر خارجي' }}
+                                    <div class="relative">
+                                        <button @click="openMenu = !openMenu" class="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center text-gray-400 hover:text-gray-900 transition-colors">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 5v.01M12 12v.01M12 19v.01"></path></svg>
+                                        </button>
+                                        <div x-show="openMenu" @click.away="openMenu = false" class="absolute left-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-gray-50 z-50 overflow-hidden" x-cloak>
+                                            <form action="{{ route('transactions.destroy', $transaction->id) }}" method="POST" onsubmit="return confirm('هل أنت متأكد من الحذف؟')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="w-full text-right px-6 py-4 text-xs font-black text-rose-600 hover:bg-rose-50 transition-colors">حذف العملية</button>
+                                            </form>
+                                        </div>
                                     </div>
+                                </div>
+                                <div class="px-3 py-1 bg-gray-50 rounded-lg text-[10px] font-black text-gray-400 uppercase">
+                                    {{ $transaction->transactionable->name ?? 'مصدر خارجي' }}
                                 </div>
                             </div>
                         </div>
