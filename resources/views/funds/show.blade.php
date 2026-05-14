@@ -275,16 +275,25 @@
 
             <!-- Stats Overview -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <div class="premium-card p-8">
-                    <p class="text-[10px] text-gray-400 font-black uppercase mb-2 tracking-widest">إجمالي رأس المال المستثمر</p>
+                <div class="premium-card p-8 border-t-4 border-t-blue-500">
+                    <p class="text-[10px] text-gray-400 font-black uppercase mb-4 tracking-widest flex items-center gap-2">
+                        <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
+                        إجمالي رأس المال المستثمر
+                    </p>
                     <p class="text-3xl font-black text-gray-900">${{ number_format($fund->total_invested_capital, 0) }}</p>
                 </div>
-                <div class="premium-card p-8">
-                    <p class="text-[10px] text-gray-400 font-black uppercase mb-2 tracking-widest">القيمة الحالية</p>
+                <div class="premium-card p-8 border-t-4 border-t-indigo-500">
+                    <p class="text-[10px] text-gray-400 font-black uppercase mb-4 tracking-widest flex items-center gap-2">
+                        <span class="w-2 h-2 bg-indigo-500 rounded-full"></span>
+                        القيمة الحالية
+                    </p>
                     <p class="text-3xl font-black text-indigo-600">${{ number_format($fund->current_value, 0) }}</p>
                 </div>
-                <div class="premium-card p-8">
-                    <p class="text-[10px] text-gray-400 font-black uppercase mb-2 tracking-widest">قيمة الأصول</p>
+                <div class="premium-card p-8 border-t-4 border-t-amber-500">
+                    <p class="text-[10px] text-gray-400 font-black uppercase mb-4 tracking-widest flex items-center gap-2">
+                        <span class="w-2 h-2 bg-amber-500 rounded-full"></span>
+                        قيمة الأصول
+                    </p>
                     <p class="text-3xl font-black text-gray-900">${{ number_format($fund->assets->sum('value'), 0) }}</p>
                 </div>
                 @php
@@ -296,8 +305,11 @@
                         ->where('type', 'expense')->sum('amount');
                     $profit = $income - $expense;
                 @endphp
-                <div class="premium-card p-8">
-                    <p class="text-[10px] text-gray-400 font-black uppercase mb-2 tracking-widest">صافي الأرباح/الخسائر</p>
+                <div class="premium-card p-8 border-t-4 {{ $profit >= 0 ? 'border-t-emerald-500' : 'border-t-rose-500' }}">
+                    <p class="text-[10px] text-gray-400 font-black uppercase mb-4 tracking-widest flex items-center gap-2">
+                        <span class="w-2 h-2 {{ $profit >= 0 ? 'bg-emerald-500' : 'bg-rose-500' }} rounded-full"></span>
+                        صافي الأرباح/الخسائر
+                    </p>
                     <p class="text-3xl font-black {{ $profit >= 0 ? 'text-emerald-600' : 'text-rose-600' }}">
                         {{ $profit >= 0 ? '+' : '' }}${{ number_format($profit, 0) }}
                     </p>
@@ -309,18 +321,19 @@
                 <div class="lg:col-span-2 space-y-10">
                     <!-- Assets Section -->
                     <div class="premium-card overflow-hidden">
-                        <div class="px-10 py-8 border-b border-gray-50">
+                        <div class="px-10 py-8 border-b border-gray-50 bg-gray-50/30 flex justify-between items-center">
                             <h3 class="text-2xl font-black text-gray-900">الأصول والممتلكات</h3>
+                            <span class="px-4 py-2 bg-amber-100 text-amber-700 text-[10px] font-black rounded-full uppercase tracking-widest">إجمالي الأصول: ${{ number_format($fund->assets->sum('value'), 0) }}</span>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-10">
                             @foreach($fund->assets as $asset)
-                                <div class="bg-gray-50/50 p-6 rounded-[2rem] border border-gray-100 flex items-center gap-6">
-                                    <div class="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-2xl shadow-sm">
+                                <div class="bg-white p-6 rounded-[2rem] border border-gray-100 flex items-center gap-6 shadow-sm hover:shadow-md transition-all">
+                                    <div class="w-14 h-14 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center text-2xl shadow-inner">
                                         {{ $asset->type == 'car' ? '🚗' : ($asset->type == 'furniture' ? '🪑' : '📦') }}
                                     </div>
                                     <div>
                                         <p class="font-black text-gray-900">{{ $asset->name }}</p>
-                                        <p class="text-xs font-black text-indigo-600">${{ number_format($asset->value, 0) }}</p>
+                                        <p class="text-xs font-black text-amber-600">${{ number_format($asset->value, 0) }}</p>
                                     </div>
                                 </div>
                             @endforeach
@@ -332,46 +345,39 @@
 
                     <!-- Partners Table -->
                     <div class="premium-card overflow-hidden">
-                        <div class="px-10 py-8 border-b border-gray-50 flex justify-between items-center">
+                        <div class="px-10 py-8 border-b border-gray-50 bg-gray-50/30">
                             <h3 class="text-2xl font-black text-gray-900">توزيع الحصص والشركاء</h3>
                         </div>
                         <div class="overflow-x-auto">
                             <table class="w-full text-right">
-                                <thead class="bg-gray-50/50">
+                                <thead class="bg-indigo-50/50">
                                     <tr>
-                                        <th class="px-10 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">الشريك</th>
-                                        <th class="px-10 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">نوع الحصة</th>
-                                        <th class="px-10 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">المساهمة</th>
-                                        <th class="px-10 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">النسبة</th>
-                                        <th class="px-10 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">القيمة الحالية</th>
+                                        <th class="px-10 py-5 text-[10px] font-black text-indigo-900 uppercase tracking-widest">الشريك</th>
+                                        <th class="px-10 py-5 text-[10px] font-black text-indigo-900 uppercase tracking-widest">نوع الحصة</th>
+                                        <th class="px-10 py-5 text-[10px] font-black text-indigo-900 uppercase tracking-widest">المساهمة</th>
+                                        <th class="px-10 py-5 text-[10px] font-black text-indigo-900 uppercase tracking-widest">النسبة</th>
+                                        <th class="px-10 py-5 text-[10px] font-black text-indigo-900 uppercase tracking-widest">القيمة الحالية</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-50">
                                     @foreach($equities as $equity)
                                         <tr class="hover:bg-gray-50/30 transition-colors group">
-                                            <td class="px-10 py-8">
+                                            <td class="px-10 py-6">
                                                 <div class="flex items-center gap-4">
-                                                    <div class="w-12 h-12 bg-gray-100 rounded-2xl flex items-center justify-center text-lg font-black text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-all">
+                                                    <div class="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center font-black">
                                                         {{ mb_substr($equity->partner->name, 0, 1) }}
                                                     </div>
-                                                    <div>
-                                                        <p class="font-black text-gray-900">{{ $equity->partner->name }}</p>
-                                                        <p class="text-[10px] text-gray-400 font-bold uppercase">{{ $equity->partner->email }}</p>
-                                                    </div>
+                                                    <span class="font-black text-gray-900">{{ $equity->partner->name }}</span>
                                                 </div>
                                             </td>
-                                            <td class="px-10 py-8">
-                                                <span class="px-3 py-1 bg-gray-100 text-gray-600 text-[10px] font-black rounded-lg uppercase">
-                                                    {{ $equity->equity_type == 'contribution' ? 'رأس مال' : 'نسبة ثابتة' }}
+                                            <td class="px-10 py-6">
+                                                <span class="px-3 py-1 {{ $equity->equity_type == 'fixed' ? 'bg-purple-50 text-purple-600' : 'bg-blue-50 text-blue-600' }} rounded-lg text-[10px] font-black">
+                                                    {{ $equity->equity_type == 'fixed' ? 'نسبة ثابتة' : 'مساهمة مالية' }}
                                                 </span>
                                             </td>
-                                            <td class="px-10 py-8 font-bold text-gray-600">${{ number_format($equity->amount, 0) }}</td>
-                                            <td class="px-10 py-8">
+                                            <td class="px-10 py-6 font-bold text-gray-600">${{ number_format($equity->amount, 0) }}</td>
+                                            <td class="px-10 py-6">
                                                 <div class="flex items-center gap-3">
-                                                    <span class="text-xs font-black text-indigo-600">{{ number_format($equity->percentage, 1) }}%</span>
-                                                </div>
-                                            </td>
-                                            <td class="px-10 py-8">
                                                 <p class="font-black text-gray-900">${{ number_format(($equity->percentage / 100) * $fund->current_value, 0) }}</p>
                                             </td>
                                         </tr>
