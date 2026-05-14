@@ -185,6 +185,7 @@
                                 <button type="submit" class="w-full bg-indigo-600 text-white py-6 rounded-[2.5rem] font-black text-xl shadow-xl shadow-indigo-500/20">تأكيد الإضافة</button>
                             </form>
                     </div>
+                </div>
 
                     <!-- Asset Modal -->
                     <div x-show="showAssetModal" class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-gray-900/60 backdrop-blur-md" x-cloak x-transition>
