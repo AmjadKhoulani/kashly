@@ -89,6 +89,15 @@ class InvestmentFundController extends Controller
 
         $paymentMethods = PaymentMethod::where('fund_id', $fund->id)->get();
 
+        // Automatic fix for existing wrong calculations
+        if ($equities->count() > 0 && abs($equities->sum('percentage') - 100) > 0.1) {
+            $this->recalculateEquities($fund->id);
+            $equities = Equity::where('equitable_id', $fund->id)
+                ->where('equitable_type', InvestmentFund::class)
+                ->with('partner')
+                ->get();
+        }
+
         return view('funds.show', compact('fund', 'equities', 'transactions', 'paymentMethods'));
     }
 
