@@ -33,7 +33,7 @@
             .premium-card { 
                 background: white; 
                 border-radius: 3rem; 
-                border: 1px solid rgba(0, 0, 0, 0.04);
+                border: 2px solid rgba(0, 0, 0, 0.05);
                 box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.05), 0 10px 20px -10px rgba(0, 0, 0, 0.03);
                 transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             }
