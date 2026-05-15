@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class PaymentMethod extends Model
 {
-    protected $fillable = ['user_id', 'fund_id', 'name', 'type', 'balance', 'currency', 'icon'];
+    protected $fillable = ['user_id', 'fund_id', 'parent_id', 'name', 'type', 'balance', 'currency', 'icon'];
 
     public function user(): BelongsTo
     {
@@ -23,5 +23,15 @@ class PaymentMethod extends Model
     public function transactions(): HasMany
     {
         return $this->hasMany(Transaction::class);
+    }
+
+    public function parent(): BelongsTo
+    {
+        return $this->belongsTo(PaymentMethod::class, 'parent_id');
+    }
+
+    public function children(): HasMany
+    {
+        return $this->hasMany(PaymentMethod::class, 'parent_id');
     }
 }

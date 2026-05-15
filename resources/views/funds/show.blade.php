@@ -126,27 +126,55 @@
                         
                         <div class="space-y-6">
                             @forelse($paymentMethods as $pm)
-                                <div class="group relative overflow-hidden bg-gradient-to-br from-gray-900 to-indigo-950 p-8 rounded-[2.5rem] text-white shadow-xl hover:-translate-y-2 transition-all duration-500">
-                                    <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-white/5 rounded-full blur-2xl"></div>
-                                    <div class="relative z-10 flex flex-col justify-between h-full">
-                                        <div class="flex justify-between items-start mb-10">
+                                <div class="bg-gray-50/50 rounded-[2.5rem] border border-gray-100 p-2">
+                                    <!-- Parent Account Header -->
+                                    <div class="flex items-center justify-between p-6">
+                                        <div class="flex items-center gap-4">
+                                            <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-lg shadow-sm border border-gray-100">
+                                                {{ $pm->type == 'bank' ? '🏦' : '💵' }}
+                                            </div>
                                             <div>
-                                                <p class="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1">{{ $pm->type == 'bank' ? 'حساب بنكي' : 'نقد / كاش' }}</p>
-                                                <h4 class="text-lg font-black">{{ $pm->name }}</h4>
-                                            </div>
-                                            <div class="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center backdrop-blur-md">
-                                                <span class="text-lg">{{ $pm->type == 'bank' ? '🏦' : '💵' }}</span>
+                                                <h4 class="text-sm font-black text-gray-900">{{ $pm->name }}</h4>
+                                                <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest">{{ $pm->children->count() }} حسابات عملة</p>
                                             </div>
                                         </div>
-                                        <div class="flex justify-between items-end">
-                                            <div class="flex items-baseline gap-2">
-                                                <p class="text-3xl font-black tracking-tighter">{{ number_format($pm->balance, 0) }}</p>
-                                                <span class="text-xs font-bold text-white/60">{{ $pm->currency }}</span>
+                                    </div>
+
+                                    <!-- Sub Accounts (Currencies) -->
+                                    <div class="grid grid-cols-1 gap-2 p-2">
+                                        @foreach($pm->children as $child)
+                                            <div class="group relative overflow-hidden bg-gradient-to-br from-gray-900 to-indigo-950 p-6 rounded-[2rem] text-white shadow-lg hover:-translate-y-1 transition-all duration-500">
+                                                <div class="absolute -right-10 -bottom-10 w-32 h-32 bg-white/5 rounded-full blur-2xl"></div>
+                                                <div class="relative z-10 flex justify-between items-center">
+                                                    <div>
+                                                        <p class="text-[9px] font-bold text-white/40 uppercase tracking-widest mb-1">{{ $child->currency }}</p>
+                                                        <div class="flex items-baseline gap-2">
+                                                            <p class="text-xl font-black tracking-tighter">{{ number_format($child->balance, 0) }}</p>
+                                                            <span class="text-[10px] font-bold text-white/60">{{ $child->currency }}</span>
+                                                        </div>
+                                                    </div>
+                                                    <button @click="reconcilingId = {{ $child->id }}; reconcilingName = '{{ $pm->name }} ({{ $child->currency }})'; reconcilingBalance = {{ $child->balance }}; showAccountModal = false;" class="text-white/20 hover:text-white transition-colors">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                                                    </button>
+                                                </div>
                                             </div>
-                                            <button @click="reconcilingId = {{ $pm->id }}; reconcilingName = '{{ $pm->name }}'; reconcilingBalance = {{ $pm->balance }}; showAccountModal = false;" class="text-white/40 hover:text-white transition-colors">
-                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-                                            </button>
-                                        </div>
+                                        @endforeach
+                                        
+                                        <!-- Case if root has its own balance (though recommended to use sub-accounts) -->
+                                        @if($pm->balance > 0 && $pm->children->isEmpty())
+                                            <div class="group relative overflow-hidden bg-gradient-to-br from-gray-900 to-indigo-950 p-6 rounded-[2rem] text-white shadow-lg hover:-translate-y-1 transition-all duration-500">
+                                                <div class="absolute -right-10 -bottom-10 w-32 h-32 bg-white/5 rounded-full blur-2xl"></div>
+                                                <div class="relative z-10 flex justify-between items-center">
+                                                    <div>
+                                                        <p class="text-[9px] font-bold text-white/40 uppercase tracking-widest mb-1">{{ $pm->currency }}</p>
+                                                        <div class="flex items-baseline gap-2">
+                                                            <p class="text-xl font-black tracking-tighter">{{ number_format($pm->balance, 0) }}</p>
+                                                            <span class="text-[10px] font-bold text-white/60">{{ $pm->currency }}</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endif
                                     </div>
                                 </div>
                             @empty

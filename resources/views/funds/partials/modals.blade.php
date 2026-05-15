@@ -6,8 +6,20 @@
             @csrf
             <div>
                 <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 mr-2">اسم الحساب</label>
-                <input type="text" name="name" required class="w-full premium-input" placeholder="مثلاً: خزينة الصندوق، حساب بنكي...">
+                <input type="text" name="name" required class="w-full premium-input" placeholder="مثلاً: بنك بيمو، خزينة المكتب...">
             </div>
+            
+            <div>
+                <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 mr-2">تابع لحساب (اختياري)</label>
+                <select name="parent_id" class="w-full premium-input">
+                    <option value="">-- حساب رئيسي جديد --</option>
+                    @foreach($allPaymentMethods->whereNull('parent_id') as $rootPm)
+                        <option value="{{ $rootPm->id }}">{{ $rootPm->name }}</option>
+                    @endforeach
+                </select>
+                <p class="text-[9px] text-gray-400 mt-2 pr-2">* اختر حساباً إذا كنت تريد إضافة عملة فرعية لنفس الحساب</p>
+            </div>
+
             <div class="grid grid-cols-2 gap-4">
                 <div>
                     <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 mr-2">النوع</label>
@@ -173,8 +185,8 @@
             <div>
                 <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 tracking-widest mr-2">الحساب المستخدم</label>
                 <select name="payment_method_id" required class="w-full premium-input">
-                    @foreach($paymentMethods as $pm)
-                        <option value="{{ $pm->id }}">{{ $pm->name }} ({{ number_format($pm->balance, 0) }} {{ $pm->currency }})</option>
+                    @foreach($allPaymentMethods as $pm)
+                        <option value="{{ $pm->id }}">{{ $pm->parent ? $pm->parent->name . ' - ' : '' }}{{ $pm->name }} ({{ number_format($pm->balance, 0) }} {{ $pm->currency }})</option>
                     @endforeach
                 </select>
             </div>
@@ -212,8 +224,8 @@
             <div>
                 <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 tracking-widest mr-2">من حساب</label>
                 <select name="from_payment_method_id" required class="w-full premium-input">
-                    @foreach($paymentMethods as $pm)
-                        <option value="{{ $pm->id }}">{{ $pm->name }} ({{ number_format($pm->balance, 0) }} {{ $pm->currency }})</option>
+                    @foreach($allPaymentMethods as $pm)
+                        <option value="{{ $pm->id }}">{{ $pm->parent ? $pm->parent->name . ' - ' : '' }}{{ $pm->name }} ({{ number_format($pm->balance, 0) }} {{ $pm->currency }})</option>
                     @endforeach
                 </select>
             </div>
@@ -221,8 +233,8 @@
             <div>
                 <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 tracking-widest mr-2">إلى حساب</label>
                 <select name="to_payment_method_id" required class="w-full premium-input">
-                    @foreach($paymentMethods as $pm)
-                        <option value="{{ $pm->id }}">{{ $pm->name }} ({{ number_format($pm->balance, 0) }} {{ $pm->currency }})</option>
+                    @foreach($allPaymentMethods as $pm)
+                        <option value="{{ $pm->id }}">{{ $pm->parent ? $pm->parent->name . ' - ' : '' }}{{ $pm->name }} ({{ number_format($pm->balance, 0) }} {{ $pm->currency }})</option>
                     @endforeach
                 </select>
             </div>

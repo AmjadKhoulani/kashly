@@ -87,7 +87,14 @@ class InvestmentFundController extends Controller
             ->limit(5)
             ->get();
 
-        $paymentMethods = PaymentMethod::where('fund_id', $fund->id)->get();
+        // Only get root payment methods (those without a parent)
+        $paymentMethods = PaymentMethod::where('fund_id', $fund->id)
+            ->whereNull('parent_id')
+            ->with('children')
+            ->get();
+
+        // All payment methods for select dropdowns in modals
+        $allPaymentMethods = PaymentMethod::where('fund_id', $fund->id)->get();
 
         // Automatic fix for existing wrong calculations
         if ($equities->count() > 0 && abs($equities->sum('percentage') - 100) > 0.1) {
@@ -98,7 +105,7 @@ class InvestmentFundController extends Controller
                 ->get();
         }
 
-        return view('funds.show', compact('fund', 'equities', 'transactions', 'paymentMethods'));
+        return view('funds.show', compact('fund', 'equities', 'transactions', 'paymentMethods', 'allPaymentMethods'));
     }
 
     public function fundTransactions($id)
@@ -414,11 +421,13 @@ class InvestmentFundController extends Controller
             'type' => 'required|string|in:bank,cash,credit_card,debit_card,other',
             'balance' => 'required|numeric',
             'currency' => 'required|string|size:3',
+            'parent_id' => 'nullable|exists:payment_methods,id',
         ]);
 
         PaymentMethod::create([
             'user_id' => auth()->id(),
             'fund_id' => $fund->id,
+            'parent_id' => $request->parent_id,
             'name' => $request->name,
             'type' => $request->type,
             'balance' => $request->balance,
