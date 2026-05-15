@@ -33,14 +33,14 @@
             .premium-card { 
                 background: white; 
                 border-radius: 3rem; 
-                border: 1px solid rgba(0, 0, 0, 0.03);
-                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.03), 0 4px 6px -4px rgba(0, 0, 0, 0.03);
+                border: 1px solid rgba(0, 0, 0, 0.04);
+                box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.05), 0 10px 20px -10px rgba(0, 0, 0, 0.03);
                 transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             }
             .premium-card:hover {
-                transform: translateY(-4px);
-                box-shadow: 0 25px 35px -10px rgba(79, 70, 229, 0.08);
-                border-color: rgba(79, 70, 229, 0.1);
+                transform: translateY(-6px);
+                box-shadow: 0 35px 60px -15px rgba(79, 70, 229, 0.12);
+                border-color: rgba(79, 70, 229, 0.15);
             }
             .premium-input {
                 background-color: #f9fafb;

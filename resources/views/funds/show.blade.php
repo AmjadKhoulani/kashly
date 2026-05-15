@@ -12,10 +12,10 @@
         partnerSource: 'existing',
         type: 'expense'
     }">
-        <div class="max-w-[1600px] mx-auto px-6 space-y-10">
+        <div class="max-w-[1600px] mx-auto px-6 space-y-12">
             
             <!-- Header Section: Premium Hero -->
-            <div class="relative overflow-hidden bg-white rounded-[3.5rem] border border-gray-100 shadow-xl shadow-indigo-500/5 p-10 md:p-14">
+            <div class="relative overflow-hidden bg-white rounded-[4rem] border border-gray-100 shadow-2xl shadow-indigo-500/10 p-12 md:p-16">
                 <div class="absolute -right-24 -top-24 w-96 h-96 bg-indigo-50 rounded-full blur-3xl opacity-50"></div>
                 <div class="absolute -left-24 -bottom-24 w-80 h-80 bg-emerald-50 rounded-full blur-3xl opacity-30"></div>
                 
@@ -59,7 +59,7 @@
 
             <!-- Stats Overview: Sleek Cards -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                <div class="bg-white p-10 rounded-[3rem] border border-gray-100 shadow-sm group hover:border-indigo-200 transition-all">
+                <div class="bg-white p-10 rounded-[3.5rem] border border-gray-100 shadow-xl shadow-gray-200/40 group hover:border-indigo-200 transition-all">
                     <div class="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 mb-6 group-hover:scale-110 transition-transform">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     </div>
@@ -116,7 +116,7 @@
                 <div class="lg:col-span-4 space-y-10">
                     
                     <!-- Accounts Card -->
-                    <div class="bg-white rounded-[3.5rem] border border-gray-100 shadow-sm p-10">
+                    <div class="bg-white rounded-[4rem] border border-gray-100 shadow-2xl shadow-gray-200/50 p-10">
                         <div class="flex justify-between items-center mb-10">
                             <h3 class="text-2xl font-black text-gray-900 tracking-tight">حسابات الصندوق</h3>
                             <button @click="showAccountModal = true" class="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center hover:bg-indigo-600 hover:text-white transition-all">
@@ -158,7 +158,7 @@
                     </div>
 
                     <!-- Recent Transactions -->
-                    <div class="bg-white rounded-[3.5rem] border border-gray-100 shadow-sm p-10">
+                    <div class="bg-white rounded-[4rem] border border-gray-100 shadow-2xl shadow-gray-200/50 p-10">
                         <div class="flex justify-between items-center mb-10">
                             <h3 class="text-2xl font-black text-gray-900 tracking-tight">العمليات الأخيرة</h3>
                             <a href="{{ route('funds.transactions', $fund->id) }}" class="text-[10px] font-black text-indigo-600 hover:underline">عرض الكل</a>
@@ -191,7 +191,7 @@
                 <div class="lg:col-span-8 space-y-10">
                     
                     <!-- Assets & Properties -->
-                    <div class="bg-white rounded-[3.5rem] border border-gray-100 shadow-sm overflow-hidden">
+                    <div class="bg-white rounded-[4rem] border border-gray-100 shadow-2xl shadow-gray-200/50 overflow-hidden">
                         <div class="p-10 border-b border-gray-50 flex justify-between items-center">
                             <div>
                                 <h3 class="text-2xl font-black text-gray-900 tracking-tight">الأصول والممتلكات</h3>
@@ -226,7 +226,7 @@
                     </div>
 
                     <!-- Equities & Partners -->
-                    <div class="bg-white rounded-[3.5rem] border border-gray-100 shadow-sm overflow-hidden">
+                    <div class="bg-white rounded-[4rem] border border-gray-100 shadow-2xl shadow-gray-200/50 overflow-hidden">
                         <div class="p-10 border-b border-gray-50 flex justify-between items-center">
                             <div>
                                 <h3 class="text-2xl font-black text-gray-900 tracking-tight">توزيع الحصص والشركاء</h3>
