@@ -49,6 +49,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/categories', [\App\Http\Controllers\CategoryController::class, 'store'])->name('categories.store');
     Route::put('/categories/{id}', [\App\Http\Controllers\CategoryController::class, 'update'])->name('categories.update');
     Route::delete('/categories/{id}', [\App\Http\Controllers\CategoryController::class, 'destroy'])->name('categories.destroy');
+
+    // ShamCash Integration
+    Route::post('/shamcash/initiate', [\App\Http\Controllers\ShamCashController::class, 'initiateLinking'])->name('shamcash.initiate');
+    Route::get('/shamcash/status/{sessionId}', [\App\Http\Controllers\ShamCashController::class, 'checkLinkStatus'])->name('shamcash.status');
+    Route::get('/shamcash/accounts', [\App\Http\Controllers\ShamCashController::class, 'getAccounts'])->name('shamcash.accounts');
+    Route::post('/shamcash/save-token', [\App\Http\Controllers\ShamCashController::class, 'saveManualToken'])->name('shamcash.saveToken');
 });
 
 // Super Admin Routes
