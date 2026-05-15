@@ -37,6 +37,9 @@
                         <x-nav-link :href="route('transactions.index')" :active="request()->routeIs('transactions.*')" class="text-sm font-bold">
                             العمليات
                         </x-nav-link>
+                        <x-nav-link :href="route('categories.index')" :active="request()->routeIs('categories.*')" class="text-sm font-bold">
+                            التصنيفات
+                        </x-nav-link>
                     @endif
 
                     @if(Auth::user()->isPartner())

@@ -163,22 +163,14 @@
 
             <div>
                 <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 tracking-widest mr-2">التصنيف</label>
-                <select name="category" required class="w-full premium-input">
-                    <template x-if="txType == 'income'">
-                        <optgroup label="تصنيفات الأرباح">
-                            <option value="أرباح">أرباح</option>
-                            <option value="إيداع">إيداع</option>
-                            <option value="أخرى">أخرى</option>
-                        </optgroup>
-                    </template>
-                    <template x-if="txType == 'expense'">
-                        <optgroup label="تصنيفات المصاريف">
-                            <option value="مصاريف تشغيل">مصاريف تشغيل</option>
-                            <option value="رواتب">رواتب</option>
-                            <option value="إيجار">إيجار</option>
-                            <option value="أخرى">أخرى</option>
-                        </optgroup>
-                    </template>
+                <select name="category_id" required class="w-full premium-input">
+                    @foreach(\App\Models\Category::where('is_default', true)->orWhere('user_id', auth()->id())->get() as $cat)
+                        <option value="{{ $cat->id }}" 
+                                x-show="txType == '{{ $cat->type }}'"
+                                x-cloak>
+                            {{ $cat->icon }} {{ $cat->name }}
+                        </option>
+                    @endforeach
                 </select>
             </div>
 

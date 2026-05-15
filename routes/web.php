@@ -43,6 +43,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('payment-methods', PaymentMethodController::class);
     Route::post('/wallets/{id}/reconcile', [WalletController::class, 'reconcile'])->name('wallets.reconcile');
     Route::resource('wallets', WalletController::class);
+    
+    // Categories Management
+    Route::get('/categories', [\App\Http\Controllers\CategoryController::class, 'index'])->name('categories.index');
+    Route::post('/categories', [\App\Http\Controllers\CategoryController::class, 'store'])->name('categories.store');
+    Route::put('/categories/{id}', [\App\Http\Controllers\CategoryController::class, 'update'])->name('categories.update');
+    Route::delete('/categories/{id}', [\App\Http\Controllers\CategoryController::class, 'destroy'])->name('categories.destroy');
 });
 
 // Super Admin Routes

@@ -55,9 +55,10 @@ class TransactionController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'amount' => 'required|numeric',
             'type' => 'required|in:income,expense',
-            'category' => 'required|string',
+            'amount' => 'required|numeric',
+            'category_id' => 'nullable|exists:categories,id',
+            'category' => 'nullable|string',
             'description' => 'nullable|string',
             'source_type' => 'required|string',
             'source_id' => 'required|integer',
@@ -91,13 +92,14 @@ class TransactionController extends Controller
             'exchange_rate' => $rate,
             'type' => $validated['type'],
             'category' => $validated['category'],
+            'category_id' => $validated['category_id'],
             'description' => $validated['description'],
             'invoice_path' => $invoicePath,
             'payment_method_id' => $request->input('payment_method_id'),
             'transactionable_type' => "App\\Models\\" . $validated['source_type'],
             'transactionable_id' => $validated['source_id'],
             'user_id' => auth()->id(),
-            'transaction_date' => $validated['transaction_date'],
+            'transaction_date' => $validated['transaction_date'] ?? now(),
         ]);
 
         // 1. Update InvestmentFund current_value if applicable

@@ -195,12 +195,14 @@
                             @foreach($transactions as $transaction)
                                 <div class="flex items-center justify-between p-5 rounded-[1.8rem] hover:bg-gray-50 transition-all border border-transparent hover:border-gray-100">
                                     <div class="flex items-center gap-5">
-                                        <div class="w-12 h-12 {{ $transaction->type == 'income' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600' }} rounded-2xl flex items-center justify-center text-lg">
-                                            {{ $transaction->type == 'income' ? '↓' : '↑' }}
+                                        <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-lg shadow-sm border border-gray-50" 
+                                             style="background-color: {{ $transaction->category_id ? $transaction->category->color : ($transaction->type == 'income' ? '#10B981' : '#EF4444') }}20; 
+                                                    color: {{ $transaction->category_id ? $transaction->category->color : ($transaction->type == 'income' ? '#10B981' : '#EF4444') }};">
+                                            {{ $transaction->category_id ? $transaction->category->icon : ($transaction->type == 'income' ? '↓' : '↑') }}
                                         </div>
                                         <div>
-                                            <p class="text-xs font-black text-gray-900 mb-1">{{ $transaction->description ?: $transaction->category }}</p>
-                                            <p class="text-[10px] font-bold text-gray-400 tracking-tighter">{{ $transaction->transaction_date->format('Y/m/d') }} • {{ $transaction->category }}</p>
+                                            <p class="text-xs font-black text-gray-900 mb-1">{{ $transaction->description ?: ($transaction->category_id ? $transaction->category->name : $transaction->category) }}</p>
+                                            <p class="text-[10px] font-bold text-gray-400 tracking-tighter">{{ $transaction->transaction_date->format('Y/m/d') }} • {{ $transaction->category_id ? $transaction->category->name : $transaction->category }}</p>
                                         </div>
                                     </div>
                                     <div class="text-left">
