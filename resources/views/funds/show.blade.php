@@ -164,7 +164,7 @@
                             <a href="{{ route('funds.transactions', $fund->id) }}" class="text-[10px] font-black text-indigo-600 hover:underline">عرض الكل</a>
                         </div>
                         <div class="space-y-6">
-                            @foreach($fund->recent_transactions->take(6) as $transaction)
+                            @foreach($transactions as $transaction)
                                 <div class="flex items-center justify-between p-5 rounded-[1.8rem] hover:bg-gray-50 transition-all border border-transparent hover:border-gray-100">
                                     <div class="flex items-center gap-5">
                                         <div class="w-12 h-12 {{ $transaction->type == 'income' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600' }} rounded-2xl flex items-center justify-center text-lg">
