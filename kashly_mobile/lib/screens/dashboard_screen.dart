@@ -166,18 +166,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
           children: [
             Container(
               width: 50, height: 50,
-              decoration: BoxDecoration(color: t['type'] == 'income' ? Colors.green.withOpacity(0.1) : Colors.red.withOpacity(0.1), borderRadius: BorderRadius.circular(15)),
-              child: Icon(t['type'] == 'income' ? Icons.trending_up : Icons.trending_down, color: t['type'] == 'income' ? Colors.green : Colors.red),
+              decoration: BoxDecoration(
+                color: t['category_id'] != null && t['category'] != null
+                  ? Color(int.parse(t['category']['color'].replaceFirst('#', '0xFF'))).withOpacity(0.1)
+                  : (t['type'] == 'income' ? Colors.green.withOpacity(0.1) : Colors.red.withOpacity(0.1)), 
+                borderRadius: BorderRadius.circular(15)
+              ),
+              child: Center(child: Text(t['category_id'] != null && t['category'] != null ? t['category']['icon'] : (t['type'] == 'income' ? '↓' : '↑'), style: TextStyle(fontSize: 20))),
             ),
             SizedBox(width: 15),
             Expanded(child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(t['description'] ?? t['category'], style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                Text(t['category'], style: TextStyle(color: Colors.grey, fontSize: 10)),
+                Text(t['description'] ?? (t['category_id'] != null && t['category'] != null ? t['category']['name'] : t['category']), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                Text(t['category_id'] != null && t['category'] != null ? t['category']['name'] : t['category'], style: TextStyle(color: Colors.grey, fontSize: 10)),
               ],
             )),
-            Text('${t['type'] == 'income' ? '+' : '-'}\$${t['amount']}', 
+            Text('${t['type'] == 'income' ? '+' : '-'}${t['amount']} ${t['payment_method']['currency']}', 
               style: TextStyle(fontWeight: FontWeight.w900, color: t['type'] == 'income' ? Colors.green : Colors.red)),
           ],
         ),

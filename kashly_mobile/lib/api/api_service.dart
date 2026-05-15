@@ -111,7 +111,7 @@ class ApiService {
     final token = prefs.getString('token');
 
     final response = await http.get(
-      Uri.parse('$baseUrl/transactions/categories'),
+      Uri.parse('$baseUrl/categories'),
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',

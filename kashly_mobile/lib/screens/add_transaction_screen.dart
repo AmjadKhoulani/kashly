@@ -16,28 +16,28 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   String type = 'expense';
   String? selectedAccountType;
   int? selectedAccountId;
-  String? selectedCategory;
+  dynamic selectedCategory; // Now stores the whole category object
   DateTime selectedDate = DateTime.now();
   
   List funds = [];
   List wallets = [];
+  List allCategories = [];
   bool isLoading = true;
-
-  final List<String> incomeCategories = ["أرباح", "إيداع", "تحويل واصل", "بيع أصول", "أخرى"];
-  final List<String> expenseCategories = ["مصاريف تشغيل", "رواتب", "إيجار", "صيانة", "خسارة تداول", "أخرى"];
 
   @override
   void initState() {
     super.initState();
-    loadAccounts();
+    loadData();
   }
 
-  void loadAccounts() async {
+  void loadData() async {
     final dashboard = await apiService.getDashboard();
     final fundsList = await apiService.getFunds();
+    final categoriesList = await apiService.getTransactionCategories();
     setState(() {
       wallets = dashboard?['wallets'] ?? [];
       funds = fundsList ?? [];
+      allCategories = categoriesList ?? [];
       isLoading = false;
     });
   }
@@ -71,11 +71,13 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     final data = {
       'amount': amountController.text,
       'type': type,
-      'category': selectedCategory,
+      'category_id': selectedCategory['id'],
+      'category': selectedCategory['name'],
       'transaction_date': DateFormat('yyyy-MM-dd').format(selectedDate),
       'transactionable_id': selectedAccountId,
       'transactionable_type': selectedAccountType == 'fund' ? 'App\\Models\\InvestmentFund' : 'App\\Models\\Wallet',
       'description': descController.text,
+      'payment_method_id': selectedAccountType == 'wallet' ? selectedAccountId : null, // Assuming wallets map to payment methods for now or handle accordingly
     };
 
     final success = await apiService.addTransaction(data);
@@ -150,18 +152,31 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   }
 
   Widget _buildCategorySelector() {
-    final list = type == 'income' ? incomeCategories : expenseCategories;
-    if (selectedCategory != null && !list.contains(selectedCategory)) selectedCategory = null;
+    final list = allCategories.where((c) => c['type'] == type).toList();
+    
+    // Reset selected if type changed and current selection is no longer valid
+    if (selectedCategory != null && selectedCategory['type'] != type) {
+      selectedCategory = null;
+    }
     
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
       decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)),
       child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
+        child: DropdownButton<dynamic>(
           hint: Text('اختر التصنيف'),
           value: selectedCategory,
           isExpanded: true,
-          items: list.map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
+          items: list.map((c) => DropdownMenuItem(
+            value: c, 
+            child: Row(
+              children: [
+                Text(c['icon'] ?? '📁', style: TextStyle(fontSize: 18)),
+                SizedBox(width: 15),
+                Text(c['name'], style: TextStyle(fontWeight: FontWeight.bold, color: Colors.indigo.shade900)),
+              ],
+            )
+          )).toList(),
           onChanged: (val) => setState(() => selectedCategory = val),
         ),
       ),

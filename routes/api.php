@@ -20,4 +20,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/transactions/categories', [\App\Http\Controllers\Api\TransactionController::class, 'categories']);
     Route::post('/transactions', [\App\Http\Controllers\Api\TransactionController::class, 'store']);
     Route::post('/transactions/transfer', [\App\Http\Controllers\Api\TransactionController::class, 'transfer']);
+
+    Route::get('/categories', function() {
+        return \App\Models\Category::where('is_default', true)
+            ->orWhere('user_id', auth()->id())
+            ->get();
+    });
 });
