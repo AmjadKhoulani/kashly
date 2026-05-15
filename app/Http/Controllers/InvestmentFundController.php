@@ -125,6 +125,8 @@ class InvestmentFundController extends Controller
     public function addPartner(Request $request, $id)
     {
         $fund = InvestmentFund::findOrFail($id);
+        if ($fund->user_id !== auth()->id()) abort(403);
+
         $request->validate([
             'partner_id' => 'required_without:new_partner_name|nullable|exists:partners,id',
             'new_partner_name' => 'required_without:partner_id|nullable|string|max:255',
@@ -138,7 +140,6 @@ class InvestmentFundController extends Controller
             $partnerId = $request->partner_id;
 
             if ($request->filled('new_partner_name')) {
-                // Create User account first
                 $password = \Illuminate\Support\Str::random(10);
                 $user = \App\Models\User::create([
                     'name' => $request->new_partner_name,
@@ -155,7 +156,6 @@ class InvestmentFundController extends Controller
                 ]);
                 $partnerId = $partner->id;
                 
-                // Send Notification
                 try {
                     $user->notify(new \App\Notifications\PartnerInvitedNotification($user->email, $password));
                 } catch (\Exception $e) {
@@ -163,7 +163,6 @@ class InvestmentFundController extends Controller
                     session()->flash('mail_error', 'فشل إرسال البريد الإلكتروني، لكن تم إنشاء الحساب بنجاح.');
                 }
 
-                // Store password in session for one-time display
                 session()->flash('new_partner_password', $password);
                 session()->flash('new_partner_email', $user->email);
             }
@@ -185,6 +184,7 @@ class InvestmentFundController extends Controller
 
             $this->recalculateEquities($fund->id);
         });
+
         return back()->with('status', 'تم إضافة الشريك وتحديث الحصص بنجاح.');
     }
 

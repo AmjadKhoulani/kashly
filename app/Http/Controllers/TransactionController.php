@@ -161,4 +161,57 @@ class TransactionController extends Controller
         $transaction->delete();
         return back()->with('success', 'تم حذف العملية');
     }
+
+    public function transfer(Request $request)
+    {
+        $validated = $request->validate([
+            'from_payment_method_id' => 'required|exists:payment_methods,id',
+            'to_payment_method_id' => 'required|exists:payment_methods,id|different:from_payment_method_id',
+            'amount' => 'required|numeric|min:0.01',
+            'transaction_date' => 'required|date',
+            'description' => 'nullable|string',
+            'source_type' => 'required|string',
+            'source_id' => 'required|integer',
+        ]);
+
+        $fromAccount = PaymentMethod::findOrFail($validated['from_payment_method_id']);
+        $toAccount = PaymentMethod::findOrFail($validated['to_payment_method_id']);
+        $amount = $validated['amount'];
+
+        \DB::transaction(function () use ($validated, $fromAccount, $toAccount, $amount) {
+            // 1. Create Withdrawal Transaction
+            Transaction::create([
+                'user_id' => auth()->id(),
+                'amount' => $amount,
+                'type' => 'expense',
+                'category' => 'تحويل صادق',
+                'description' => 'تحويل إلى ' . $toAccount->name . ($validated['description'] ? ' - ' . $validated['description'] : ''),
+                'transaction_date' => $validated['transaction_date'],
+                'payment_method_id' => $fromAccount->id,
+                'transactionable_type' => "App\\Models\\" . $validated['source_type'],
+                'transactionable_id' => $validated['source_id'],
+                'currency' => $fromAccount->currency,
+            ]);
+
+            // 2. Create Deposit Transaction
+            Transaction::create([
+                'user_id' => auth()->id(),
+                'amount' => $amount,
+                'type' => 'income',
+                'category' => 'تحويل وارد',
+                'description' => 'تحويل من ' . $fromAccount->name . ($validated['description'] ? ' - ' . $validated['description'] : ''),
+                'transaction_date' => $validated['transaction_date'],
+                'payment_method_id' => $toAccount->id,
+                'transactionable_type' => "App\\Models\\" . $validated['source_type'],
+                'transactionable_id' => $validated['source_id'],
+                'currency' => $toAccount->currency,
+            ]);
+
+            // 3. Update Balances
+            $fromAccount->decrement('balance', $amount);
+            $toAccount->increment('balance', $amount);
+        });
+
+        return back()->with('success', 'تم التحويل بين الحسابات بنجاح');
+    }
 }

@@ -224,11 +224,11 @@
                         <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 tracking-widest mr-2">نوع العملية</label>
                         <div class="grid grid-cols-2 gap-4 p-2 bg-gray-50 rounded-[2rem]">
                             <label class="cursor-pointer">
-                                <input type="radio" name="type" value="income" class="hidden peer" checked>
+                                <input type="radio" name="type" value="income" x-model="type" class="hidden peer">
                                 <div class="py-4 text-center rounded-[1.5rem] font-black text-xs peer-checked:bg-white peer-checked:text-emerald-600 peer-checked:shadow-sm transition-all">إيراد / أرباح</div>
                             </label>
                             <label class="cursor-pointer">
-                                <input type="radio" name="type" value="expense" class="hidden peer">
+                                <input type="radio" name="type" value="expense" x-model="type" class="hidden peer">
                                 <div class="py-4 text-center rounded-[1.5rem] font-black text-xs peer-checked:bg-white peer-checked:text-rose-600 peer-checked:shadow-sm transition-all">مصروف / التزام</div>
                             </label>
                         </div>
@@ -254,7 +254,7 @@
                     </div>
 
                     <div>
-                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 tracking-widest mr-2">المبلغ ($)</label>
+                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 tracking-widest mr-2">المبلغ</label>
                         <input type="number" step="0.01" name="amount" required class="w-full premium-input text-3xl" placeholder="0.00">
                     </div>
 
@@ -262,13 +262,25 @@
                         <div>
                             <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 tracking-widest mr-2">التصنيف</label>
                             <select name="category" required class="w-full premium-input">
-                                <option value="أرباح">أرباح</option>
-                                <option value="رواتب">رواتب</option>
-                                <option value="إيجار">إيجار</option>
-                                <option value="تسويق">تسويق</option>
-                                <option value="صيانة">صيانة</option>
-                                <option value="تأسيس">تأسيس</option>
-                                <option value="أخرى">أخرى</option>
+                                <template x-if="type == 'income'">
+                                    <optgroup label="تصنيفات الأرباح">
+                                        <option value="أرباح">أرباح</option>
+                                        <option value="إيداع">إيداع</option>
+                                        <option value="تحويل واصل">تحويل واصل</option>
+                                        <option value="بيع أصول">بيع أصول</option>
+                                        <option value="أخرى">أخرى</option>
+                                    </optgroup>
+                                </template>
+                                <template x-if="type == 'expense'">
+                                    <optgroup label="تصنيفات المصاريف">
+                                        <option value="مصاريف تشغيل">مصاريف تشغيل</option>
+                                        <option value="رواتب">رواتب</option>
+                                        <option value="إيجار">إيجار</option>
+                                        <option value="صيانة">صيانة</option>
+                                        <option value="خسارة تداول">خسارة تداول</option>
+                                        <option value="أخرى">أخرى</option>
+                                    </optgroup>
+                                </template>
                             </select>
                         </div>
                         <div>

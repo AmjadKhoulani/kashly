@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../api/api_service.dart';
 import 'package:intl/intl.dart';
+import 'funds_screen.dart';
+import 'transactions_screen.dart';
+import 'add_transaction_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   @override
@@ -59,17 +62,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 children: [
                   _buildWealthCard(currencyFormat),
                   SizedBox(height: 30),
-                  _buildSectionTitle('المحافظ الشخصية'),
+                  _buildSectionHeader('المحافظ الشخصية', onTap: () => Get.to(() => FundsScreen())),
                   SizedBox(height: 15),
                   _buildWalletsList(),
                   SizedBox(height: 30),
-                  _buildSectionTitle('آخر العمليات'),
+                  _buildSectionHeader('آخر العمليات', onTap: () => Get.to(() => TransactionsScreen())),
                   SizedBox(height: 15),
                   _buildRecentTransactions(),
                 ],
               ),
             ),
           ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          final refresh = await Get.to(() => AddTransactionScreen());
+          if (refresh == true) loadData();
+        },
+        backgroundColor: Colors.indigo,
+        child: Icon(Icons.add, color: Colors.white, size: 30),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      ),
     );
   }
 
@@ -101,12 +113,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildSectionTitle(String title) {
+  Widget _buildSectionHeader(String title, {VoidCallback? onTap}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(title, style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: Colors.indigo.shade900)),
-        Text('الكل', style: TextStyle(color: Colors.indigo, fontWeight: FontWeight.bold, fontSize: 12)),
+        if (onTap != null)
+          GestureDetector(
+            onTap: onTap,
+            child: Text('عرض الكل', style: TextStyle(color: Colors.indigo, fontWeight: FontWeight.bold, fontSize: 12)),
+          ),
       ],
     );
   }
@@ -130,7 +146,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(w['name'], style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14)),
-                Text('\$${w['balance']}', style: TextStyle(color: Colors.indigo, fontWeight: FontWeight.w900, fontSize: 18)),
+                Text('${w['balance']} ${w['currency']}', style: TextStyle(color: Colors.indigo, fontWeight: FontWeight.w900, fontSize: 18)),
               ],
             ),
           );

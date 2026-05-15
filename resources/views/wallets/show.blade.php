@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="py-12 px-6" x-data="{ showModal: false, showReconcile: false }">
+    <div class="py-12 px-6" x-data="{ showModal: false, showReconcile: false, type: 'expense' }">
         <div class="max-w-7xl mx-auto space-y-12">
             
             <!-- Breadcrumbs & Header -->
@@ -45,7 +45,7 @@
                     <div class="relative z-10 flex justify-between items-start">
                         <div>
                             <p class="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-4">الرصيد الحالي للمحفظة</p>
-                            <p class="text-7xl font-black text-gray-900 tracking-tighter">${{ number_format($wallet->balance, 2) }}</p>
+                            <p class="text-7xl font-black text-gray-900 tracking-tighter">{{ number_format($wallet->balance, 2) }} <span class="text-2xl">{{ $wallet->currency }}</span></p>
                         </div>
                         <div class="text-left">
                             <span class="px-6 py-2 bg-emerald-50 text-emerald-600 text-xs font-black rounded-full shadow-sm">نشط</span>
@@ -65,11 +65,11 @@
                         <div class="space-y-6">
                             <div class="flex justify-between items-center border-b border-white/5 pb-4">
                                 <span class="text-xs font-bold text-gray-400 tracking-widest">إجمالي الإيداعات</span>
-                                <span class="text-lg font-black text-emerald-400">+${{ number_format($transactions->where('type', 'income')->sum('amount'), 0) }}</span>
+                                <span class="text-lg font-black text-emerald-400">+{{ number_format($transactions->where('type', 'income')->sum('amount'), 0) }} {{ $wallet->currency }}</span>
                             </div>
                             <div class="flex justify-between items-center">
                                 <span class="text-xs font-bold text-gray-400 tracking-widest">إجمالي المصاريف</span>
-                                <span class="text-lg font-black text-rose-400">-${{ number_format($transactions->where('type', 'expense')->sum('amount'), 0) }}</span>
+                                <span class="text-lg font-black text-rose-400">-{{ number_format($transactions->where('type', 'expense')->sum('amount'), 0) }} {{ $wallet->currency }}</span>
                             </div>
                         </div>
                     </div>
@@ -108,7 +108,7 @@
                                     </td>
                                     <td class="px-6 py-6 text-center">
                                         <span class="text-lg font-black {{ $transaction->type == 'income' ? 'text-emerald-600' : 'text-rose-600' }}">
-                                            {{ $transaction->type == 'income' ? '+' : '-' }}${{ number_format($transaction->amount, 0) }}
+                                            {{ $transaction->type == 'income' ? '+' : '-' }}{{ number_format($transaction->amount, 0) }} <span class="text-xs">{{ $wallet->currency }}</span>
                                         </span>
                                     </td>
                                     <td class="px-10 py-6 text-left">
@@ -139,7 +139,7 @@
             <form action="{{ route('wallets.reconcile', $wallet->id) }}" method="POST" class="space-y-8">
                 @csrf
                 <div>
-                    <label class="block text-[10px] font-black text-gray-400 uppercase mb-4 tracking-widest mr-2">المبلغ الحقيقي الحالي ($)</label>
+                    <label class="block text-[10px] font-black text-gray-400 uppercase mb-4 tracking-widest mr-2">المبلغ الحقيقي الحالي ({{ $wallet->currency }})</label>
                     <input type="number" name="actual_balance" required step="0.01" class="w-full premium-input" placeholder="مثلاً: 500.00">
                 </div>
 
@@ -159,21 +159,45 @@
 
                 <div class="grid grid-cols-2 gap-8">
                     <div>
-                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-4 tracking-widest mr-2">المبلغ ($)</label>
+                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-4 tracking-widest mr-2">المبلغ</label>
                         <input type="number" name="amount" required step="0.01" class="w-full premium-input">
                     </div>
                     <div>
                         <label class="block text-[10px] font-black text-gray-400 uppercase mb-4 tracking-widest mr-2 text-right">نوع العملية</label>
-                        <select name="type" required class="w-full premium-input">
-                            <option value="income">إيداع / إيراد (+)</option>
-                            <option value="expense">سحب / مصروف (-)</option>
-                        </select>
+                        <div class="grid grid-cols-2 gap-2 p-1 bg-gray-50 rounded-2xl">
+                            <label class="cursor-pointer">
+                                <input type="radio" name="type" value="income" x-model="type" class="hidden peer">
+                                <div class="py-2 text-center rounded-xl text-[10px] font-black peer-checked:bg-white peer-checked:text-emerald-600 shadow-sm transition-all">إيداع</div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="radio" name="type" value="expense" x-model="type" class="hidden peer">
+                                <div class="py-2 text-center rounded-xl text-[10px] font-black peer-checked:bg-white peer-checked:text-rose-600 shadow-sm transition-all">سحب</div>
+                            </label>
+                        </div>
                     </div>
                 </div>
 
                 <div>
                     <label class="block text-[10px] font-black text-gray-400 uppercase mb-4 tracking-widest mr-2">التصنيف</label>
-                    <input type="text" name="category" required class="w-full premium-input" placeholder="مثلاً: هدايا، مصاريف بيت، راتب...">
+                    <select name="category" required class="w-full premium-input">
+                        <template x-if="type == 'income'">
+                            <optgroup label="تصنيفات الإيداع">
+                                <option value="راتب">راتب</option>
+                                <option value="هدية">هدية</option>
+                                <option value="أرباح">أرباح</option>
+                                <option value="أخرى">أخرى</option>
+                            </optgroup>
+                        </template>
+                        <template x-if="type == 'expense'">
+                            <optgroup label="تصنيفات السحب">
+                                <option value="طعام">طعام</option>
+                                <option value="فواتير">فواتير</option>
+                                <option value="إيجار">إيجار</option>
+                                <option value="صحة">صحة</option>
+                                <option value="أخرى">أخرى</option>
+                            </optgroup>
+                        </template>
+                    </select>
                 </div>
 
                 <div>

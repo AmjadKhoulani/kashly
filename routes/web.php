@@ -37,6 +37,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/partners/{partner}/link', [PartnerController::class, 'linkAccount'])->name('partners.link');
     Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions.index');
     Route::post('/transactions', [TransactionController::class, 'store'])->name('transactions.store');
+    Route::post('/transactions/transfer', [TransactionController::class, 'transfer'])->name('transactions.transfer');
     Route::delete('/transactions/{transaction}', [TransactionController::class, 'destroy'])->name('transactions.destroy');
     Route::get('/integrations', [IntegrationsController::class, 'index'])->name('integrations.index');
     Route::resource('payment-methods', PaymentMethodController::class);

@@ -34,7 +34,7 @@
                             @endif
                             <p class="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-6">الرصيد المتاح</p>
                             <p class="text-4xl font-black text-gray-900 tracking-tighter group-hover:text-indigo-600 transition-colors">
-                                ${{ number_format($wallet->balance, 2) }}
+                                {{ number_format($wallet->balance, 2) }} <span class="text-lg">{{ $wallet->currency }}</span>
                             </p>
                         </div>
 

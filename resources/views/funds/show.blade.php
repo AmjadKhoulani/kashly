@@ -5,6 +5,7 @@
         showAssetModal: false, 
         showPartnerModal: false, 
         showAccountModal: false,
+        showTransferModal: false,
         reconcilingId: null, 
         reconcilingName: '', 
         reconcilingBalance: 0
@@ -58,6 +59,10 @@
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         توزيع أرباح
                     </a>
+                    <button @click="showTransferModal = true" class="bg-amber-100 hover:bg-amber-200 text-amber-700 px-8 py-4 rounded-[2rem] text-sm font-black transition-all flex items-center gap-2 shadow-sm border border-amber-200">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+                        تحويل داخلي
+                    </button>
                     <button @click="showModal = true" class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-[2rem] text-sm font-black shadow-xl shadow-indigo-500/20 transition-all hover:scale-105">إضافة عملية</button>
                     
                     <form action="{{ route('funds.destroy', $fund->id) }}" method="POST" onsubmit="return confirm('هل أنت متأكد من حذف هذا الكيان؟ لا يمكن التراجع عن هذه الخطوة وسيتم حذف كافة العمليات والبيانات المرتبطة به.')">
@@ -242,18 +247,18 @@
                                 </button>
                             </div>
 
-                            <form action="{{ route('transactions.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6" x-data="{ multiCurrency: false }">
+                            <form action="{{ route('transactions.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6" x-data="{ multiCurrency: false, type: 'income' }">
                                 @csrf
                                 <input type="hidden" name="source_type" value="InvestmentFund">
                                 <input type="hidden" name="source_id" value="{{ $fund->id }}">
                                 
                                 <div class="grid grid-cols-2 gap-4 p-2 bg-gray-50 rounded-[2rem] border border-gray-100 shadow-inner">
                                     <label class="cursor-pointer">
-                                        <input type="radio" name="type" value="income" class="hidden peer" checked>
+                                        <input type="radio" name="type" value="income" x-model="type" class="hidden peer">
                                         <div class="py-4 text-center rounded-[1.5rem] font-black text-xs peer-checked:bg-white peer-checked:text-emerald-600 peer-checked:shadow-md transition-all">إيراد / أرباح</div>
                                     </label>
                                     <label class="cursor-pointer">
-                                        <input type="radio" name="type" value="expense" class="hidden peer">
+                                        <input type="radio" name="type" value="expense" x-model="type" class="hidden peer">
                                         <div class="py-4 text-center rounded-[1.5rem] font-black text-xs peer-checked:bg-white peer-checked:text-rose-600 peer-checked:shadow-md transition-all">مصروف / تكلفة</div>
                                     </label>
                                 </div>
@@ -282,13 +287,23 @@
                                 <div>
                                     <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 tracking-widest mr-2 text-right">التصنيف</label>
                                     <select name="category" required class="w-full premium-input text-right">
-                                        <option value="أرباح">أرباح</option>
-                                        <option value="مصاريف رأس مال">مصاريف رأس مال (تأسيس/أصول)</option>
-                                        <option value="رواتب">رواتب</option>
-                                        <option value="إيجار">إيجار</option>
-                                        <option value="تسويق">تسويق</option>
-                                        <option value="صيانة">صيانة</option>
-                                        <option value="أخرى">أخرى</option>
+                                        <template x-if="type == 'income'">
+                                            <optgroup label="تصنيفات الأرباح">
+                                                <option value="أرباح">أرباح</option>
+                                                <option value="إيداع">إيداع</option>
+                                                <option value="بيع أصول">بيع أصول</option>
+                                                <option value="أخرى">أخرى</option>
+                                            </optgroup>
+                                        </template>
+                                        <template x-if="type == 'expense'">
+                                            <optgroup label="تصنيفات المصاريف">
+                                                <option value="مصاريف تشغيل">مصاريف تشغيل</option>
+                                                <option value="رواتب">رواتب</option>
+                                                <option value="إيجار">إيجار</option>
+                                                <option value="صيانة">صيانة</option>
+                                                <option value="أخرى">أخرى</option>
+                                            </optgroup>
+                                        </template>
                                     </select>
                                 </div>
                                 <div>
@@ -311,7 +326,10 @@
                                     <input type="file" name="invoice" class="w-full premium-input text-sm">
                                 </div>
 
-                                <input type="hidden" name="transaction_date" value="{{ date('Y-m-d') }}">
+                                <div>
+                                    <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 tracking-widest mr-2 text-right">تاريخ العملية</label>
+                                    <input type="date" name="transaction_date" value="{{ date('Y-m-d') }}" required class="w-full premium-input text-right">
+                                </div>
                                 <button type="submit" class="w-full bg-indigo-600 text-white py-6 rounded-[2.5rem] font-black text-xl shadow-xl shadow-indigo-500/20 hover:bg-indigo-700 transition-all">تأكيد العملية</button>
                             </form>
                         </div>
@@ -319,28 +337,89 @@
                 </div>
             </div>
 
+            <!-- Transfer Modal -->
+            <div x-show="showTransferModal" class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-gray-900/60 backdrop-blur-md" x-cloak x-transition>
+                <div class="bg-white rounded-[4rem] w-full max-w-lg p-12 shadow-2xl relative text-right overflow-y-auto max-h-[90vh]" @click.away="showTransferModal = false">
+                    <div class="flex justify-between items-center mb-10">
+                        <h3 class="text-3xl font-black text-gray-900">تحويل بين الحسابات</h3>
+                        <button @click="showTransferModal = false" class="text-gray-400 hover:text-gray-900 transition-colors">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                    </div>
+
+                    <form action="{{ route('transactions.transfer') }}" method="POST" class="space-y-6">
+                        @csrf
+                        <input type="hidden" name="source_type" value="InvestmentFund">
+                        <input type="hidden" name="source_id" value="{{ $fund->id }}">
+
+                        <div>
+                            <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 tracking-widest mr-2 text-right">من حساب</label>
+                            <select name="from_payment_method_id" required class="w-full premium-input text-right">
+                                <option value="">-- اختر الحساب المرسل --</option>
+                                @foreach($paymentMethods as $pm)
+                                    <option value="{{ $pm->id }}">{{ $pm->name }} ({{ number_format($pm->balance, 0) }} {{ $pm->currency }})</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="flex justify-center -my-3 relative z-10">
+                            <div class="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center border-4 border-white shadow-md">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 tracking-widest mr-2 text-right">إلى حساب</label>
+                            <select name="to_payment_method_id" required class="w-full premium-input text-right">
+                                <option value="">-- اختر الحساب المستلم --</option>
+                                @foreach($paymentMethods as $pm)
+                                    <option value="{{ $pm->id }}">{{ $pm->name }} ({{ number_format($pm->balance, 0) }} {{ $pm->currency }})</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 tracking-widest mr-2 text-right">المبلغ</label>
+                            <input type="number" step="0.01" name="amount" required class="w-full premium-input text-3xl text-right" placeholder="0.00">
+                        </div>
+
+                        <div>
+                            <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 tracking-widest mr-2 text-right">تاريخ التحويل</label>
+                            <input type="date" name="transaction_date" value="{{ date('Y-m-d') }}" required class="w-full premium-input text-right">
+                        </div>
+
+                        <div>
+                            <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 tracking-widest mr-2 text-right">ملاحظات التحويل</label>
+                            <input type="text" name="description" class="w-full premium-input text-right" placeholder="مثلاً: تغذية صندوق النثرية، تحويل للبنك...">
+                        </div>
+
+                        <button type="submit" class="w-full bg-amber-500 text-white py-6 rounded-[2.5rem] font-black text-xl shadow-xl shadow-amber-500/20 hover:bg-amber-600 transition-all">تأكيد التحويل</button>
+                    </form>
+                </div>
+            </div>
+
             <!-- Stats Overview -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <div class="premium-card p-8 border-t-4 border-t-blue-500">
-                    <p class="text-[10px] text-gray-400 font-black uppercase mb-4 tracking-widest flex items-center gap-2">
+                <div class="premium-card p-8 border border-gray-200 border-t-4 border-t-blue-500 shadow-sm">
+                    <p class="text-[10px] text-gray-500 font-black uppercase mb-4 tracking-widest flex items-center gap-2">
                         <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
                         إجمالي رأس المال المستثمر
                     </p>
-                    <p class="text-3xl font-black text-gray-900">${{ number_format($fund->total_invested_capital, 0) }}</p>
+                    <p class="text-3xl font-black text-gray-900">{{ number_format($fund->total_invested_capital, 0) }} <span class="text-xs">{{ $fund->currency }}</span></p>
                 </div>
-                <div class="premium-card p-8 border-t-4 border-t-indigo-500">
-                    <p class="text-[10px] text-gray-400 font-black uppercase mb-4 tracking-widest flex items-center gap-2">
+                <div class="premium-card p-8 border border-gray-200 border-t-4 border-t-indigo-600 shadow-sm">
+                    <p class="text-[10px] text-gray-500 font-black uppercase mb-4 tracking-widest flex items-center gap-2">
                         <span class="w-2 h-2 bg-indigo-500 rounded-full"></span>
                         القيمة الحالية
                     </p>
-                    <p class="text-3xl font-black text-indigo-600">${{ number_format($fund->current_value, 0) }}</p>
+                    <p class="text-3xl font-black text-indigo-700">{{ number_format($fund->current_value, 0) }} <span class="text-xs">{{ $fund->currency }}</span></p>
                 </div>
-                <div class="premium-card p-8 border-t-4 border-t-amber-500">
-                    <p class="text-[10px] text-gray-400 font-black uppercase mb-4 tracking-widest flex items-center gap-2">
+                <div class="premium-card p-8 border border-gray-200 border-t-4 border-t-amber-500 shadow-sm">
+                    <p class="text-[10px] text-gray-500 font-black uppercase mb-4 tracking-widest flex items-center gap-2">
                         <span class="w-2 h-2 bg-amber-500 rounded-full"></span>
                         قيمة الأصول
                     </p>
-                    <p class="text-3xl font-black text-gray-900">${{ number_format($fund->assets->sum('value'), 0) }}</p>
+                    <p class="text-3xl font-black text-gray-900">{{ number_format($fund->assets->sum('value'), 0) }} <span class="text-xs">{{ $fund->currency }}</span></p>
                 </div>
                 @php
                     $income = \App\Models\Transaction::where('transactionable_id', $fund->id)
@@ -351,13 +430,13 @@
                         ->where('type', 'expense')->sum('amount');
                     $profit = $income - $expense;
                 @endphp
-                <div class="premium-card p-8 border-t-4 {{ $profit >= 0 ? 'border-t-emerald-500' : 'border-t-rose-500' }}">
-                    <p class="text-[10px] text-gray-400 font-black uppercase mb-4 tracking-widest flex items-center gap-2">
+                <div class="premium-card p-8 border border-gray-200 border-t-4 {{ $profit >= 0 ? 'border-t-emerald-500' : 'border-t-rose-500' }} shadow-sm">
+                    <p class="text-[10px] text-gray-500 font-black uppercase mb-4 tracking-widest flex items-center gap-2">
                         <span class="w-2 h-2 {{ $profit >= 0 ? 'bg-emerald-500' : 'bg-rose-500' }} rounded-full"></span>
                         صافي الأرباح/الخسائر
                     </p>
-                    <p class="text-3xl font-black {{ $profit >= 0 ? 'text-emerald-600' : 'text-rose-600' }}">
-                        {{ $profit >= 0 ? '+' : '' }}${{ number_format($profit, 0) }}
+                    <p class="text-3xl font-black {{ $profit >= 0 ? 'text-emerald-700' : 'text-rose-700' }}">
+                        {{ $profit >= 0 ? '+' : '' }}{{ number_format($profit, 0) }} <span class="text-xs">{{ $fund->currency }}</span>
                     </p>
                 </div>
             </div>
@@ -369,7 +448,7 @@
                     <div class="premium-card overflow-hidden">
                         <div class="px-10 py-8 border-b border-gray-50 bg-gray-50/30 flex justify-between items-center">
                             <h3 class="text-2xl font-black text-gray-900">الأصول والممتلكات</h3>
-                            <span class="px-4 py-2 bg-amber-100 text-amber-700 text-[10px] font-black rounded-full uppercase tracking-widest">إجمالي الأصول: ${{ number_format($fund->assets->sum('value'), 0) }}</span>
+                            <span class="px-4 py-2 bg-amber-100 text-amber-800 text-[10px] font-black rounded-full uppercase tracking-widest border border-amber-200">إجمالي الأصول: {{ number_format($fund->assets->sum('value'), 0) }} {{ $fund->currency }}</span>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-10">
                             @foreach($fund->assets as $asset)
@@ -379,7 +458,7 @@
                                     </div>
                                     <div>
                                         <p class="font-black text-gray-900">{{ $asset->name }}</p>
-                                        <p class="text-xs font-black text-amber-600">${{ number_format($asset->value, 0) }}</p>
+                                        <p class="text-xs font-black text-amber-600">{{ number_format($asset->value, 0) }} {{ $fund->currency }}</p>
                                     </div>
                                 </div>
                             @endforeach
@@ -445,9 +524,9 @@
                                                     {{ $equity->equity_type == 'fixed' ? 'نسبة ثابتة' : 'رأس مال' }}
                                                 </span>
                                             </td>
-                                            <td class="px-6 py-6 text-center font-black text-gray-700">${{ number_format($equity->amount, 0) }}</td>
+                                            <td class="px-6 py-6 text-center font-black text-gray-700">{{ number_format($equity->amount, 0) }} {{ $fund->currency }}</td>
                                             <td class="px-6 py-6 text-center font-black text-indigo-600 text-lg">{{ number_format($equity->percentage, 1) }}%</td>
-                                            <td class="px-6 py-6 text-center font-black text-emerald-600 text-lg">${{ number_format(($equity->percentage / 100) * $fund->current_value, 0) }}</td>
+                                            <td class="px-6 py-6 text-center font-black text-emerald-700 text-lg">{{ number_format(($equity->percentage / 100) * $fund->current_value, 0) }} {{ $fund->currency }}</td>
                                             <td class="px-10 py-6 text-center">
                                                 <div class="flex items-center justify-center gap-2">
                                                     <button @click="editingEquity = {{ $equity->id }}" class="p-2 text-gray-400 hover:text-indigo-600 transition-colors">
@@ -489,7 +568,7 @@
                                     @csrf
                                     @method('PUT')
                                     <div>
-                                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 mr-2">المبلغ ($)</label>
+                                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 mr-2">المبلغ</label>
                                         <input type="number" name="amount" value="{{ $equity->amount }}" class="w-full premium-input">
                                     </div>
                                     <div>
@@ -537,7 +616,7 @@
                                             <span class="text-[10px] font-black bg-white/20 px-2 py-1 rounded-lg">{{ $pm->currency }}</span>
                                         </div>
                                     </div>
-                                    <p class="text-2xl font-black tracking-tighter">${{ number_format($pm->balance, 0) }}</p>
+                                    <p class="text-2xl font-black tracking-tighter">{{ number_format($pm->balance, 0) }} <span class="text-xs opacity-60">{{ $pm->currency }}</span></p>
                                 </div>
                             @empty
                                 <div class="text-center py-10 border-2 border-dashed border-white/20 rounded-[2.5rem]">
@@ -573,8 +652,8 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <p class="text-sm font-black {{ $transaction->type == 'income' ? 'text-emerald-600' : 'text-rose-600' }}">
-                                        {{ $transaction->type == 'income' ? '+' : '-' }}${{ number_format($transaction->amount, 0) }}
+                                    <p class="text-sm font-black {{ $transaction->type == 'income' ? 'text-emerald-700' : 'text-rose-700' }}">
+                                        {{ $transaction->type == 'income' ? '+' : '-' }}{{ number_format($transaction->amount, 0) }} <span class="text-[10px]">{{ $transaction->paymentMethod->currency ?? $fund->currency }}</span>
                                     </p>
                                 </div>
                             @empty

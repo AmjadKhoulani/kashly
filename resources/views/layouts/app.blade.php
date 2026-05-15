@@ -10,7 +10,7 @@
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@300;400;700;800;900&display=swap" rel="stylesheet">
 
         <!-- Scripts -->
         <script src="https://cdn.tailwindcss.com"></script>
@@ -19,7 +19,7 @@
                 theme: {
                     extend: {
                         fontFamily: {
-                            sans: ['Almarai', 'sans-serif'],
+                            sans: ['Alexandria', 'sans-serif'],
                         },
                     }
                 }
@@ -29,7 +29,7 @@
         <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 
         <style>
-            body { font-family: 'Almarai', sans-serif; background-color: #F4F7FE; }
+            body { font-family: 'Alexandria', sans-serif; background-color: #F4F7FE; }
             .premium-card { 
                 background: white; 
                 border-radius: 3rem; 
