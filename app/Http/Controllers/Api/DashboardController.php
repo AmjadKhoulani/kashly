@@ -43,17 +43,44 @@ class DashboardController extends Controller
         }
 
         $recentTransactions = Transaction::where('user_id', $user->id)
-            ->with('transactionable')
+            ->with(['transactionable', 'category', 'paymentMethod'])
             ->latest()
             ->take(10)
             ->get();
 
+        // Chart Data (Last 7 Days)
+        $chartData = [
+            'days' => [],
+            'commercial' => [],
+            'personal' => []
+        ];
+
+        for ($i = 6; $i >= 0; $i--) {
+            $date = now()->subDays($i);
+            $chartData['days'][] = $date->format('D'); // Mon, Tue, etc.
+
+            $commercial = Transaction::where('user_id', $user->id)
+                ->whereIn('transactionable_type', ['App\Models\Business', 'App\Models\InvestmentFund'])
+                ->whereDate('transaction_date', $date)
+                ->sum('amount');
+            
+            $personal = Transaction::where('user_id', $user->id)
+                ->where('transactionable_type', 'App\Models\Wallet')
+                ->whereDate('transaction_date', $date)
+                ->sum('amount');
+
+            $chartData['commercial'][] = (float)$commercial;
+            $chartData['personal'][] = (float)$personal;
+        }
+
         return response()->json([
-            'estimated_total_usd' => $estimatedTotalUSD,
-            'total_by_currency' => $totalByCurrency,
+            'estimated_total_usd' => (float)$estimatedTotalUSD,
+            'total_by_currency' => (object)$totalByCurrency,
             'wallets' => $wallets,
+            'businesses' => $businesses,
             'funds' => $funds,
-            'recent_transactions' => $recentTransactions
+            'recent_transactions' => $recentTransactions,
+            'chart_data' => (object)$chartData
         ]);
     }
 }

@@ -21,6 +21,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   
   List funds = [];
   List wallets = [];
+  List businesses = [];
   List allCategories = [];
   bool isLoading = true;
 
@@ -36,6 +37,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     final categoriesList = await apiService.getTransactionCategories();
     setState(() {
       wallets = dashboard?['wallets'] ?? [];
+      businesses = dashboard?['businesses'] ?? [];
       funds = fundsList ?? [];
       allCategories = categoriesList ?? [];
       isLoading = false;
@@ -75,9 +77,11 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
       'category': selectedCategory['name'],
       'transaction_date': DateFormat('yyyy-MM-dd').format(selectedDate),
       'transactionable_id': selectedAccountId,
-      'transactionable_type': selectedAccountType == 'fund' ? 'App\\Models\\InvestmentFund' : 'App\\Models\\Wallet',
+      'transactionable_type': selectedAccountType == 'fund' 
+          ? 'App\\Models\\InvestmentFund' 
+          : (selectedAccountType == 'business' ? 'App\\Models\\Business' : 'App\\Models\\Wallet'),
       'description': descController.text,
-      'payment_method_id': selectedAccountType == 'wallet' ? selectedAccountId : null, // Assuming wallets map to payment methods for now or handle accordingly
+      'payment_method_id': selectedAccountType == 'wallet' ? selectedAccountId : null,
     };
 
     final success = await apiService.addTransaction(data);
@@ -152,7 +156,10 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   }
 
   Widget _buildCategorySelector() {
-    final list = allCategories.where((c) => c['type'] == type).toList();
+    final list = allCategories.where((c) {
+      if (type == 'capital') return c['type'] == 'capital';
+      return c['type'] == type;
+    }).toList();
     
     // Reset selected if type changed and current selection is no longer valid
     if (selectedCategory != null && selectedCategory['type'] != type) {
@@ -187,8 +194,12 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     return Row(
       children: [
         _typeButton('مصاريف', 'expense', Colors.red),
-        SizedBox(width: 15),
+        SizedBox(width: 10),
         _typeButton('دخل', 'income', Colors.green),
+        if (selectedAccountType == 'fund') ...[
+          SizedBox(width: 10),
+          _typeButton('رأس مال', 'capital', Colors.amber.shade700),
+        ],
       ],
     );
   }
@@ -208,7 +219,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
             borderRadius: BorderRadius.circular(15),
             border: Border.all(color: color.withOpacity(0.3)),
           ),
-          child: Center(child: Text(label, style: TextStyle(color: isSelected ? Colors.white : color, fontWeight: FontWeight.bold))),
+          child: Center(child: Text(label, style: TextStyle(color: isSelected ? Colors.white : color, fontWeight: FontWeight.bold, fontSize: 12))),
         ),
       ),
     );
@@ -242,6 +253,10 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
               value: 'wallet-${w['id']}',
               child: Row(children: [Icon(Icons.account_balance_wallet, size: 16), SizedBox(width: 10), Text('${w['name']} (${w['currency']})')]),
             )),
+            ...businesses.map((b) => DropdownMenuItem(
+              value: 'business-${b['id']}',
+              child: Row(children: [Icon(Icons.storefront, size: 16), SizedBox(width: 10), Text('${b['name']} (${b['currency'] ?? 'USD'})')]),
+            )),
             ...funds.map((f) => DropdownMenuItem(
               value: 'fund-${f['id']}',
               child: Row(children: [Icon(Icons.business_center, size: 16), SizedBox(width: 10), Text('${f['name']} (${f['currency']})')]),
@@ -253,6 +268,12 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
               setState(() {
                 selectedAccountType = parts[0];
                 selectedAccountId = int.parse(parts[1]);
+                
+                // Safety check: if type was capital but new account is not a fund, reset type
+                if (selectedAccountType != 'fund' && type == 'capital') {
+                  type = 'expense';
+                  selectedCategory = null;
+                }
               });
             }
           },

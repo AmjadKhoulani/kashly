@@ -34,4 +34,9 @@ class Transaction extends Model
     {
         return $this->belongsTo(PaymentMethod::class);
     }
+
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(Category::class);
+    }
 }

@@ -15,44 +15,49 @@
             </div>
 
             <!-- Wallets Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                @forelse($wallets as $wallet)
-                    <a href="{{ route('wallets.show', $wallet->id) }}" class="premium-card p-10 bg-white hover:border-indigo-100 transition-all group relative overflow-hidden">
-                        <div class="absolute -right-20 -top-20 w-40 h-40 bg-indigo-50 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+                @php $colors = ['card-blue', 'card-green', 'card-yellow', 'card-red']; @endphp
+                @forelse($wallets as $index => $wallet)
+                    <a href="{{ route('wallets.show', $wallet->id) }}" class="premium-card {{ $colors[$index % 4] }} p-10 hover:scale-[1.03] transition-all group relative overflow-hidden block">
+                        <div class="absolute -right-20 -top-20 w-48 h-48 bg-white/30 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
                         
-                        <div class="flex justify-between items-start mb-10 relative z-10">
-                            <div class="w-16 h-16 bg-gray-50 rounded-3xl flex items-center justify-center text-3xl group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-sm">
+                        <div class="flex justify-between items-start mb-12 relative z-10">
+                            <div class="w-20 h-20 bg-white/60 backdrop-blur-md rounded-3xl flex items-center justify-center text-4xl group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-sm border-2 border-white/80">
                                 💳
                             </div>
-                            <span class="px-4 py-2 bg-gray-50 text-gray-400 text-[10px] font-black uppercase tracking-widest rounded-xl">{{ $wallet->currency }}</span>
+                            <span class="px-5 py-2 bg-white/60 backdrop-blur-md text-slate-700 text-[10px] font-black uppercase tracking-widest rounded-2xl border-2 border-white/80 shadow-sm">{{ $wallet->currency }}</span>
                         </div>
 
                         <div class="relative z-10">
-                            <h3 class="text-xl font-black text-gray-900 mb-1">{{ $wallet->name }}</h3>
+                            <h3 class="text-2xl font-black text-slate-900 mb-2">{{ $wallet->name }}</h3>
                             @if($wallet->custodian_name)
-                                <p class="text-[10px] font-black text-amber-600 bg-amber-50 px-3 py-1 rounded-lg inline-block mb-4">بعهدة: {{ $wallet->custodian_name }}</p>
+                                <p class="text-[10px] font-black text-amber-700 bg-white/60 px-4 py-2 rounded-xl inline-block mb-6 border border-white shadow-sm">بعهدة: {{ $wallet->custodian_name }}</p>
                             @endif
-                            <p class="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-6">الرصيد المتاح</p>
-                            <p class="text-4xl font-black text-gray-900 tracking-tighter group-hover:text-indigo-600 transition-colors">
-                                {{ number_format($wallet->balance, 2) }} <span class="text-lg">{{ $wallet->currency }}</span>
-                            </p>
+                            <div class="space-y-1">
+                                <p class="text-[10px] text-slate-400 font-black uppercase tracking-widest">الرصيد المتاح حالياً</p>
+                                <p class="text-5xl font-black text-slate-900 tracking-tighter group-hover:text-indigo-600 transition-colors">
+                                    {{ number_format($wallet->balance, 0) }} <span class="text-xl opacity-60">{{ $wallet->currency }}</span>
+                                </p>
+                            </div>
                         </div>
 
-                        <div class="mt-10 pt-8 border-t border-gray-50 flex justify-between items-center relative z-10">
-                            <span class="text-[10px] font-black text-indigo-400 uppercase tracking-widest flex items-center gap-2">
+                        <div class="mt-12 pt-8 border-t border-white/50 flex justify-between items-center relative z-10">
+                            <span class="text-[10px] font-black text-indigo-500 uppercase tracking-widest flex items-center gap-3">
+                                <span class="w-8 h-8 bg-indigo-50 rounded-full flex items-center justify-center shadow-inner">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
+                                </span>
                                 عرض التفاصيل
-                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
                             </span>
                             <div class="flex -space-x-2">
-                                <div class="w-8 h-8 rounded-full border-2 border-white bg-emerald-100 flex items-center justify-center text-[10px]">📈</div>
+                                <div class="w-10 h-10 rounded-full border-4 border-white bg-emerald-100 flex items-center justify-center text-sm shadow-md">📈</div>
                             </div>
                         </div>
                     </a>
                 @empty
-                    <div class="col-span-full py-32 text-center bg-gray-50 rounded-[4rem] border-2 border-dashed border-gray-200">
-                        <div class="text-6xl mb-6 text-gray-300">🕳️</div>
-                        <h3 class="text-2xl font-black text-gray-400">لا توجد محافظ شخصية مضافة بعد</h3>
-                        <p class="text-gray-400 mt-2 font-bold italic">ابدأ بإنشاء محفظتك الأولى لمتابعة أموالك الخاصة.</p>
+                    <div class="col-span-full py-32 text-center bg-slate-100/50 rounded-[4rem] border-4 border-dashed border-slate-200">
+                        <div class="text-8xl mb-8 opacity-20">🕳️</div>
+                        <h3 class="text-3xl font-black text-slate-400">لا توجد محافظ شخصية</h3>
+                        <p class="text-slate-400 mt-4 font-black italic uppercase tracking-widest text-xs">ابدأ بإنشاء محفظتك الأولى لمتابعة أموالك الخاصة.</p>
                     </div>
                 @endforelse
             </div>

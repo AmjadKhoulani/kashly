@@ -1,167 +1,136 @@
 <x-app-layout>
-    <div class="py-12 px-6">
-        <div class="max-w-7xl mx-auto space-y-10">
+    <div class="py-16 px-8 bg-slate-50 min-h-screen">
+        <div class="max-w-7xl mx-auto space-y-16">
             
-            <!-- Welcome Header -->
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <!-- Colorful Header -->
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 pb-10">
                 <div>
-                    <h2 class="text-4xl font-black text-gray-900 tracking-tight">أهلاً بك، {{ Auth::user()->name }} 👋</h2>
-                    <p class="text-gray-500 font-bold mt-1">إليك نظرة شاملة على إمبراطوريتك المالية اليوم.</p>
+                    <h2 class="text-6xl font-black text-slate-800 tracking-tighter leading-none mb-4">كاشلي.</h2>
+                    <p class="text-xl font-bold text-slate-500">أهلاً {{ Auth::user()->name }}، نظرة ملونة ومشرقة لأصولك اليوم.</p>
                 </div>
-                <div class="flex items-center gap-4">
-                    <div class="hidden md:flex flex-col items-end">
-                        <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">الثروة الإجمالية</span>
-                        <div class="flex items-center gap-3">
-                            <span class="text-2xl font-black text-emerald-600">${{ number_format($totalByCurrency['USD'] ?? 0, 0) }}</span>
-                            @foreach($totalByCurrency as $curr => $val)
-                                @if($curr !== 'USD')
-                                    <span class="text-sm font-black text-gray-400">+ {{ number_format($val, 0) }} {{ $curr }}</span>
-                                @endif
-                            @endforeach
-                        </div>
+                <div class="flex items-center gap-10 bg-indigo-50 px-8 py-5 rounded-3xl border-2 border-indigo-100 shadow-lg shadow-indigo-100/50">
+                    <div class="text-left border-l-2 border-indigo-200 pl-8 ml-8">
+                        <p class="text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em] mb-1">صافي الثروة</p>
+                        <p class="text-4xl font-black text-indigo-700 tracking-tighter">${{ number_format($totalByCurrency['USD'] ?? 0, 0) }}</p>
                     </div>
-                    <button class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-[2rem] text-sm font-black shadow-xl shadow-indigo-500/20 flex items-center transition-all hover:scale-105">
-                        <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path></svg>
-                        تسجيل عملية
+                    <button class="bg-indigo-600 text-white px-8 py-4 rounded-2xl text-lg font-black shadow-xl shadow-indigo-200 hover:bg-indigo-700 hover:-translate-y-1 transition-all">
+                        تسجيل حركة +
                     </button>
                 </div>
             </div>
 
-            <!-- Stats Overview Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <!-- Cash Card -->
-                <div class="premium-card p-10 bg-gradient-to-br from-white to-indigo-50/30 border-t-4 border-t-indigo-600">
-                    <div class="flex justify-between items-start mb-6">
-                        <div class="w-14 h-14 bg-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center text-2xl shadow-inner">💵</div>
-                        <span class="text-[10px] font-black text-indigo-400 bg-indigo-50 px-3 py-1 rounded-full uppercase tracking-widest">نقد متاح</span>
-                    </div>
-                    <h2 class="text-4xl font-black text-gray-900 mb-2 tracking-tighter">${{ number_format($wallets->where('currency', 'USD')->sum('balance'), 0) }}</h2>
-                    <div class="flex flex-wrap gap-2 mb-4">
-                        @foreach($totalByCurrency as $curr => $val)
-                            @if($curr !== 'USD')
-                                <span class="text-[10px] font-black text-indigo-600 bg-white/50 px-2 py-1 rounded border border-indigo-100">{{ number_format($val, 0) }} {{ $curr }}</span>
-                            @endif
+            <!-- Colorful Stats Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+                <!-- Cash Card (Light Blue) -->
+                <div class="p-10 rounded-[3rem] bg-sky-50 border-2 border-sky-200 shadow-2xl shadow-sky-200/50 group hover:bg-sky-100 transition-all duration-300">
+                    <div class="w-20 h-20 bg-sky-200 text-sky-700 rounded-3xl flex items-center justify-center text-4xl mb-8 border-2 border-sky-300 shadow-inner group-hover:scale-110 transition-transform">💵</div>
+                    <p class="text-xs font-black text-sky-600 uppercase tracking-widest mb-2">النقد الشخصي</p>
+                    <h3 class="text-5xl font-black text-sky-900 tracking-tighter mb-8">${{ number_format($wallets->where('currency', 'USD')->sum('balance'), 0) }}</h3>
+                    <div class="flex flex-wrap gap-3">
+                        @foreach(collect($totalByCurrency)->forget('USD')->take(2) as $curr => $val)
+                            <span class="text-xs font-black text-sky-800 bg-white px-4 py-2 rounded-xl border border-sky-200 shadow-sm">{{ number_format($val, 0) }} {{ $curr }}</span>
                         @endforeach
                     </div>
-                    <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">إجمالي رصيد المحافظ الشخصية</p>
                 </div>
 
-                <!-- Business Assets Card -->
-                <div class="premium-card p-10 bg-gradient-to-br from-white to-amber-50/30 border-t-4 border-t-amber-500">
-                    <div class="flex justify-between items-start mb-6">
-                        <div class="w-14 h-14 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center text-2xl shadow-inner">🏢</div>
-                        <span class="text-[10px] font-black text-amber-400 bg-amber-50 px-3 py-1 rounded-full uppercase tracking-widest">قطاع الأعمال</span>
+                <!-- Business Assets Card (Light Yellow/Amber) -->
+                <div class="p-10 rounded-[3rem] bg-amber-50 border-2 border-amber-200 shadow-2xl shadow-amber-200/50 group hover:bg-amber-100 transition-all duration-300">
+                    <div class="w-20 h-20 bg-amber-200 text-amber-700 rounded-3xl flex items-center justify-center text-4xl mb-8 border-2 border-amber-300 shadow-inner group-hover:scale-110 transition-transform">🏢</div>
+                    <p class="text-xs font-black text-amber-600 uppercase tracking-widest mb-2">قطاع الأعمال</p>
+                    <h3 class="text-5xl font-black text-amber-900 tracking-tighter mb-8">${{ number_format($totalBusinessValue, 0) }}</h3>
+                    <div class="flex items-center gap-3 bg-white w-max px-4 py-2 rounded-xl border border-amber-200 shadow-sm">
+                        <span class="w-3 h-3 bg-amber-400 rounded-full animate-pulse shadow-sm shadow-amber-400"></span>
+                        <span class="text-xs font-black text-amber-700 uppercase tracking-widest">أصول عاملة</span>
                     </div>
-                    <h2 class="text-4xl font-black text-gray-900 mb-2 tracking-tighter">${{ number_format($totalBusinessValue, 0) }}</h2>
-                    <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">قيمة المشاريع والأعمال</p>
                 </div>
 
-                <!-- Funds Performance Card -->
-                <div class="premium-card p-10 bg-gradient-to-br from-white to-emerald-50/30 border-t-4 border-t-emerald-500">
-                    <div class="flex justify-between items-start mb-6">
-                        <div class="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center text-2xl shadow-inner">📈</div>
-                        <span class="text-[10px] font-black text-emerald-400 bg-emerald-50 px-3 py-1 rounded-full uppercase tracking-widest">الاستثمارات</span>
+                <!-- Investments Card (Light Green) -->
+                <div class="p-10 rounded-[3rem] bg-emerald-50 border-2 border-emerald-200 shadow-2xl shadow-emerald-200/50 group hover:bg-emerald-100 transition-all duration-300">
+                    <div class="w-20 h-20 bg-emerald-200 text-emerald-700 rounded-3xl flex items-center justify-center text-4xl mb-8 border-2 border-emerald-300 shadow-inner group-hover:scale-110 transition-transform">📈</div>
+                    <p class="text-xs font-black text-emerald-600 uppercase tracking-widest mb-2">الاستثمارات</p>
+                    <h3 class="text-5xl font-black text-emerald-900 tracking-tighter mb-8">${{ number_format($funds->sum('current_value'), 0) }}</h3>
+                    <div class="flex items-center gap-3">
+                        <span class="text-xs font-black text-emerald-800 bg-white px-4 py-2 rounded-xl border border-emerald-200 shadow-sm">+ نمو مستقر</span>
                     </div>
-                    <h2 class="text-4xl font-black text-gray-900 mb-2 tracking-tighter">${{ number_format($funds->sum('current_value'), 0) }}</h2>
-                    <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">إجمالي قيمة صناديق الاستثمار</p>
                 </div>
             </div>
 
-            <!-- Main Content Area -->
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+            <!-- Main Content Row -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-10 pt-6">
                 
-                <!-- Chart & Funds List -->
+                <!-- Chart Section -->
                 <div class="lg:col-span-2 space-y-10">
-                    <div class="premium-card p-8">
-                        <div class="flex justify-between items-center mb-8">
-                            <h4 class="font-black text-xl text-gray-900 flex items-center gap-3">
-                                <span class="w-1.5 h-6 bg-indigo-600 rounded-full"></span>
-                                النشاط المالي الأسبوعي
-                            </h4>
-                            <div class="flex items-center gap-4">
-                                <div class="flex items-center gap-2">
-                                    <span class="w-3 h-3 bg-indigo-600 rounded-full"></span>
-                                    <span class="text-[10px] font-black text-gray-400 uppercase">تجاري</span>
+                    <div class="bg-indigo-50 rounded-[3.5rem] border-2 border-indigo-100 p-10 shadow-xl shadow-indigo-100/50">
+                        <div class="flex justify-between items-center mb-10">
+                            <h4 class="text-3xl font-black text-indigo-900 tracking-tight">التدفق النقدي</h4>
+                            <div class="flex gap-6 bg-white px-6 py-3 rounded-2xl border border-indigo-100 shadow-sm">
+                                <div class="flex items-center gap-3 border-l-2 border-indigo-50 pl-6">
+                                    <span class="w-4 h-4 bg-amber-400 rounded-full"></span>
+                                    <span class="text-xs font-black text-slate-600 uppercase">تجاري</span>
                                 </div>
-                                <div class="flex items-center gap-2">
-                                    <span class="w-3 h-3 bg-emerald-500 rounded-full"></span>
-                                    <span class="text-[10px] font-black text-gray-400 uppercase">شخصي</span>
+                                <div class="flex items-center gap-3">
+                                    <span class="w-4 h-4 bg-indigo-500 rounded-full"></span>
+                                    <span class="text-xs font-black text-slate-600 uppercase">شخصي</span>
                                 </div>
                             </div>
                         </div>
-                        <div id="dashboardChart"></div>
+                        <div id="dashboardChart" class="min-h-[350px]"></div>
                     </div>
 
-                    <!-- Investment Funds Row -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Funds Row -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
                         @foreach($funds->take(2) as $fund)
-                            <div class="premium-card p-8 flex flex-col justify-between hover:border-indigo-100 transition-all cursor-pointer" onclick="window.location='{{ route('funds.show', $fund->id) }}'">
-                                <div class="flex justify-between items-start">
-                                    <div class="flex items-center gap-4">
-                                        <div class="w-12 h-12 bg-gray-50 rounded-2xl flex items-center justify-center text-2xl shadow-inner border border-gray-100">
-                                            {{ $fund->icon ?? '🏙️' }}
-                                        </div>
-                                        <div>
-                                            <h5 class="font-black text-gray-900">{{ $fund->name }}</h5>
-                                            <p class="text-[10px] font-black text-indigo-600 uppercase tracking-widest">صندوق استثماري</p>
-                                        </div>
-                                    </div>
-                                    <span class="text-xs font-black text-emerald-600">+12%</span>
+                            <div class="p-8 rounded-[3rem] border-2 border-violet-100 bg-violet-50 hover:bg-violet-100 transition-all cursor-pointer group shadow-xl shadow-violet-100/50" onclick="window.location='{{ route('funds.show', $fund->id) }}'">
+                                <div class="flex justify-between items-start mb-8">
+                                    <div class="w-16 h-16 bg-white border-2 border-violet-200 rounded-2xl flex items-center justify-center text-3xl group-hover:rotate-6 transition-transform shadow-sm">{{ $fund->icon ?? '📊' }}</div>
+                                    <span class="text-[10px] font-black text-violet-600 uppercase tracking-widest bg-white px-3 py-1.5 rounded-xl border border-violet-200">صندوق</span>
                                 </div>
-                                <div class="mt-8">
-                                    <div class="flex justify-between items-end mb-2">
-                                        <span class="text-[10px] font-black text-gray-400 uppercase">نمو الصندوق</span>
-                                        <span class="text-sm font-black text-gray-900">${{ number_format($fund->current_value, 0) }}</span>
-                                    </div>
-                                    <div class="w-full h-2 bg-gray-50 rounded-full overflow-hidden">
-                                        <div class="h-full bg-indigo-600 rounded-full" style="width: 65%"></div>
-                                    </div>
+                                <h5 class="text-2xl font-black text-violet-900 mb-2">{{ $fund->name }}</h5>
+                                <p class="text-4xl font-black text-violet-900 tracking-tighter mb-6">${{ number_format($fund->current_value, 0) }}</p>
+                                <div class="h-2 bg-white rounded-full overflow-hidden border border-violet-200">
+                                    <div class="h-full bg-violet-500 rounded-full w-2/3 shadow-inner"></div>
                                 </div>
                             </div>
                         @endforeach
                     </div>
                 </div>
 
-                <!-- Recent Activity & Sidebar -->
+                <!-- Side Activity Section -->
                 <div class="space-y-10">
-                    <div class="premium-card p-8">
-                        <div class="flex justify-between items-center mb-8">
-                            <h4 class="font-black text-xl text-gray-900">آخر العمليات</h4>
-                            <a href="{{ route('transactions.index') }}" class="text-[10px] font-black text-indigo-600 hover:underline uppercase tracking-widest">الكل ←</a>
+                    <!-- Transactions List (Light Rose) -->
+                    <div class="bg-rose-50 rounded-[3.5rem] border-2 border-rose-100 p-10 shadow-xl shadow-rose-100/50">
+                        <div class="flex justify-between items-center mb-10">
+                            <h4 class="text-2xl font-black text-rose-900 tracking-tight">آخر الحركات</h4>
+                            <a href="{{ route('transactions.index') }}" class="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-rose-600 border border-rose-200 hover:bg-rose-600 hover:text-white transition-colors shadow-sm">←</a>
                         </div>
                         <div class="space-y-8">
                             @forelse($recentTransactions as $transaction)
-                                <div class="flex items-center justify-between group">
-                                    <div class="flex items-center">
-                                        <div class="w-12 h-12 bg-gray-50 rounded-2xl flex items-center justify-center text-xl group-hover:scale-110 transition-transform shadow-inner border border-gray-50">
-                                            {{ $transaction->type == 'income' ? '📈' : '📉' }}
+                                <div class="flex items-center justify-between group bg-white p-4 rounded-3xl border border-rose-100 shadow-sm hover:shadow-md transition-shadow">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-14 h-14 bg-rose-50 rounded-2xl flex items-center justify-center text-2xl group-hover:scale-110 transition-transform border border-rose-100">
+                                            {{ $transaction->category->icon ?? '💸' }}
                                         </div>
-                                        <div class="mr-4">
-                                            <p class="text-sm font-black text-gray-900 group-hover:text-indigo-600 transition-colors">{{ $transaction->description ?: $transaction->category }}</p>
-                                            <p class="text-[10px] text-gray-400 uppercase font-black tracking-tighter">{{ $transaction->transaction_date->diffForHumans() }}</p>
+                                        <div>
+                                            <p class="text-base font-black text-rose-900">{{ $transaction->description ?: $transaction->category->name }}</p>
+                                            <p class="text-[10px] font-bold text-rose-400 uppercase tracking-widest mt-1">{{ $transaction->transaction_date->diffForHumans() }}</p>
                                         </div>
                                     </div>
-                                    <div class="text-left">
-                                        <p class="text-sm font-black {{ $transaction->type == 'income' ? 'text-emerald-600' : 'text-rose-600' }}">
-                                            {{ $transaction->type == 'income' ? '+' : '-' }}${{ number_format($transaction->amount, 0) }}
-                                        </p>
-                                    </div>
+                                    <p class="text-xl font-black {{ $transaction->type == 'income' ? 'text-emerald-600' : 'text-rose-600' }} tracking-tighter">
+                                        {{ $transaction->type == 'income' ? '+' : '-' }}${{ number_format($transaction->amount, 0) }}
+                                    </p>
                                 </div>
                             @empty
-                                <div class="text-center py-10">
-                                    <div class="text-4xl mb-4">🏜️</div>
-                                    <p class="text-gray-400 text-xs font-bold uppercase tracking-widest">لا توجد عمليات مسجلة</p>
-                                </div>
+                                <p class="text-center text-rose-300 font-bold py-10">لا توجد عمليات</p>
                             @endforelse
                         </div>
                     </div>
 
-                    <!-- Quick Tools -->
-                    <div class="bg-indigo-600 rounded-[3rem] p-10 text-white relative overflow-hidden shadow-2xl shadow-indigo-500/40">
-                        <div class="absolute -right-20 -bottom-20 w-60 h-60 bg-white/10 rounded-full blur-3xl"></div>
-                        <h4 class="text-2xl font-black mb-4 relative z-10">الربط الآلي</h4>
-                        <p class="text-indigo-100 text-sm font-bold mb-8 relative z-10 leading-relaxed">اربط حساباتك المصرفية والمحافظ الرقمية للحصول على تحديثات فورية.</p>
-                        <button class="w-full bg-white text-indigo-600 py-4 rounded-2xl font-black text-sm shadow-xl hover:bg-indigo-50 transition-all relative z-10">ابدأ الربط الآن 🔌</button>
+                    <!-- Integration Callout (Vibrant Gradient) -->
+                    <div class="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-[3.5rem] p-10 text-white shadow-2xl shadow-indigo-200 relative overflow-hidden group border-2 border-indigo-400">
+                        <div class="absolute -right-10 -top-10 w-40 h-40 bg-white/20 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
+                        <h4 class="text-3xl font-black mb-4 leading-tight relative z-10">المزامنة التلقائية</h4>
+                        <p class="text-indigo-100 text-base font-bold mb-8 leading-relaxed relative z-10">اربط حساباتك وتتبع أموالك بمكان واحد.</p>
+                        <button class="w-full bg-white text-indigo-700 py-4 rounded-2xl font-black text-lg hover:bg-indigo-50 transition-all shadow-xl relative z-10">ربط الآن</button>
                     </div>
                 </div>
             </div>
@@ -184,24 +153,25 @@
                     type: 'area',
                     toolbar: { show: false },
                     fontFamily: 'Almarai, sans-serif',
+                    background: 'transparent'
                 },
-                colors: ['#4f46e5', '#10b981'],
+                colors: ['#fbbf24', '#6366f1'],
                 dataLabels: { enabled: false },
                 stroke: { curve: 'smooth', width: 4 },
                 xaxis: {
                     categories: @json($chartData['days']),
-                    labels: { style: { colors: '#9ca3af', fontFamily: 'Almarai', fontWeight: 700 } }
+                    labels: { style: { colors: '#818cf8', fontWeight: 900 } }
                 },
                 yaxis: { 
-                    labels: { style: { colors: '#9ca3af', fontFamily: 'Almarai', fontWeight: 700 } }
+                    labels: { style: { colors: '#818cf8', fontWeight: 900 } }
                 },
-                grid: { borderColor: '#f3f4f6', strokeDashArray: 4 },
+                grid: { borderColor: '#e0e7ff', strokeDashArray: 5 },
                 legend: { show: false },
                 fill: {
                     type: 'gradient',
                     gradient: {
                         shadeIntensity: 1,
-                        opacityFrom: 0.4,
+                        opacityFrom: 0.3,
                         opacityTo: 0.05,
                     }
                 }

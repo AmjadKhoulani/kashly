@@ -29,36 +29,61 @@
         <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 
         <style>
-            body { font-family: 'Tajawal', sans-serif; background-color: #F4F7FE; }
-            .premium-card { 
-                background: white; 
-                border-radius: 3rem; 
-                border: 2px solid rgba(0, 0, 0, 0.05);
-                box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.05), 0 10px 20px -10px rgba(0, 0, 0, 0.03);
-                transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            }
-            .premium-card:hover {
-                transform: translateY(-6px);
-                box-shadow: 0 35px 60px -15px rgba(79, 70, 229, 0.12);
-                border-color: rgba(79, 70, 229, 0.15);
-            }
-            .premium-input {
-                background-color: #f9fafb;
-                border: 1px solid #e5e7eb;
-                border-radius: 1.5rem;
-                padding: 1.25rem 1.5rem;
-                font-weight: 700;
-                transition: all 0.3s ease;
-                box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.01);
-                color: #111827;
-            }
-            .premium-input:focus {
-                background-color: white;
-                border-color: #4f46e5;
-                box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1), inset 0 2px 4px 0 rgba(0, 0, 0, 0.01);
-                outline: none;
-            }
             [x-cloak] { display: none !important; }
+            
+            /* Global Background Upgrade */
+            body { 
+                font-family: 'Tajawal', sans-serif; 
+                background-color: #F1F5F9; /* Rich Tinted Off-White */
+            }
+
+            /* Premium Card 2.0 - Stronger definition */
+            .premium-card { 
+                background: #FDFDFF; /* Very light tinted background instead of pure white */
+                border-radius: 4rem; 
+                border: 2px solid #E2E8F0; /* Visible, solid border */
+                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08), 0 10px 20px -5px rgba(0, 0, 0, 0.04);
+                transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+                position: relative;
+                z-index: 10;
+            }
+
+            .premium-card:hover {
+                transform: translateY(-8px) scale(1.01);
+                box-shadow: 0 40px 80px -20px rgba(79, 70, 229, 0.15);
+                border-color: #C7D2FE;
+            }
+
+            /* Color Accents for Cards */
+            .card-blue { background-color: #F0F9FF; border-color: #BAE6FD; }
+            .card-green { background-color: #F0FDF4; border-color: #BBF7D0; }
+            .card-yellow { background-color: #FFFBEB; border-color: #FEF3C7; }
+            .card-red { background-color: #FEF2F2; border-color: #FECACA; }
+
+            /* Professional Inputs */
+            .premium-input {
+                background-color: #FFFFFF;
+                border: 2px solid #E5E7EB;
+                border-radius: 2rem;
+                padding: 1.5rem 1.8rem;
+                font-weight: 800;
+                color: #1E293B;
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            }
+
+            .premium-input:focus {
+                border-color: #6366F1;
+                box-shadow: 0 0 0 5px rgba(99, 102, 241, 0.15);
+                outline: none;
+                transform: scale(1.02);
+            }
+
+            /* Premium Scrollbar */
+            ::-webkit-scrollbar { width: 8px; }
+            ::-webkit-scrollbar-track { background: #F1F5F9; }
+            ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; }
+            ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
         </style>
     </head>
     <body class="font-sans antialiased bg-[#F4F7FE] text-gray-900">

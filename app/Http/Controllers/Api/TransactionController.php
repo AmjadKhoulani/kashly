@@ -20,7 +20,7 @@ class TransactionController extends Controller
             $query->where('category', $request->category);
         }
 
-        $transactions = $query->with(['transactionable', 'paymentMethod'])
+        $transactions = $query->with(['transactionable', 'paymentMethod', 'category'])
             ->latest('transaction_date')
             ->paginate(30);
 
@@ -40,8 +40,8 @@ class TransactionController extends Controller
     {
         $validated = $request->validate([
             'amount' => 'required|numeric|min:0',
-            'type' => 'required|in:income,expense',
-            'category' => 'required|string',
+            'type' => 'required|in:income,expense,capital',
+            'category_id' => 'required|exists:categories,id',
             'transaction_date' => 'required|date',
             'transactionable_id' => 'required',
             'transactionable_type' => 'required|string',
@@ -53,15 +53,18 @@ class TransactionController extends Controller
 
         $transaction = Transaction::create($validated);
 
-        // Update current value of the fund/wallet if needed
-        if ($transaction->transactionable_type === 'App\Models\InvestmentFund') {
-            $fund = \App\Models\InvestmentFund::find($transaction->transactionable_id);
-            if ($fund) {
-                if ($transaction->type === 'income') {
-                    $fund->increment('current_value', $transaction->amount);
-                } else {
-                    $fund->decrement('current_value', $transaction->amount);
-                }
+        // Update current value/balance of the fund/wallet/business
+        $modelClass = $transaction->transactionable_type;
+        $model = $modelClass::find($transaction->transactionable_id);
+        
+        if ($model) {
+            $valueField = ($modelClass === 'App\Models\Wallet') ? 'balance' : 
+                         (($modelClass === 'App\Models\Business') ? 'total_value' : 'current_value');
+            
+            if ($transaction->type === 'income' || $transaction->type === 'capital') {
+                $model->increment($valueField, $transaction->amount);
+            } else {
+                $model->decrement($valueField, $transaction->amount);
             }
         }
 

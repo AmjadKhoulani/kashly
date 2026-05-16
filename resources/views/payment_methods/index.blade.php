@@ -3,25 +3,25 @@
         <div class="max-w-7xl mx-auto space-y-12">
             
             <!-- Header Section -->
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
                 <div>
-                    <h2 class="text-4xl font-black text-gray-900 tracking-tight">الحسابات ووسائل الدفع</h2>
-                    <p class="text-gray-500 font-bold mt-2">إدارة حساباتك البنكية، الخزينة، والبطاقات الائتمانية في مكان واحد.</p>
+                    <h2 class="text-5xl font-black text-slate-900 tracking-tight">الحسابات ووسائل الدفع</h2>
+                    <p class="text-slate-500 font-bold mt-3 text-lg">إدارة حساباتك البنكية، الخزينة، والبطاقات الائتمانية والعملات في مكان واحد.</p>
                 </div>
-                <button @click="showModal = true" class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-[2rem] text-sm font-black shadow-xl shadow-indigo-500/20 flex items-center transition-all hover:scale-105">
-                    <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path></svg>
+                <button @click="showModal = true" class="bg-indigo-600 hover:bg-indigo-700 text-white px-10 py-5 rounded-[2.5rem] text-lg font-black shadow-2xl shadow-indigo-500/30 flex items-center transition-all hover:scale-105 active:scale-95">
+                    <svg class="w-6 h-6 ml-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path></svg>
                     إضافة حساب جديد
                 </button>
             </div>
 
             <!-- Payment Methods Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
                 @forelse($methods as $method)
-                    <div class="premium-card p-10 group relative overflow-hidden">
-                        <div class="absolute -right-10 -top-10 w-32 h-32 bg-indigo-500/5 rounded-full blur-3xl"></div>
+                    <div class="premium-card p-12 group relative overflow-hidden bg-white border-2 border-slate-100 hover:border-indigo-200 transition-all duration-500 shadow-xl">
+                        <div class="absolute -right-10 -top-10 w-40 h-40 bg-indigo-500/5 rounded-full blur-3xl group-hover:bg-indigo-500/10 transition-all duration-700"></div>
                         
-                        <div class="flex justify-between items-start mb-8 relative z-10">
-                            <div class="w-16 h-16 bg-gray-50 text-gray-900 rounded-2xl flex items-center justify-center text-3xl group-hover:scale-110 transition-transform">
+                        <div class="flex justify-between items-start mb-10 relative z-10">
+                            <div class="w-20 h-20 bg-slate-50 text-slate-900 rounded-[2rem] flex items-center justify-center text-4xl group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 border-2 border-white shadow-lg">
                                 @switch($method->type)
                                     @case('bank') 🏛️ @break
                                     @case('cash') 💵 @break
@@ -33,15 +33,15 @@
                             <form action="{{ route('payment-methods.destroy', $method->id) }}" method="POST" onsubmit="return confirm('هل أنت متأكد من حذف هذا الحساب؟')">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="text-gray-300 hover:text-rose-500 transition-colors">
-                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                <button type="submit" class="w-12 h-12 bg-rose-50 text-rose-600 rounded-2xl flex items-center justify-center hover:bg-rose-600 hover:text-white transition-all shadow-sm border border-rose-100">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                 </button>
                             </form>
                         </div>
 
                         <div class="relative z-10">
-                            <h3 class="text-2xl font-black text-gray-900 mb-1">{{ $method->name }}</h3>
-                            <p class="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-6">
+                            <h3 class="text-3xl font-black text-slate-900 mb-2 tracking-tight group-hover:text-indigo-600 transition-colors">{{ $method->name }}</h3>
+                            <p class="text-xs text-slate-400 font-black uppercase tracking-widest mb-10">
                                 @switch($method->type)
                                     @case('bank') حساب بنكي @break
                                     @case('cash') نقد / خزينة @break
@@ -51,17 +51,17 @@
                                 @endswitch
                             </p>
                             
-                            <div class="border-t border-gray-50 pt-6">
-                                <p class="text-[10px] text-gray-400 font-black uppercase mb-1">الرصيد الحالي</p>
-                                <p class="text-3xl font-black text-indigo-600">{{ number_format($method->balance, 2) }} <span class="text-sm">{{ $method->currency }}</span></p>
+                            <div class="border-t-2 border-slate-50 pt-10">
+                                <p class="text-xs text-slate-400 font-black uppercase mb-3 tracking-widest">الرصيد المتاح</p>
+                                <p class="text-4xl font-black text-indigo-600 tracking-tighter">{{ number_format($method->balance, 2) }} <span class="text-lg font-black">{{ $method->currency }}</span></p>
                             </div>
                         </div>
                     </div>
                 @empty
-                    <div class="lg:col-span-3 premium-card p-24 text-center border-dashed">
-                        <div class="text-6xl mb-6">🏦</div>
-                        <h3 class="text-2xl font-black text-gray-900 mb-2">لا توجد حسابات مضافة</h3>
-                        <p class="text-gray-400 font-bold">ابدأ بإضافة حساباتك البنكية أو محافظك المالية لتتبع مصادر أموالك.</p>
+                    <div class="lg:col-span-3 premium-card p-32 text-center bg-white border-4 border-dashed border-slate-100">
+                        <div class="text-8xl mb-8">🏦</div>
+                        <h3 class="text-4xl font-black text-slate-900 mb-4">لا توجد حسابات مضافة</h3>
+                        <p class="text-slate-400 font-black text-xl">ابدأ بإضافة حساباتك البنكية أو محافظك المالية لتتبع مصادر أموالك بدقة.</p>
                     </div>
                 @endforelse
             </div>

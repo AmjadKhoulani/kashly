@@ -23,82 +23,82 @@
             @endif
             
             <!-- Header Section -->
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
                 <div>
-                    <h2 class="text-4xl font-black text-gray-900 tracking-tight">الكيانات الاستثمارية</h2>
-                    <p class="text-gray-500 font-bold mt-2">تتبع نمو محافظك العقارية والتجارية وإدارة حصص الشركاء.</p>
+                    <h2 class="text-5xl font-black text-slate-900 tracking-tight">الكيانات الاستثمارية</h2>
+                    <p class="text-slate-500 font-bold mt-3 text-lg">تتبع نمو محافظك العقارية والتجارية وإدارة حصص الشركاء باحترافية.</p>
                 </div>
-                <button @click="showModal = true" class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-[2rem] text-sm font-black shadow-xl shadow-indigo-500/20 flex items-center transition-all hover:scale-105">
-                    <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path></svg>
-                    إنشاء كيان استثماري جديد
+                <button @click="showModal = true" class="bg-indigo-600 hover:bg-indigo-700 text-white px-10 py-5 rounded-[2.5rem] text-lg font-black shadow-2xl shadow-indigo-500/30 flex items-center transition-all hover:scale-105 active:scale-95">
+                    <svg class="w-6 h-6 ml-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path></svg>
+                    إنشاء كيان استثماري
                 </button>
             </div>
 
             <!-- Global Stats Summary -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="premium-card p-8 flex items-center justify-between">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="premium-card p-10 flex items-center justify-between border-2 border-slate-100 bg-white">
                     <div>
-                        <p class="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">إجمالي رأس المال</p>
-                        <p class="text-3xl font-black text-gray-900">${{ number_format($funds->sum('capital'), 0) }}</p>
+                        <p class="text-xs text-slate-400 font-black uppercase tracking-widest mb-2">إجمالي رأس المال</p>
+                        <p class="text-4xl font-black text-slate-900 tracking-tighter">${{ number_format($funds->sum('capital'), 0) }}</p>
                     </div>
-                    <div class="w-14 h-14 bg-indigo-50 rounded-2xl flex items-center justify-center text-2xl shadow-sm">🏛️</div>
+                    <div class="w-16 h-16 bg-indigo-50 rounded-2xl flex items-center justify-center text-3xl shadow-inner border border-indigo-100">🏛️</div>
                 </div>
-                <div class="premium-card p-8 flex items-center justify-between">
+                <div class="premium-card p-10 flex items-center justify-between border-2 border-slate-100 bg-white">
                     <div>
-                        <p class="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">القيمة السوقية الحالية</p>
-                        <p class="text-3xl font-black text-indigo-600">${{ number_format($funds->sum('current_value'), 0) }}</p>
+                        <p class="text-xs text-slate-400 font-black uppercase tracking-widest mb-2">القيمة السوقية الحالية</p>
+                        <p class="text-4xl font-black text-indigo-600 tracking-tighter">${{ number_format($funds->sum('current_value'), 0) }}</p>
                     </div>
-                    <div class="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center text-2xl shadow-sm">📈</div>
+                    <div class="w-16 h-16 bg-emerald-50 rounded-2xl flex items-center justify-center text-3xl shadow-inner border border-emerald-100">📈</div>
                 </div>
-                <div class="premium-card p-8 flex items-center justify-between">
+                <div class="premium-card p-10 flex items-center justify-between border-2 border-slate-100 bg-white">
                     <div>
-                        <p class="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">العائد الإجمالي</p>
+                        <p class="text-xs text-slate-400 font-black uppercase tracking-widest mb-2">العائد الإجمالي</p>
                         @php
                             $totalProfit = $funds->sum('current_value') - $funds->sum('capital');
                             $profitPercent = $funds->sum('capital') > 0 ? ($totalProfit / $funds->sum('capital')) * 100 : 0;
                         @endphp
-                        <p class="text-3xl font-black text-emerald-600">+{{ number_format($profitPercent, 1) }}%</p>
+                        <p class="text-4xl font-black text-emerald-600 tracking-tighter">+{{ number_format($profitPercent, 1) }}%</p>
                     </div>
-                    <div class="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center text-2xl shadow-sm">💰</div>
+                    <div class="w-16 h-16 bg-emerald-50 rounded-2xl flex items-center justify-center text-3xl shadow-inner border border-emerald-100">💰</div>
                 </div>
             </div>
 
             <!-- Funds Grid -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
                 @foreach($funds as $fund)
-                    <a href="{{ route('funds.show', $fund->id) }}" class="premium-card p-10 group relative overflow-hidden block">
-                        <div class="absolute -right-10 -top-10 w-40 h-40 bg-indigo-500/5 rounded-full blur-3xl group-hover:bg-indigo-500/10 transition-colors"></div>
+                    <a href="{{ route('funds.show', $fund->id) }}" class="premium-card p-12 group relative overflow-hidden block border-2 border-slate-100 bg-white hover:border-indigo-200 transition-all duration-500">
+                        <div class="absolute -right-10 -top-10 w-48 h-48 bg-indigo-500/5 rounded-full blur-3xl group-hover:bg-indigo-500/10 transition-all duration-700"></div>
                         
-                        <div class="flex justify-between items-start mb-12 relative z-10">
-                            <div class="w-20 h-20 bg-gray-50 text-gray-900 rounded-[2rem] flex items-center justify-center text-4xl group-hover:scale-110 transition-transform duration-500">
+                        <div class="flex justify-between items-start mb-14 relative z-10">
+                            <div class="w-24 h-24 bg-slate-50 text-slate-900 rounded-[2.5rem] flex items-center justify-center text-5xl group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 border-2 border-white shadow-lg">
                                 {{ $fund->icon ?? '🏘️' }}
                             </div>
-                            <span class="px-4 py-2 {{ $fund->status == 'active' ? 'bg-emerald-50 text-emerald-600' : 'bg-gray-50 text-gray-400' }} text-[10px] font-black uppercase rounded-xl tracking-tighter">
+                            <span class="px-6 py-2.5 {{ $fund->status == 'active' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-slate-50 text-slate-400 border-slate-100' }} text-xs font-black uppercase rounded-xl tracking-widest border shadow-sm">
                                 {{ $fund->status == 'active' ? '● نشط حالياً' : 'مغلق' }}
                             </span>
                         </div>
 
                         <div class="relative z-10">
-                            <h3 class="text-3xl font-black text-gray-900 mb-4 tracking-tight group-hover:text-indigo-600 transition-colors">{{ $fund->name }}</h3>
-                            <div class="flex items-center gap-6 mb-10">
-                                <div class="flex -space-x-3 space-x-reverse overflow-hidden">
+                            <h3 class="text-4xl font-black text-slate-900 mb-6 tracking-tight group-hover:text-indigo-600 transition-colors">{{ $fund->name }}</h3>
+                            <div class="flex items-center gap-8 mb-12">
+                                <div class="flex -space-x-4 space-x-reverse overflow-hidden">
                                     @for($i = 0; $i < 3; $i++)
-                                        <div class="inline-block h-8 w-8 rounded-full ring-4 ring-white bg-gray-100 flex items-center justify-center text-[10px] font-black text-gray-400">P</div>
+                                        <div class="inline-block h-10 w-10 rounded-full ring-4 ring-white bg-slate-100 flex items-center justify-center text-xs font-black text-slate-400 border border-slate-200 shadow-sm">P</div>
                                     @endfor
                                 </div>
-                                <span class="text-xs font-bold text-gray-400">إدارة الشركاء والمساهمات</span>
+                                <span class="text-sm font-black text-slate-400 uppercase tracking-widest">إدارة الشركاء والمساهمات</span>
                             </div>
                             
-                            <div class="grid grid-cols-2 gap-8 border-t border-gray-50 pt-10">
+                            <div class="grid grid-cols-2 gap-10 border-t-2 border-slate-50 pt-12">
                                 <div>
-                                    <p class="text-[10px] text-gray-400 font-black uppercase mb-2 tracking-widest">رأس المال المستثمر</p>
-                                    <p class="text-2xl font-black text-gray-900">${{ number_format($fund->capital, 0) }}</p>
+                                    <p class="text-xs text-slate-400 font-black uppercase mb-3 tracking-widest">رأس المال المستثمر</p>
+                                    <p class="text-3xl font-black text-slate-900 tracking-tighter">${{ number_format($fund->capital, 0) }}</p>
                                 </div>
                                 <div>
-                                    <p class="text-[10px] text-gray-400 font-black uppercase mb-2 tracking-widest">القيمة الحالية</p>
-                                    <div class="flex items-center gap-2">
-                                        <p class="text-2xl font-black text-indigo-600">${{ number_format($fund->current_value, 0) }}</p>
-                                        <span class="text-[10px] font-black text-emerald-500 bg-emerald-50 px-2 py-0.5 rounded-md">
+                                    <p class="text-xs text-slate-400 font-black uppercase mb-3 tracking-widest">القيمة الحالية</p>
+                                    <div class="flex items-center gap-3">
+                                        <p class="text-3xl font-black text-indigo-600 tracking-tighter">${{ number_format($fund->current_value, 0) }}</p>
+                                        <span class="text-xs font-black text-emerald-600 bg-emerald-50 px-3 py-1 rounded-lg border border-emerald-100 shadow-sm">
                                             +{{ number_format((($fund->current_value - $fund->capital) / max($fund->capital, 1)) * 100, 1) }}%
                                         </span>
                                     </div>
@@ -107,9 +107,9 @@
                         </div>
 
                         <!-- Progress Bar -->
-                        <div class="mt-10 h-3 bg-gray-50 rounded-full overflow-hidden">
+                        <div class="mt-12 h-4 bg-slate-50 rounded-full overflow-hidden shadow-inner border border-slate-100">
                             @php $percent = min(100, ($fund->current_value / max($fund->capital, 1)) * 100); @endphp
-                            <div class="h-full bg-gradient-to-l from-indigo-600 to-indigo-400 rounded-full transition-all duration-1000" style="width: {{ $percent }}%"></div>
+                            <div class="h-full bg-gradient-to-l from-indigo-600 to-indigo-400 rounded-full transition-all duration-1000 shadow-lg shadow-indigo-500/20" style="width: {{ $percent }}%"></div>
                         </div>
                     </a>
                 @endforeach

@@ -4,10 +4,11 @@ import '../api/api_service.dart';
 import 'package:intl/intl.dart';
 
 class TransferScreen extends StatefulWidget {
-  final int fundId;
+  final int sourceId;
+  final String sourceType;
   final List paymentMethods;
 
-  TransferScreen({required this.fundId, required this.paymentMethods});
+  TransferScreen({required this.sourceId, required this.sourceType, required this.paymentMethods});
 
   @override
   _TransferScreenState createState() => _TransferScreenState();
@@ -62,8 +63,8 @@ class _TransferScreenState extends State<TransferScreen> {
       'to_payment_method_id': toAccountId,
       'transaction_date': DateFormat('yyyy-MM-dd').format(selectedDate),
       'description': descController.text,
-      'source_type': 'InvestmentFund',
-      'source_id': widget.fundId,
+      'source_type': widget.sourceType,
+      'source_id': widget.sourceId,
     };
 
     final success = await apiService.transfer(data);

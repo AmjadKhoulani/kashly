@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../api/api_service.dart';
+import 'categories_screen.dart';
+import 'wallets_screen.dart';
+import 'businesses_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   final apiService = ApiService();
@@ -56,6 +59,15 @@ class ProfileScreen extends StatelessWidget {
   Widget _buildMenuSection(BuildContext context) {
     return Column(
       children: [
+        _menuItem(Icons.category_outlined, 'إدارة التصنيفات المالية', () {
+          Get.to(() => CategoriesScreen());
+        }),
+        _menuItem(Icons.account_balance_wallet_outlined, 'إدارة المحافظ والحسابات', () {
+          Get.to(() => WalletsScreen());
+        }),
+        _menuItem(Icons.business_center_outlined, 'إدارة قطاع الأعمال', () {
+          Get.to(() => BusinessesScreen());
+        }),
         _menuItem(Icons.picture_as_pdf, 'تحميل التقرير الشهري', () {
           Get.snackbar('قريباً', 'ميزة التقارير سيتم تفعيلها في التحديث القادم');
         }),

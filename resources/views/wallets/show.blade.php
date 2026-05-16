@@ -3,36 +3,36 @@
         <div class="max-w-7xl mx-auto space-y-12">
             
             <!-- Breadcrumbs & Header -->
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
                 <div>
-                    <nav class="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">
+                    <nav class="flex items-center gap-3 text-xs font-black text-slate-400 uppercase tracking-widest mb-6">
                         <a href="{{ route('wallets.index') }}" class="hover:text-indigo-600 transition-colors">المحافظ الشخصية</a>
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"></path></svg>
-                        <span class="text-gray-900">{{ $wallet->name }}</span>
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"></path></svg>
+                        <span class="text-slate-900">{{ $wallet->name }}</span>
                     </nav>
-                    <div class="flex items-center gap-4">
-                        <div class="w-16 h-16 bg-white border border-gray-100 rounded-3xl flex items-center justify-center text-3xl shadow-sm">
+                    <div class="flex items-center gap-6">
+                        <div class="w-20 h-20 bg-white border-2 border-slate-100 rounded-[2rem] flex items-center justify-center text-4xl shadow-sm">
                             💰
                         </div>
                         <div>
-                            <h2 class="text-4xl font-black text-gray-900 tracking-tight">{{ $wallet->name }}</h2>
+                            <h2 class="text-5xl font-black text-slate-900 tracking-tight">{{ $wallet->name }}</h2>
                             @if($wallet->custodian_name)
-                                <p class="text-xs font-black text-amber-600 bg-amber-50 px-3 py-1 rounded-lg inline-block mt-2">بعهدة: {{ $wallet->custodian_name }}</p>
+                                <p class="text-sm font-black text-amber-700 bg-amber-50 px-4 py-2 rounded-xl inline-block mt-3 border border-amber-100 shadow-sm">بعهدة: {{ $wallet->custodian_name }}</p>
                             @endif
                         </div>
                     </div>
                 </div>
-                <div class="flex items-center gap-3">
-                    <button @click="showReconcile = true" class="bg-white border border-amber-200 text-amber-600 px-8 py-5 rounded-[2rem] font-black text-sm shadow-sm hover:bg-amber-50 transition-all flex items-center gap-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+                <div class="flex items-center gap-4">
+                    <button @click="showReconcile = true" class="bg-white border-2 border-amber-200 text-amber-600 px-10 py-5 rounded-[2.5rem] font-black text-base shadow-sm hover:bg-amber-50 transition-all flex items-center gap-3">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
                         مطابقة الرصيد
                     </button>
-                    <button @click="showModal = true" class="bg-indigo-600 hover:bg-indigo-700 text-white px-10 py-5 rounded-[2rem] font-black text-lg shadow-xl shadow-indigo-500/20 transition-all hover:scale-105">إضافة عملية</button>
+                    <button @click="showModal = true" class="bg-indigo-600 hover:bg-indigo-700 text-white px-12 py-5 rounded-[2.5rem] font-black text-xl shadow-xl shadow-indigo-500/20 transition-all hover:scale-105">إضافة عملية</button>
                     <form action="{{ route('wallets.destroy', $wallet->id) }}" method="POST" onsubmit="return confirm('هل أنت متأكد من حذف هذه المحفظة؟ لا يمكن التراجع عن هذه الخطوة.')">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="w-14 h-14 bg-rose-50 text-rose-600 rounded-2xl flex items-center justify-center shadow-sm hover:bg-rose-600 hover:text-white transition-all">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        <button type="submit" class="w-16 h-16 bg-rose-50 text-rose-600 rounded-3xl flex items-center justify-center shadow-sm hover:bg-rose-600 hover:text-white transition-all border-2 border-rose-100">
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                         </button>
                     </form>
                 </div>
@@ -40,36 +40,38 @@
 
             <!-- Stats & Chart Area -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
-                <div class="lg:col-span-2 premium-card p-12 bg-white flex flex-col justify-between overflow-hidden relative">
+                <div class="lg:col-span-2 premium-card p-14 bg-white flex flex-col justify-between overflow-hidden relative border-2 border-slate-100">
                     <div class="absolute -right-20 -top-20 w-80 h-80 bg-indigo-500/5 rounded-full blur-3xl"></div>
                     <div class="relative z-10 flex justify-between items-start">
                         <div>
-                            <p class="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-4">الرصيد الحالي للمحفظة</p>
-                            <p class="text-7xl font-black text-gray-900 tracking-tighter">{{ number_format($wallet->balance, 2) }} <span class="text-2xl">{{ $wallet->currency }}</span></p>
+                            <p class="text-xs text-slate-400 font-black uppercase tracking-widest mb-6">الرصيد الحالي للمحفظة</p>
+                            <p class="text-8xl font-black text-slate-900 tracking-tighter">{{ number_format($wallet->balance, 0) }} <span class="text-3xl opacity-40">{{ $wallet->currency }}</span></p>
                         </div>
                         <div class="text-left">
-                            <span class="px-6 py-2 bg-emerald-50 text-emerald-600 text-xs font-black rounded-full shadow-sm">نشط</span>
+                            <span class="px-8 py-3 bg-emerald-50 text-emerald-600 text-sm font-black rounded-2xl shadow-sm border border-emerald-100">نشط الآن ✅</span>
                         </div>
                     </div>
-                    <div class="mt-16 h-48 flex items-end gap-2">
-                         <!-- Placeholder for mini-chart or activity indicator -->
-                         @foreach(range(1, 12) as $i)
-                            <div class="flex-1 bg-indigo-50 rounded-full hover:bg-indigo-600 transition-colors cursor-help" style="height: {{ rand(20, 100) }}%" title="نشاط اليوم {{ $i }}"></div>
+                    <div class="mt-20 h-56 flex items-end gap-3">
+                         @foreach(range(1, 15) as $i)
+                            <div class="flex-1 bg-slate-50 rounded-2xl hover:bg-indigo-600 transition-all duration-500 cursor-help shadow-inner" style="height: {{ rand(30, 100) }}%" title="نشاط اليوم {{ $i }}"></div>
                          @endforeach
                     </div>
                 </div>
 
-                <div class="space-y-8">
-                    <div class="premium-card p-10 bg-indigo-900 text-white shadow-2xl shadow-indigo-900/20">
-                        <h3 class="text-xl font-black mb-8">ملخص سريع 📊</h3>
-                        <div class="space-y-6">
-                            <div class="flex justify-between items-center border-b border-white/5 pb-4">
-                                <span class="text-xs font-bold text-gray-400 tracking-widest">إجمالي الإيداعات</span>
-                                <span class="text-lg font-black text-emerald-400">+{{ number_format($transactions->where('type', 'income')->sum('amount'), 0) }} {{ $wallet->currency }}</span>
+                <div class="space-y-10">
+                    <div class="premium-card p-12 bg-slate-900 text-white shadow-2xl shadow-slate-900/40 border-4 border-slate-800">
+                        <h3 class="text-3xl font-black mb-10 flex items-center gap-4">
+                            <span class="w-2 h-8 bg-indigo-500 rounded-full"></span>
+                            ملخص مالي
+                        </h3>
+                        <div class="space-y-8">
+                            <div class="flex justify-between items-center border-b border-white/10 pb-6">
+                                <span class="text-sm font-black text-slate-400 uppercase tracking-widest">إجمالي الإيداعات</span>
+                                <span class="text-2xl font-black text-emerald-400">+{{ number_format($transactions->where('type', 'income')->sum('amount'), 0) }}</span>
                             </div>
                             <div class="flex justify-between items-center">
-                                <span class="text-xs font-bold text-gray-400 tracking-widest">إجمالي المصاريف</span>
-                                <span class="text-lg font-black text-rose-400">-{{ number_format($transactions->where('type', 'expense')->sum('amount'), 0) }} {{ $wallet->currency }}</span>
+                                <span class="text-sm font-black text-slate-400 uppercase tracking-widest">إجمالي المصاريف</span>
+                                <span class="text-2xl font-black text-rose-400">-{{ number_format($transactions->where('type', 'expense')->sum('amount'), 0) }}</span>
                             </div>
                         </div>
                     </div>
@@ -77,52 +79,52 @@
             </div>
 
             <!-- Transaction History -->
-            <div class="premium-card overflow-hidden bg-white shadow-sm border border-gray-50">
-                <div class="px-10 py-8 border-b border-gray-50 flex justify-between items-center">
-                    <h3 class="text-2xl font-black text-gray-900">سجل عمليات المحفظة</h3>
+            <div class="premium-card overflow-hidden bg-white shadow-2xl border-2 border-slate-100">
+                <div class="px-12 py-10 border-b-2 border-slate-50 flex justify-between items-center bg-slate-50/30">
+                    <h3 class="text-3xl font-black text-slate-900">سجل عمليات المحفظة التاريخي</h3>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-right border-collapse">
-                        <thead class="bg-gray-50/50 border-b border-gray-100">
+                        <thead class="bg-slate-50/80 border-b-2 border-slate-100">
                             <tr>
-                                <th class="px-10 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">التاريخ</th>
-                                <th class="px-6 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">البيان</th>
-                                <th class="px-6 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">التصنيف</th>
-                                <th class="px-6 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">المبلغ</th>
-                                <th class="px-10 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest text-left">إجراء</th>
+                                <th class="px-12 py-8 text-xs font-black text-slate-400 uppercase tracking-widest">التاريخ</th>
+                                <th class="px-8 py-8 text-xs font-black text-slate-400 uppercase tracking-widest">البيان والتفاصيل</th>
+                                <th class="px-8 py-8 text-xs font-black text-slate-400 uppercase tracking-widest text-center">التصنيف</th>
+                                <th class="px-8 py-8 text-xs font-black text-slate-400 uppercase tracking-widest text-center">المبلغ</th>
+                                <th class="px-12 py-8 text-xs font-black text-slate-400 uppercase tracking-widest text-left">إجراءات</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-50">
+                        <tbody class="divide-y-2 divide-slate-50">
                             @forelse($transactions as $transaction)
-                                <tr class="hover:bg-gray-50/50 transition-colors group">
-                                    <td class="px-10 py-6 whitespace-nowrap">
-                                        <span class="text-xs font-black text-gray-400 group-hover:text-indigo-600 transition-colors">{{ $transaction->transaction_date->format('Y-m-d') }}</span>
+                                <tr class="hover:bg-slate-50/80 transition-all group">
+                                    <td class="px-12 py-8 whitespace-nowrap">
+                                        <span class="text-sm font-black text-slate-400 group-hover:text-indigo-600 transition-colors tracking-widest">{{ $transaction->transaction_date->format('Y-m-d') }}</span>
                                     </td>
-                                    <td class="px-6 py-6">
-                                        <p class="font-black text-gray-900 text-sm">{{ $transaction->description ?: $transaction->category }}</p>
+                                    <td class="px-8 py-8">
+                                        <p class="font-black text-slate-900 text-lg group-hover:text-indigo-600 transition-colors">{{ $transaction->description ?: $transaction->category->name }}</p>
                                     </td>
-                                    <td class="px-6 py-6 text-center">
-                                        <span class="px-3 py-1.5 bg-gray-100 text-gray-600 rounded-lg text-[10px] font-black uppercase tracking-tighter">
-                                            {{ $transaction->category }}
+                                    <td class="px-8 py-8 text-center">
+                                        <span class="px-5 py-2 bg-white border border-slate-200 text-slate-600 rounded-xl text-xs font-black uppercase tracking-widest shadow-sm">
+                                            {{ $transaction->category->icon ?? '📦' }} {{ $transaction->category->name }}
                                         </span>
                                     </td>
-                                    <td class="px-6 py-6 text-center">
-                                        <span class="text-lg font-black {{ $transaction->type == 'income' ? 'text-emerald-600' : 'text-rose-600' }}">
-                                            {{ $transaction->type == 'income' ? '+' : '-' }}{{ number_format($transaction->amount, 0) }} <span class="text-xs">{{ $wallet->currency }}</span>
+                                    <td class="px-8 py-8 text-center">
+                                        <span class="text-2xl font-black {{ $transaction->type == 'income' ? 'text-emerald-600' : 'text-rose-600' }} tracking-tighter">
+                                            {{ $transaction->type == 'income' ? '+' : '-' }}{{ number_format($transaction->amount, 0) }} <span class="text-sm opacity-40">{{ $wallet->currency }}</span>
                                         </span>
                                     </td>
-                                    <td class="px-10 py-6 text-left">
-                                        <form action="{{ route('transactions.destroy', $transaction->id) }}" method="POST" onsubmit="return confirm('حذف العملية؟')">
+                                    <td class="px-12 py-8 text-left">
+                                        <form action="{{ route('transactions.destroy', $transaction->id) }}" method="POST" onsubmit="return confirm('حذف العملية نهائياً؟')">
                                             @csrf @method('DELETE')
-                                            <button type="submit" class="p-2 text-gray-300 hover:text-rose-600 transition-colors">
-                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                            <button type="submit" class="p-3 bg-white border border-slate-100 text-slate-300 hover:text-rose-600 hover:border-rose-100 hover:shadow-lg rounded-2xl transition-all">
+                                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                             </button>
                                         </form>
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="px-10 py-20 text-center text-gray-400 font-bold uppercase tracking-widest italic">لا توجد عمليات مسجلة لهذه المحفظة</td>
+                                    <td colspan="5" class="px-12 py-32 text-center text-slate-300 text-lg font-black uppercase tracking-widest italic">لا توجد عمليات مسجلة لهذه المحفظة حالياً 🏝️</td>
                                 </tr>
                             @endforelse
                         </tbody>

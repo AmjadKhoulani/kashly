@@ -61,31 +61,45 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                       itemBuilder: (context, i) {
                         final t = transactions[i];
                         return Container(
-                          margin: EdgeInsets.only(bottom: 15),
-                          padding: EdgeInsets.all(15),
-                          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)),
+                          margin: EdgeInsets.only(bottom: 18),
+                          padding: EdgeInsets.all(18),
+                          decoration: BoxDecoration(
+                            color: Colors.white, 
+                            borderRadius: BorderRadius.circular(25),
+                            boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: Offset(0, 4))]
+                          ),
                           child: Row(
                             children: [
                               Container(
-                                width: 50, height: 50,
+                                width: 55, height: 55,
                                 decoration: BoxDecoration(
                                   color: t['category_id'] != null && t['category'] != null
-                                    ? Color(int.parse(t['category']['color'].replaceFirst('#', '0xFF'))).withOpacity(0.1) 
-                                    : (t['type'] == 'income' ? Colors.green.withOpacity(0.1) : Colors.red.withOpacity(0.1)),
-                                  borderRadius: BorderRadius.circular(15)
+                                    ? Color(int.parse(t['category']['color'].replaceFirst('#', '0xFF'))).withOpacity(0.15) 
+                                    : (t['type'] == 'income' ? Colors.green.withOpacity(0.15) : Colors.red.withOpacity(0.15)),
+                                  borderRadius: BorderRadius.circular(18)
                                 ),
-                                child: Center(child: Text(t['category_id'] != null && t['category'] != null ? t['category']['icon'] : (t['type'] == 'income' ? '↓' : '↑'), style: TextStyle(fontSize: 20))),
+                                child: Center(child: Text(t['category_id'] != null && t['category'] != null ? t['category']['icon'] : (t['type'] == 'income' ? '↓' : '↑'), style: TextStyle(fontSize: 24))),
                               ),
-                              SizedBox(width: 15),
+                              SizedBox(width: 18),
                               Expanded(child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(t['description'] ?? (t['category_id'] != null && t['category'] != null ? t['category']['name'] : t['category']), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                                  Text('${t['category_id'] != null && t['category'] != null ? t['category']['name'] : t['category']} • ${t['transaction_date']}', style: TextStyle(color: Colors.grey, fontSize: 10)),
+                                  Text(t['description'] ?? (t['category_id'] != null && t['category'] != null ? t['category']['name'] : t['category']), 
+                                    style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: Colors.blueGrey.shade800)),
+                                  SizedBox(height: 4),
+                                  Text('${t['category_id'] != null && t['category'] != null ? t['category']['name'] : t['category']} • ${t['transaction_date']}', 
+                                    style: TextStyle(color: Colors.blueGrey.shade400, fontSize: 12, fontWeight: FontWeight.bold)),
                                 ],
                               )),
-                              Text('${t['type'] == 'income' ? '+' : '-'}${t['amount']} ${t['payment_method']['currency']}', 
-                                style: TextStyle(fontWeight: FontWeight.w900, color: t['type'] == 'income' ? Colors.green : Colors.red)),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Text('${t['type'] == 'income' ? '+' : '-'}${t['amount']}', 
+                                    style: TextStyle(fontWeight: FontWeight.w900, fontSize: 19, color: t['type'] == 'income' ? Colors.green.shade600 : Colors.red.shade600)),
+                                  Text('${t['payment_method'] != null ? t['payment_method']['currency'] : (t['currency'] ?? '')}', 
+                                    style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Colors.blueGrey.shade300)),
+                                ],
+                              ),
                             ],
                           ),
                         );
@@ -100,7 +114,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
 
   Widget _buildFilters() {
     return Container(
-      height: 60,
+      height: 70,
       padding: EdgeInsets.symmetric(horizontal: 20),
       child: ListView(
         scrollDirection: Axis.horizontal,
@@ -108,7 +122,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
           _filterChip('الكل', null, 'type'),
           _filterChip('دخل', 'income', 'type'),
           _filterChip('مصاريف', 'expense', 'type'),
-          VerticalDivider(width: 30, indent: 15, endIndent: 15),
+          VerticalDivider(width: 30, indent: 20, endIndent: 20, color: Colors.blueGrey.shade100),
           ...categories.map((c) => _filterChip(c['name'], c['name'], 'category')).toList(),
         ],
       ),
@@ -126,14 +140,15 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
         loadTransactions();
       },
       child: Container(
-        margin: EdgeInsets.only(right: 10, top: 10, bottom: 10),
-        padding: EdgeInsets.symmetric(horizontal: 20),
+        margin: EdgeInsets.only(right: 12, top: 12, bottom: 12),
+        padding: EdgeInsets.symmetric(horizontal: 22),
         decoration: BoxDecoration(
           color: isSelected ? Colors.indigo : Colors.white,
-          borderRadius: BorderRadius.circular(15),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 5)],
+          borderRadius: BorderRadius.circular(18),
+          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8, offset: Offset(0, 2))],
+          border: Border.all(color: isSelected ? Colors.indigo : Colors.indigo.withOpacity(0.05))
         ),
-        child: Center(child: Text(label, style: TextStyle(color: isSelected ? Colors.white : Colors.indigo, fontWeight: FontWeight.bold, fontSize: 12))),
+        child: Center(child: Text(label, style: TextStyle(color: isSelected ? Colors.white : Colors.indigo, fontWeight: FontWeight.w900, fontSize: 14))),
       ),
     );
   }
