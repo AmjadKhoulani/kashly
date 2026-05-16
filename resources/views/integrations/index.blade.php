@@ -108,13 +108,71 @@
                 </div>
 
                 <!-- MadaaQ Integration Card -->
-                <div class="premium-card bg-white p-12 border-2 border-slate-100 hover:border-orange-200 transition-all duration-500 group shadow-xl">
+                <div x-data="{ showMadaaqModal: false }" class="premium-card bg-white p-12 border-2 border-slate-100 hover:border-orange-200 transition-all duration-500 group shadow-xl">
                     <div class="w-24 h-24 bg-orange-50 rounded-[2.5rem] flex items-center justify-center mb-10 group-hover:scale-110 transition-transform duration-500 overflow-hidden p-4 text-5xl border-2 border-white shadow-lg">
                         📡
                     </div>
                     <h4 class="text-3xl font-black text-slate-900 mb-4 tracking-tight group-hover:text-orange-600 transition-colors">MadaaQ</h4>
                     <p class="text-base text-slate-500 font-bold leading-relaxed mb-10">تكامل مباشر مع منصة MadaaQ لاستقبال تحصيلات المشتركين وتوثيقها في صناديقك المالية.</p>
-                    <button class="w-full bg-orange-600 text-white py-5 rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl shadow-orange-500/30 hover:bg-orange-700 transition-all">إعداد الـ Webhook</button>
+                    
+                    @php
+                        $madaaqIntegration = $integrations->where('provider', 'madaaq')->first();
+                    @endphp
+
+                    @if($madaaqIntegration)
+                        <button @click="showMadaaqModal = true" class="w-full bg-slate-100 text-slate-900 py-5 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-slate-200 transition-all">عرض بيانات الـ Webhook</button>
+                    @else
+                        <button @click="showMadaaqModal = true" class="w-full bg-orange-600 text-white py-5 rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl shadow-orange-500/30 hover:bg-orange-700 transition-all">إعداد الـ Webhook</button>
+                    @endif
+
+                    <!-- MadaaQ Setup Modal -->
+                    <div x-show="showMadaaqModal" class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-900/80 backdrop-blur-xl" x-cloak x-transition>
+                        <div class="bg-white rounded-[4rem] w-full max-w-lg p-12 shadow-2xl relative border-2 border-white/20" @click.away="showMadaaqModal = false">
+                            <h3 class="text-2xl font-black text-slate-900 mb-8 text-center">إعداد تكامل MadaaQ</h3>
+                            
+                            @if($madaaqIntegration)
+                                <div class="space-y-6">
+                                    <div class="bg-slate-50 p-6 rounded-3xl border border-slate-100">
+                                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Webhook URL</p>
+                                        <code class="text-xs font-bold text-indigo-600 break-all">{{ url('/api/webhooks/madaaq') }}</code>
+                                    </div>
+                                    <div class="bg-slate-50 p-6 rounded-3xl border border-slate-100">
+                                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">X-MadaaQ-Key (Security Key)</p>
+                                        <code class="text-xs font-bold text-orange-600 break-all">{{ $madaaqIntegration->webhook_secret }}</code>
+                                    </div>
+                                    <p class="text-sm font-bold text-slate-500 text-center leading-relaxed">
+                                        استخدم هذه البيانات في لوحة تحكم MadaaQ لتفعيل المزامنة التلقائية.
+                                    </p>
+                                    <button @click="showMadaaqModal = false" class="w-full bg-slate-900 text-white py-5 rounded-2xl font-black uppercase text-xs tracking-widest">إغلاق</button>
+                                </div>
+                            @else
+                                <form action="{{ route('integrations.store') }}" method="POST" class="space-y-6 text-right">
+                                    @csrf
+                                    <input type="hidden" name="provider" value="madaaq">
+                                    
+                                    <div>
+                                        <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-3">اسم التكامل</label>
+                                        <input type="text" name="name" value="MadaaQ Integration" class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 font-bold text-slate-900 focus:border-orange-500 focus:ring-0 transition-all" required>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-3">الصندوق المالي المستهدف</label>
+                                        <select name="target_id" class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 font-bold text-slate-900 focus:border-orange-500 focus:ring-0 transition-all" required>
+                                            <option value="">اختر الصندوق...</option>
+                                            @foreach($funds as $fund)
+                                                <option value="{{ $fund->id }}">{{ $fund->name }}</option>
+                                            @endforeach
+                                        </select>
+                                        <input type="hidden" name="target_type" value="App\Models\InvestmentFund">
+                                    </div>
+
+                                    <div class="pt-4">
+                                        <button type="submit" class="w-full bg-orange-600 text-white py-5 rounded-2xl font-black uppercase text-xs tracking-widest shadow-xl shadow-orange-500/30 hover:bg-orange-700 transition-all">تفعيل وحفظ البيانات</button>
+                                    </div>
+                                </form>
+                            @endif
+                        </div>
+                    </div>
                 </div>
 
                 <!-- WHMCS -->
