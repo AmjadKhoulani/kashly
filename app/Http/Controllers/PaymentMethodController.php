@@ -3,14 +3,22 @@
 namespace App\Http\Controllers;
 
 use App\Models\PaymentMethod;
+use App\Models\InvestmentFund;
+use App\Models\Wallet;
 use Illuminate\Http\Request;
 
 class PaymentMethodController extends Controller
 {
     public function index()
     {
-        $methods = PaymentMethod::where('user_id', auth()->id())->get();
-        return view('payment_methods.index', compact('methods'));
+        $methods = PaymentMethod::where('user_id', auth()->id())
+            ->with(['fund', 'wallet'])
+            ->get();
+            
+        $funds = InvestmentFund::where('user_id', auth()->id())->get();
+        $wallets = Wallet::where('user_id', auth()->id())->get();
+        
+        return view('payment_methods.index', compact('methods', 'funds', 'wallets'));
     }
 
     public function store(Request $request)
@@ -20,6 +28,9 @@ class PaymentMethodController extends Controller
             'type' => 'required|string|in:bank,cash,credit_card,debit_card,other',
             'balance' => 'required|numeric',
             'currency' => 'required|string|size:3',
+            'association_type' => 'required|string|in:fund,wallet',
+            'fund_id' => 'nullable|required_if:association_type,fund|exists:investment_funds,id',
+            'wallet_id' => 'nullable|required_if:association_type,wallet|exists:wallets,id',
         ]);
 
         PaymentMethod::create([
@@ -28,6 +39,8 @@ class PaymentMethodController extends Controller
             'type' => $validated['type'],
             'balance' => $validated['balance'],
             'currency' => $validated['currency'],
+            'fund_id' => $validated['association_type'] === 'fund' ? $validated['fund_id'] : null,
+            'wallet_id' => $validated['association_type'] === 'wallet' ? $validated['wallet_id'] : null,
         ]);
 
         return back()->with('success', 'تمت إضافة وسيلة الدفع بنجاح');

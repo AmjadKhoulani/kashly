@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="py-12 px-6" x-data="{ showModal: false }">
+    <div class="py-12 px-6" x-data="{ showModal: false, assocType: 'wallet' }">
         <div class="max-w-7xl mx-auto space-y-12">
             
             <!-- Header Section -->
@@ -41,7 +41,7 @@
 
                         <div class="relative z-10">
                             <h3 class="text-3xl font-black text-slate-900 mb-2 tracking-tight group-hover:text-indigo-600 transition-colors">{{ $method->name }}</h3>
-                            <p class="text-xs text-slate-400 font-black uppercase tracking-widest mb-10">
+                            <p class="text-xs text-slate-400 font-black uppercase tracking-widest mb-4">
                                 @switch($method->type)
                                     @case('bank') حساب بنكي @break
                                     @case('cash') نقد / خزينة @break
@@ -50,8 +50,27 @@
                                     @default أخرى
                                 @endswitch
                             </p>
+
+                            <!-- Dependency Badge -->
+                            <div class="mb-8 flex flex-wrap gap-2">
+                                @if($method->fund)
+                                    <span class="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-black bg-orange-50 text-orange-600 border border-orange-100">
+                                        <span class="w-2 h-2 rounded-full bg-orange-500 ml-2"></span>
+                                        صندوق: {{ $method->fund->name }}
+                                    </span>
+                                @elseif($method->wallet)
+                                    <span class="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-black bg-indigo-50 text-indigo-600 border border-indigo-100">
+                                        <span class="w-2 h-2 rounded-full bg-indigo-500 ml-2"></span>
+                                        محفظة: {{ $method->wallet->name }}
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-black bg-slate-50 text-slate-500 border border-slate-100">
+                                        غير مرتبط
+                                    </span>
+                                @endif
+                            </div>
                             
-                            <div class="border-t-2 border-slate-50 pt-10">
+                            <div class="border-t-2 border-slate-50 pt-8">
                                 <p class="text-xs text-slate-400 font-black uppercase mb-3 tracking-widest">الرصيد المتاح</p>
                                 <p class="text-4xl font-black text-indigo-600 tracking-tighter">{{ number_format($method->balance, 2) }} <span class="text-lg font-black">{{ $method->currency }}</span></p>
                             </div>
@@ -70,17 +89,18 @@
 
         <!-- Add Modal -->
         <div x-show="showModal" class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-gray-900/60 backdrop-blur-md" x-cloak x-transition>
-            <div class="bg-white rounded-[4rem] w-full max-w-lg p-12 shadow-2xl relative text-right" @click.away="showModal = false">
+            <div class="bg-white rounded-[4rem] w-full max-w-lg p-12 shadow-2xl relative text-right overflow-y-auto max-h-[90vh]" @click.away="showModal = false">
                 <h3 class="text-3xl font-black text-gray-900 mb-8">إضافة وسيلة دفع</h3>
                 <form action="{{ route('payment-methods.store') }}" method="POST" class="space-y-6">
                     @csrf
                     <div>
                         <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 mr-2">اسم الحساب / الوسيلة</label>
-                        <input type="text" name="name" required class="w-full bg-gray-50 border-0 rounded-[2rem] p-6 font-bold text-lg" placeholder="مثلاً: بنك الراجحي، خزينة المحل...">
+                        <input type="text" name="name" required class="w-full bg-gray-50 border-0 rounded-[2rem] p-6 font-bold text-lg focus:ring-2 focus:ring-indigo-500" placeholder="مثلاً: بنك الراجحي، خزينة المحل...">
                     </div>
+                    
                     <div>
                         <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 mr-2">نوع الحساب</label>
-                        <select name="type" class="w-full bg-gray-50 border-0 rounded-[2rem] p-6 font-bold text-lg">
+                        <select name="type" class="w-full bg-gray-50 border-0 rounded-[2rem] p-6 font-bold text-lg focus:ring-2 focus:ring-indigo-500">
                             <option value="bank">حساب بنكي</option>
                             <option value="cash">نقد / كاش</option>
                             <option value="credit_card">بطاقة ائتمان (Credit)</option>
@@ -88,14 +108,54 @@
                             <option value="other">أخرى</option>
                         </select>
                     </div>
+
+                    <!-- Association Section -->
+                    <div class="space-y-4">
+                        <label class="block text-[10px] font-black text-gray-400 uppercase mr-2">تبعية الحساب (صندوق أم محفظة شخصية)</label>
+                        <div class="grid grid-cols-2 gap-4">
+                            <label class="flex items-center justify-center p-4 bg-gray-50 border-2 rounded-[1.5rem] cursor-pointer font-bold transition-all" :class="assocType === 'wallet' ? 'border-indigo-600 bg-indigo-50/50 text-indigo-700' : 'border-transparent text-gray-500'">
+                                <input type="radio" name="association_type" value="wallet" x-model="assocType" class="hidden">
+                                <span>محفظة شخصية 🚶</span>
+                            </label>
+                            <label class="flex items-center justify-center p-4 bg-gray-50 border-2 rounded-[1.5rem] cursor-pointer font-bold transition-all" :class="assocType === 'fund' ? 'border-orange-600 bg-orange-50/50 text-orange-700' : 'border-transparent text-gray-500'">
+                                <input type="radio" name="association_type" value="fund" x-model="assocType" class="hidden">
+                                <span>صندوق استثماري 🏛️</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Wallet Selection -->
+                    <div x-show="assocType === 'wallet'">
+                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 mr-2">اختر المحفظة الشخصية</label>
+                        <select name="wallet_id" class="w-full bg-gray-50 border-0 rounded-[2rem] p-6 font-bold text-lg focus:ring-2 focus:ring-indigo-500">
+                            @forelse($wallets as $wallet)
+                                <option value="{{ $wallet->id }}">{{ $wallet->name }} ({{ number_format($wallet->balance, 2) }} {{ $wallet->currency }})</option>
+                            @empty
+                                <option value="">لا يوجد محافظ، يرجى إنشاء محفظة أولاً</option>
+                            @endforelse
+                        </select>
+                    </div>
+
+                    <!-- Fund Selection -->
+                    <div x-show="assocType === 'fund'">
+                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 mr-2">اختر الصندوق الاستثماري</label>
+                        <select name="fund_id" class="w-full bg-gray-50 border-0 rounded-[2rem] p-6 font-bold text-lg focus:ring-2 focus:ring-indigo-500">
+                            @forelse($funds as $fund)
+                                <option value="{{ $fund->id }}">{{ $fund->name }} ({{ $fund->currency }})</option>
+                            @empty
+                                <option value="">لا يوجد صناديق، يرجى إنشاء صندوق أولاً</option>
+                            @endforelse
+                        </select>
+                    </div>
+
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 mr-2">الرصيد الافتتاحي</label>
-                            <input type="number" step="0.01" name="balance" required class="w-full bg-gray-50 border-0 rounded-[2rem] p-6 font-black text-xl" placeholder="0.00">
+                            <input type="number" step="0.01" name="balance" required class="w-full bg-gray-50 border-0 rounded-[2rem] p-6 font-black text-xl focus:ring-2 focus:ring-indigo-500" placeholder="0.00">
                         </div>
                         <div>
                             <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 mr-2">العملة</label>
-                            <select name="currency" class="w-full bg-gray-50 border-0 rounded-[2rem] p-6 font-bold text-lg">
+                            <select name="currency" class="w-full bg-gray-50 border-0 rounded-[2rem] p-6 font-bold text-lg focus:ring-2 focus:ring-indigo-500">
                                 <option value="USD">USD</option>
                                 <option value="TRY">TRY</option>
                                 <option value="SAR">SAR</option>
