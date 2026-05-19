@@ -382,8 +382,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
     if (chartDataRaw is! Map) return _buildEmptyAsset('بيانات الرسم البياني غير متوفرة');
     
     final chartData = chartDataRaw;
-    final List<double> commercial = List<double>.from(chartData['commercial'] ?? []);
-    final List<double> personal = List<double>.from(chartData['personal'] ?? []);
+    final List<double> commercial = (chartData['commercial'] as List? ?? [])
+        .map((e) => (e as num).toDouble())
+        .toList();
+    final List<double> personal = (chartData['personal'] as List? ?? [])
+        .map((e) => (e as num).toDouble())
+        .toList();
     final List<String> days = List<String>.from(chartData['days'] ?? []);
 
     return Container(
