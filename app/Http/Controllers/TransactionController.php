@@ -120,7 +120,7 @@ class TransactionController extends Controller
         }
 
         // Handle category name from category_id if not explicitly provided
-        $categoryName = $validated['category'];
+        $categoryName = $validated['category'] ?? null;
         if ($request->filled('category_id') && !$categoryName) {
             $cat = Category::find($request->input('category_id'));
             if ($cat) {
@@ -137,7 +137,7 @@ class TransactionController extends Controller
             'type' => $validated['type'],
             'category' => $categoryName,
             'category_id' => $validated['category_id'] ?? null,
-            'description' => $validated['description'],
+            'description' => $validated['description'] ?? null,
             'invoice_path' => $invoicePath,
             'payment_method_id' => $request->input('payment_method_id'),
             'transactionable_type' => "App\\Models\\" . $validated['source_type'],
@@ -216,13 +216,15 @@ class TransactionController extends Controller
         $amount = $validated['amount'];
 
         \DB::transaction(function () use ($validated, $fromAccount, $toAccount, $amount) {
+            $descSuffix = isset($validated['description']) && $validated['description'] ? ' - ' . $validated['description'] : '';
+            
             // 1. Create Withdrawal Transaction
             Transaction::create([
                 'user_id' => auth()->id(),
                 'amount' => $amount,
                 'type' => 'expense',
                 'category' => 'تحويل صادق',
-                'description' => 'تحويل إلى ' . $toAccount->name . ($validated['description'] ? ' - ' . $validated['description'] : ''),
+                'description' => 'تحويل إلى ' . $toAccount->name . $descSuffix,
                 'transaction_date' => $validated['transaction_date'],
                 'payment_method_id' => $fromAccount->id,
                 'transactionable_type' => "App\\Models\\" . $validated['source_type'],
@@ -236,7 +238,7 @@ class TransactionController extends Controller
                 'amount' => $amount,
                 'type' => 'income',
                 'category' => 'تحويل وارد',
-                'description' => 'تحويل من ' . $fromAccount->name . ($validated['description'] ? ' - ' . $validated['description'] : ''),
+                'description' => 'تحويل من ' . $fromAccount->name . $descSuffix,
                 'transaction_date' => $validated['transaction_date'],
                 'payment_method_id' => $toAccount->id,
                 'transactionable_type' => "App\\Models\\" . $validated['source_type'],
