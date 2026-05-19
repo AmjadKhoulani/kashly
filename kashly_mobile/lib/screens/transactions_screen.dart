@@ -63,6 +63,22 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                         final categoryRelationRaw = t['category_relation'];
                         final category = categoryRelationRaw is Map ? categoryRelationRaw : null;
                         
+                        final String categoryColor = (category != null && category['color'] != null) 
+                            ? category['color'].toString() 
+                            : '#6366f1';
+                        final String categoryIcon = (category != null && category['icon'] != null) 
+                            ? category['icon'].toString() 
+                            : (t['type'] == 'income' ? '↓' : '↑');
+                        final String categoryName = (category != null && category['name'] != null) 
+                            ? category['name'].toString() 
+                            : (t['category']?.toString() ?? 'بدون تصنيف');
+                        final String description = t['description']?.toString() ?? categoryName;
+                        final String transactionDate = t['transaction_date']?.toString() ?? '';
+                        final String amount = t['amount']?.toString() ?? '0.00';
+                        final String currency = (t['payment_method'] != null && t['payment_method']['currency'] != null)
+                            ? t['payment_method']['currency'].toString()
+                            : (t['currency']?.toString() ?? '');
+
                         return Container(
                           margin: EdgeInsets.only(bottom: 18),
                           padding: EdgeInsets.all(18),
@@ -76,30 +92,28 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                               Container(
                                 width: 55, height: 55,
                                 decoration: BoxDecoration(
-                                  color: category != null
-                                    ? Color(int.parse(category['color'].replaceFirst('#', '0xFF'))).withOpacity(0.15) 
-                                    : (t['type'] == 'income' ? Colors.green.withOpacity(0.15) : Colors.red.withOpacity(0.15)),
+                                  color: Color(int.parse(categoryColor.replaceFirst('#', '0xFF'))).withOpacity(0.15),
                                   borderRadius: BorderRadius.circular(18)
                                 ),
-                                child: Center(child: Text(category != null ? category['icon'] : (t['type'] == 'income' ? '↓' : '↑'), style: TextStyle(fontSize: 24))),
+                                child: Center(child: Text(categoryIcon, style: TextStyle(fontSize: 24))),
                               ),
                               SizedBox(width: 18),
                               Expanded(child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(t['description'] ?? (category != null ? category['name'] : (t['category'] ?? 'بدون وصف')), 
+                                  Text(description, 
                                     style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: Colors.blueGrey.shade800)),
                                   SizedBox(height: 4),
-                                  Text('${category != null ? category['name'] : (t['category'] ?? 'بدون تصنيف')} • ${t['transaction_date']}', 
+                                  Text('$categoryName • $transactionDate', 
                                     style: TextStyle(color: Colors.blueGrey.shade400, fontSize: 12, fontWeight: FontWeight.bold)),
                                 ],
                               )),
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.end,
                                 children: [
-                                  Text('${t['type'] == 'income' ? '+' : '-'}${t['amount']}', 
+                                  Text('${t['type'] == 'income' ? '+' : '-'}$amount', 
                                     style: TextStyle(fontWeight: FontWeight.w900, fontSize: 19, color: t['type'] == 'income' ? Colors.green.shade600 : Colors.red.shade600)),
-                                  Text('${t['payment_method'] != null ? t['payment_method']['currency'] : (t['currency'] ?? '')}', 
+                                  Text(currency, 
                                     style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Colors.blueGrey.shade300)),
                                 ],
                               ),
@@ -126,7 +140,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
           _filterChip('دخل', 'income', 'type'),
           _filterChip('مصاريف', 'expense', 'type'),
           VerticalDivider(width: 30, indent: 20, endIndent: 20, color: Colors.blueGrey.shade100),
-          ...categories.map((c) => _filterChip(c['name'], c['name'], 'category')).toList(),
+          ...categories.where((c) => c != null && c['name'] != null).map((c) => _filterChip(c['name'].toString(), c['name'].toString(), 'category')).toList(),
         ],
       ),
     );
