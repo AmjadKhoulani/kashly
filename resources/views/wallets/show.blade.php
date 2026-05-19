@@ -1,5 +1,15 @@
 <x-app-layout>
-    <div class="py-12 px-6" x-data="{ showModal: false, showReconcile: false, type: 'expense' }">
+    <div class="py-12 px-6" x-data="{ 
+        showModal: false, 
+        showReconcile: false, 
+        showAccountModal: false,
+        type: 'expense', 
+        payInAlternative: false, 
+        walletCurrency: '{{ $wallet->currency }}', 
+        selectedCurrency: '{{ $wallet->currency }}',
+        altCurrency: 'USD',
+        exchangeRate: '1.0'
+    }">
         <div class="max-w-7xl mx-auto space-y-12">
             
             <!-- Breadcrumbs & Header -->
@@ -45,7 +55,7 @@
                     <div class="relative z-10 flex justify-between items-start">
                         <div>
                             <p class="text-xs text-slate-400 font-black uppercase tracking-widest mb-6">الرصيد الحالي للمحفظة</p>
-                            <p class="text-8xl font-black text-slate-900 tracking-tighter">{{ number_format($wallet->balance, 0) }} <span class="text-3xl opacity-40">{{ $wallet->currency }}</span></p>
+                            <p class="text-8xl font-black text-slate-900 tracking-tighter">{{ number_format($wallet->balance, 2) }} <span class="text-3xl opacity-40">{{ $wallet->currency }}</span></p>
                         </div>
                         <div class="text-left">
                             <span class="px-8 py-3 bg-emerald-50 text-emerald-600 text-sm font-black rounded-2xl shadow-sm border border-emerald-100">نشط الآن ✅</span>
@@ -59,6 +69,7 @@
                 </div>
 
                 <div class="space-y-10">
+                    <!-- Financial Summary Card -->
                     <div class="premium-card p-12 bg-slate-900 text-white shadow-2xl shadow-slate-900/40 border-4 border-slate-800">
                         <h3 class="text-3xl font-black mb-10 flex items-center gap-4">
                             <span class="w-2 h-8 bg-indigo-500 rounded-full"></span>
@@ -67,12 +78,53 @@
                         <div class="space-y-8">
                             <div class="flex justify-between items-center border-b border-white/10 pb-6">
                                 <span class="text-sm font-black text-slate-400 uppercase tracking-widest">إجمالي الإيداعات</span>
-                                <span class="text-2xl font-black text-emerald-400">+{{ number_format($transactions->where('type', 'income')->sum('amount'), 0) }}</span>
+                                <span class="text-2xl font-black text-emerald-400">+{{ number_format($transactions->where('type', 'income')->sum('amount'), 2) }}</span>
                             </div>
                             <div class="flex justify-between items-center">
                                 <span class="text-sm font-black text-slate-400 uppercase tracking-widest">إجمالي المصاريف</span>
-                                <span class="text-2xl font-black text-rose-400">-{{ number_format($transactions->where('type', 'expense')->sum('amount'), 0) }}</span>
+                                <span class="text-2xl font-black text-rose-400">-{{ number_format($transactions->where('type', 'expense')->sum('amount'), 2) }}</span>
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- Sub-accounts / Custodies Card -->
+                    <div class="premium-card p-12 bg-white border-2 border-slate-100 shadow-xl">
+                        <div class="flex justify-between items-center mb-8">
+                            <h3 class="text-2xl font-black text-slate-900 flex items-center gap-3">
+                                🏛️ الحسابات والعهد التابعة
+                            </h3>
+                            <button @click="showAccountModal = true" class="text-xs font-black text-indigo-600 hover:text-indigo-800 transition-colors">
+                                + إضافة عهدة / حساب
+                            </button>
+                        </div>
+                        <div class="space-y-6">
+                            @forelse($paymentMethods as $pm)
+                                <div class="flex justify-between items-center p-4 bg-slate-50 hover:bg-slate-100/50 rounded-2xl border border-slate-100 transition-all">
+                                    <div class="flex items-center gap-4">
+                                        <span class="text-2xl">
+                                            @switch($pm->type)
+                                                @case('bank') 🏛️ @break
+                                                @case('cash') 💵 @break
+                                                @default 💰
+                                            @endswitch
+                                        </span>
+                                        <div>
+                                            <p class="font-black text-slate-900 text-sm">{{ $pm->name }}</p>
+                                            @if($pm->custodian_name)
+                                                <p class="text-[10px] font-black text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md inline-block border border-amber-100">أمين العهدة: {{ $pm->custodian_name }}</p>
+                                            @endif
+                                        </div>
+                                    </div>
+                                    <div class="text-left">
+                                        <p class="font-black text-slate-900 text-lg">{{ number_format($pm->balance, 2) }}</p>
+                                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">{{ $pm->currency }}</p>
+                                    </div>
+                                </div>
+                            @empty
+                                <div class="text-center py-8 text-slate-400 font-bold text-sm">
+                                    لا يوجد حسابات أو عهد تابعة حالياً.
+                                </div>
+                            @endforelse
                         </div>
                     </div>
                 </div>
@@ -89,8 +141,9 @@
                             <tr>
                                 <th class="px-12 py-8 text-xs font-black text-slate-400 uppercase tracking-widest">التاريخ</th>
                                 <th class="px-8 py-8 text-xs font-black text-slate-400 uppercase tracking-widest">البيان والتفاصيل</th>
+                                <th class="px-8 py-8 text-xs font-black text-slate-400 uppercase tracking-widest text-center">الحساب المستهدف</th>
                                 <th class="px-8 py-8 text-xs font-black text-slate-400 uppercase tracking-widest text-center">التصنيف</th>
-                                <th class="px-8 py-8 text-xs font-black text-slate-400 uppercase tracking-widest text-center">المبلغ</th>
+                                <th class="px-8 py-8 text-xs font-black text-slate-400 uppercase tracking-widest text-center">المبلغ المستحق</th>
                                 <th class="px-12 py-8 text-xs font-black text-slate-400 uppercase tracking-widest text-left">إجراءات</th>
                             </tr>
                         </thead>
@@ -101,17 +154,37 @@
                                         <span class="text-sm font-black text-slate-400 group-hover:text-indigo-600 transition-colors tracking-widest">{{ $transaction->transaction_date->format('Y-m-d') }}</span>
                                     </td>
                                     <td class="px-8 py-8">
-                                        <p class="font-black text-slate-900 text-lg group-hover:text-indigo-600 transition-colors">{{ $transaction->description ?: $transaction->category->name }}</p>
+                                        <p class="font-black text-slate-900 text-lg group-hover:text-indigo-600 transition-colors">{{ $transaction->description ?: ($transaction->category ? $transaction->category->name : $transaction->category) }}</p>
+                                    </td>
+                                    <td class="px-8 py-8 text-center">
+                                        @if($transaction->paymentMethod)
+                                            <span class="px-4 py-2 bg-indigo-50 text-indigo-700 border border-indigo-100 rounded-xl text-xs font-black">
+                                                {{ $transaction->paymentMethod->name }} 
+                                                @if($transaction->paymentMethod->custodian_name)
+                                                    (عهدة: {{ $transaction->paymentMethod->custodian_name }})
+                                                @endif
+                                            </span>
+                                        @else
+                                            <span class="px-4 py-2 bg-slate-50 text-slate-500 border border-slate-100 rounded-xl text-xs font-black">
+                                                الرصيد الرئيسي
+                                            </span>
+                                        @endif
                                     </td>
                                     <td class="px-8 py-8 text-center">
                                         <span class="px-5 py-2 bg-white border border-slate-200 text-slate-600 rounded-xl text-xs font-black uppercase tracking-widest shadow-sm">
-                                            {{ $transaction->category->icon ?? '📦' }} {{ $transaction->category->name }}
+                                            {{ $transaction->category ? $transaction->category->icon : '📦' }} {{ $transaction->category ? $transaction->category->name : $transaction->category }}
                                         </span>
                                     </td>
                                     <td class="px-8 py-8 text-center">
                                         <span class="text-2xl font-black {{ $transaction->type == 'income' ? 'text-emerald-600' : 'text-rose-600' }} tracking-tighter">
-                                            {{ $transaction->type == 'income' ? '+' : '-' }}{{ number_format($transaction->amount, 0) }} <span class="text-sm opacity-40">{{ $wallet->currency }}</span>
+                                            {{ $transaction->type == 'income' ? '+' : '-' }}{{ number_format($transaction->original_amount ?: $transaction->amount, 2) }} 
+                                            <span class="text-sm opacity-40">{{ $transaction->currency }}</span>
                                         </span>
+                                        @if($transaction->original_amount && $transaction->original_amount != $transaction->amount)
+                                            <p class="text-[10px] text-slate-400 font-bold mt-1">
+                                                يعادل: {{ number_format($transaction->amount, 2) }} USD (سعر الصرف: {{ $transaction->exchange_rate }})
+                                            </p>
+                                        @endif
                                     </td>
                                     <td class="px-12 py-8 text-left">
                                         <form action="{{ route('transactions.destroy', $transaction->id) }}" method="POST" onsubmit="return confirm('حذف العملية نهائياً؟')">
@@ -124,102 +197,195 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="px-12 py-32 text-center text-slate-300 text-lg font-black uppercase tracking-widest italic">لا توجد عمليات مسجلة لهذه المحفظة حالياً 🏝️</td>
+                                    <td colspan="6" class="px-12 py-32 text-center text-slate-300 text-lg font-black uppercase tracking-widest italic">لا توجد عمليات مسجلة لهذه المحفظة حالياً 🏝️</td>
                                 </tr>
                             @endforelse
                         </tbody>
                     </table>
-        </div>
-    </div>
-
-    <!-- Reconcile Modal -->
-    <div x-show="showReconcile" class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-gray-900/60 backdrop-blur-md" x-cloak x-transition>
-        <div class="bg-white rounded-[4rem] w-full max-w-md p-12 shadow-2xl relative text-right" @click.away="showReconcile = false">
-            <h3 class="text-3xl font-black text-gray-900 mb-8">مطابقة رصيد</h3>
-            <p class="text-gray-500 font-bold mb-8 text-sm leading-relaxed">أدخل المبلغ الحقيقي الموجود في هذه المحفظة حالياً. سيقوم النظام تلقائياً بإنشاء عملية تسوية بالفرق إذا وجد.</p>
-            
-            <form action="{{ route('wallets.reconcile', $wallet->id) }}" method="POST" class="space-y-8">
-                @csrf
-                <div>
-                    <label class="block text-[10px] font-black text-gray-400 uppercase mb-4 tracking-widest mr-2">المبلغ الحقيقي الحالي ({{ $wallet->currency }})</label>
-                    <input type="number" name="actual_balance" required step="0.01" class="w-full premium-input" placeholder="مثلاً: 500.00">
                 </div>
-
-                <button type="submit" class="w-full bg-amber-500 text-white py-6 rounded-[2.5rem] font-black text-xl shadow-xl shadow-amber-500/20 hover:bg-amber-600 transition-all">تأكيد المطابقة</button>
-            </form>
+            </div>
         </div>
-    </div>
 
-    <!-- Add Transaction Modal -->
-    <div x-show="showModal" class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-gray-900/60 backdrop-blur-md" x-cloak x-transition>
-        <div class="bg-white rounded-[4rem] w-full max-w-xl p-12 shadow-2xl relative text-right overflow-y-auto max-h-[90vh]" @click.away="showModal = false">
-            <h3 class="text-3xl font-black text-gray-900 mb-10">تسجيل عملية محفظة</h3>
-            <form action="{{ route('transactions.store') }}" method="POST" class="space-y-8">
-                @csrf
-                <input type="hidden" name="source_type" value="Wallet">
-                <input type="hidden" name="source_id" value="{{ $wallet->id }}">
-
-                <div class="grid grid-cols-2 gap-8">
+        <!-- Reconcile Modal -->
+        <div x-show="showReconcile" class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-gray-900/60 backdrop-blur-md" x-cloak x-transition>
+            <div class="bg-white rounded-[4rem] w-full max-w-md p-12 shadow-2xl relative text-right" @click.away="showReconcile = false">
+                <h3 class="text-3xl font-black text-gray-900 mb-8">مطابقة رصيد</h3>
+                <p class="text-gray-500 font-bold mb-8 text-sm leading-relaxed">أدخل المبلغ الحقيقي الموجود في هذه المحفظة حالياً. سيقوم النظام تلقائياً بإنشاء عملية تسوية بالفرق إذا وجد.</p>
+                
+                <form action="{{ route('wallets.reconcile', $wallet->id) }}" method="POST" class="space-y-8">
+                    @csrf
                     <div>
-                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-4 tracking-widest mr-2">المبلغ</label>
-                        <input type="number" name="amount" required step="0.01" class="w-full premium-input">
+                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-4 tracking-widest mr-2">المبلغ الحقيقي الحالي ({{ $wallet->currency }})</label>
+                        <input type="number" name="actual_balance" required step="0.01" class="w-full premium-input" placeholder="مثلاً: 500.00">
                     </div>
+
+                    <button type="submit" class="w-full bg-amber-500 text-white py-6 rounded-[2.5rem] font-black text-xl shadow-xl shadow-amber-500/20 hover:bg-amber-600 transition-all">تأكيد المطابقة</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Add Sub-account / Custody Modal -->
+        <div x-show="showAccountModal" class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-gray-900/60 backdrop-blur-md" x-cloak x-transition>
+            <div class="bg-white rounded-[4rem] w-full max-w-md p-12 shadow-2xl relative text-right" @click.away="showAccountModal = false">
+                <h3 class="text-3xl font-black text-gray-900 mb-8">إضافة عهدة / حساب</h3>
+                <form action="{{ route('payment-methods.store') }}" method="POST" class="space-y-6">
+                    @csrf
+                    <input type="hidden" name="association_type" value="wallet">
+                    <input type="hidden" name="wallet_id" value="{{ $wallet->id }}">
+                    
                     <div>
-                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-4 tracking-widest mr-2 text-right">نوع العملية</label>
-                        <div class="grid grid-cols-2 gap-2 p-1 bg-gray-50 rounded-2xl">
-                            <label class="cursor-pointer">
-                                <input type="radio" name="type" value="income" x-model="type" class="hidden peer">
-                                <div class="py-2 text-center rounded-xl text-[10px] font-black peer-checked:bg-white peer-checked:text-emerald-600 shadow-sm transition-all">إيداع</div>
-                            </label>
-                            <label class="cursor-pointer">
-                                <input type="radio" name="type" value="expense" x-model="type" class="hidden peer">
-                                <div class="py-2 text-center rounded-xl text-[10px] font-black peer-checked:bg-white peer-checked:text-rose-600 shadow-sm transition-all">سحب</div>
-                            </label>
+                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 mr-2">اسم الحساب / العهدة</label>
+                        <input type="text" name="name" required class="w-full bg-gray-50 border-0 rounded-[2rem] p-6 font-bold text-lg focus:ring-2 focus:ring-indigo-500" placeholder="مثلاً: صندوق الدولار، عهدة فلان البنكية...">
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 mr-2">اسم أمين العهدة / المسؤول (اختياري)</label>
+                        <input type="text" name="custodian_name" class="w-full bg-gray-50 border-0 rounded-[2rem] p-6 font-bold text-lg focus:ring-2 focus:ring-indigo-500" placeholder="مثلاً: محمد، يوسف...">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 mr-2">نوع الحساب</label>
+                        <select name="type" class="w-full bg-gray-50 border-0 rounded-[2rem] p-6 font-bold text-lg focus:ring-2 focus:ring-indigo-500">
+                            <option value="cash">نقد / عهدة كاش</option>
+                            <option value="bank">حساب بنكي</option>
+                            <option value="credit_card">بطاقة ائتمان</option>
+                            <option value="debit_card">بطاقة دفع</option>
+                            <option value="other">أخرى</option>
+                        </select>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 mr-2">الرصيد الافتتاحي</label>
+                            <input type="number" step="0.01" name="balance" required class="w-full bg-gray-50 border-0 rounded-[2rem] p-6 font-black text-xl focus:ring-2 focus:ring-indigo-500" placeholder="0.00">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 mr-2">العملة</label>
+                            <select name="currency" class="w-full bg-gray-50 border-0 rounded-[2rem] p-6 font-bold text-lg focus:ring-2 focus:ring-indigo-500">
+                                <option value="USD">USD</option>
+                                <option value="TRY">TRY</option>
+                                <option value="SAR">SAR</option>
+                                <option value="EUR">EUR</option>
+                            </select>
                         </div>
                     </div>
-                </div>
 
-                <div>
-                    <label class="block text-[10px] font-black text-gray-400 uppercase mb-4 tracking-widest mr-2">التصنيف</label>
-                    <select name="category" required class="w-full premium-input">
-                        <template x-if="type == 'income'">
-                            <optgroup label="تصنيفات الإيداع">
-                                <option value="راتب">راتب</option>
-                                <option value="هدية">هدية</option>
-                                <option value="أرباح">أرباح</option>
-                                <option value="أخرى">أخرى</option>
-                            </optgroup>
-                        </template>
-                        <template x-if="type == 'expense'">
-                            <optgroup label="تصنيفات السحب">
-                                <option value="طعام">طعام</option>
-                                <option value="فواتير">فواتير</option>
-                                <option value="إيجار">إيجار</option>
-                                <option value="صحة">صحة</option>
-                                <option value="أخرى">أخرى</option>
-                            </optgroup>
-                        </template>
-                    </select>
-                </div>
+                    <button type="submit" class="w-full bg-indigo-600 text-white py-6 rounded-[2.5rem] font-black text-xl shadow-xl shadow-indigo-500/20 hover:bg-indigo-700 transition-all">حفظ العهدة / الحساب</button>
+                </form>
+            </div>
+        </div>
 
-                <div>
-                    <label class="block text-[10px] font-black text-gray-400 uppercase mb-4 tracking-widest mr-2">وصف إضافي</label>
-                    <textarea name="description" rows="3" class="w-full premium-input"></textarea>
-                </div>
+        <!-- Add Transaction Modal -->
+        <div x-show="showModal" class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-gray-900/60 backdrop-blur-md" x-cloak x-transition>
+            <div class="bg-white rounded-[4rem] w-full max-w-xl p-12 shadow-2xl relative text-right overflow-y-auto max-h-[90vh]" @click.away="showModal = false">
+                <h3 class="text-3xl font-black text-gray-900 mb-10">تسجيل عملية محفظة</h3>
+                <form action="{{ route('transactions.store') }}" method="POST" class="space-y-8">
+                    @csrf
+                    <input type="hidden" name="source_type" value="Wallet">
+                    <input type="hidden" name="source_id" value="{{ $wallet->id }}">
 
-                <div class="grid grid-cols-2 gap-8">
-                    <div>
-                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-4 tracking-widest mr-2">التاريخ</label>
-                        <input type="date" name="transaction_date" value="{{ date('Y-m-d') }}" required class="w-full premium-input">
+                    <div class="grid grid-cols-2 gap-8">
+                        <div>
+                            <label class="block text-[10px] font-black text-gray-400 uppercase mb-4 tracking-widest mr-2">المبلغ</label>
+                            <input type="number" name="amount" required step="0.01" class="w-full premium-input" placeholder="0.00">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-black text-gray-400 uppercase mb-4 tracking-widest mr-2 text-right">نوع العملية</label>
+                            <div class="grid grid-cols-2 gap-2 p-1 bg-gray-50 rounded-2xl">
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="type" value="income" x-model="type" class="hidden peer">
+                                    <div class="py-3 text-center rounded-xl text-xs font-black peer-checked:bg-white peer-checked:text-emerald-600 shadow-sm transition-all">إيداع</div>
+                                </label>
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="type" value="expense" x-model="type" class="hidden peer">
+                                    <div class="py-3 text-center rounded-xl text-xs font-black peer-checked:bg-white peer-checked:text-rose-600 shadow-sm transition-all">سحب</div>
+                                </label>
+                            </div>
+                        </div>
                     </div>
-                    <div>
-                         <label class="block text-[10px] font-black text-gray-400 uppercase mb-4 tracking-widest mr-2">العملة</label>
-                         <input type="text" name="currency" value="USD" class="w-full premium-input uppercase" maxlength="3">
-                    </div>
-                </div>
 
-                <button type="submit" class="w-full bg-indigo-600 text-white py-6 rounded-[2.5rem] font-black text-xl shadow-xl shadow-indigo-500/20 hover:bg-indigo-700 transition-all">تأكيد العملية</button>
-            </form>
+                    <!-- Target Account Selection -->
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-4 tracking-widest mr-2">الحساب المستهدف / العهدة</label>
+                        <select name="payment_method_id" class="w-full premium-input" @change="
+                            let opt = $event.target.selectedOptions[0];
+                            selectedCurrency = opt.getAttribute('data-currency') || walletCurrency;
+                        ">
+                            <option value="" data-currency="{{ $wallet->currency }}">الرصيد الرئيسي للمحفظة ({{ $wallet->currency }})</option>
+                            @foreach($paymentMethods as $pm)
+                                <option value="{{ $pm->id }}" data-currency="{{ $pm->currency }}">
+                                    {{ $pm->name }} ({{ $pm->currency }}) @if($pm->custodian_name) - عهدة: {{ $pm->custodian_name }} @endif
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <!-- Approved Categories with Icons & Alpine Filter -->
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-4 tracking-widest mr-2">التصنيف المعتمد</label>
+                        <select name="category_id" required class="w-full premium-input">
+                            @foreach($categories as $cat)
+                                <option value="{{ $cat->id }}" x-show="type === '{{ $cat->type }}'">
+                                    {{ $cat->icon }} {{ $cat->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-4 tracking-widest mr-2">وصف إضافي</label>
+                        <textarea name="description" rows="3" class="w-full premium-input" placeholder="اكتب تفاصيل إضافية هنا..."></textarea>
+                    </div>
+
+                    <!-- Exchange Rate Section -->
+                    <div class="bg-slate-50 p-6 rounded-[2rem] border border-slate-100 space-y-4">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-black text-slate-500">الدفع / الاستلام بعملة بديلة</span>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" x-model="payInAlternative" class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                            </label>
+                        </div>
+
+                        <!-- Dynamic inputs for Exchange rate -->
+                        <div class="grid grid-cols-2 gap-4" x-show="payInAlternative" x-cloak>
+                            <div>
+                                <label class="block text-[10px] font-black text-gray-400 uppercase mb-2 mr-2">العملة البديلة</label>
+                                <select name="currency" x-model="altCurrency" class="w-full bg-white border border-slate-200 rounded-[1.5rem] p-4 font-bold text-sm">
+                                    <option value="USD">USD</option>
+                                    <option value="TRY">TRY</option>
+                                    <option value="SAR">SAR</option>
+                                    <option value="EUR">EUR</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-black text-gray-400 uppercase mb-2 mr-2">سعر الصرف</label>
+                                <input type="number" step="0.000001" name="exchange_rate" x-model="exchangeRate" class="w-full bg-white border border-slate-200 rounded-[1.5rem] p-4 font-bold text-sm" placeholder="1.0">
+                            </div>
+                        </div>
+
+                        <!-- Informative formula preview -->
+                        <div class="text-[11px] font-bold text-indigo-600 bg-indigo-50/50 p-4 rounded-xl text-center" x-show="payInAlternative" x-cloak>
+                            💡 معادلة الخصم/الإيداع من الحساب: 
+                            1 <span class="font-black" x-text="altCurrency"></span> = 
+                            <span class="font-black" x-text="exchangeRate"></span> 
+                            <span class="font-black" x-text="selectedCurrency"></span>
+                        </div>
+                        <div class="text-[11px] font-bold text-slate-500 text-center" x-show="!payInAlternative">
+                            سيتم تسجيل العملية بالعملة الأساسية للحساب المختار: <span class="font-black text-indigo-600" x-text="selectedCurrency"></span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-8">
+                        <div>
+                            <label class="block text-[10px] font-black text-gray-400 uppercase mb-4 tracking-widest mr-2">التاريخ</label>
+                            <input type="date" name="transaction_date" value="{{ date('Y-m-d') }}" required class="w-full premium-input">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full bg-indigo-600 text-white py-6 rounded-[2.5rem] font-black text-xl shadow-xl shadow-indigo-500/20 hover:bg-indigo-700 transition-all">تأكيد العملية</button>
+                </form>
+            </div>
         </div>
     </div>
 </x-app-layout>

@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Wallet;
 use App\Models\Transaction;
+use App\Models\PaymentMethod;
+use App\Models\Category;
 use Illuminate\Http\Request;
 
 class WalletController extends Controller
@@ -37,12 +39,20 @@ class WalletController extends Controller
     public function show($id)
     {
         $wallet = Wallet::where('user_id', auth()->id())->findOrFail($id);
+        
         $transactions = Transaction::where('transactionable_id', $wallet->id)
             ->where('transactionable_type', Wallet::class)
+            ->with(['category', 'paymentMethod'])
             ->latest()
             ->paginate(20);
 
-        return view('wallets.show', compact('wallet', 'transactions'));
+        $paymentMethods = PaymentMethod::where('wallet_id', $wallet->id)->get();
+
+        $categories = Category::where(function($q) {
+            $q->where('user_id', auth()->id())->orWhere('is_default', true);
+        })->get();
+
+        return view('wallets.show', compact('wallet', 'transactions', 'paymentMethods', 'categories'));
     }
 
     public function reconcile(Request $request, $id)

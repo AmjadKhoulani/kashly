@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class PaymentMethod extends Model
 {
-    protected $fillable = ['user_id', 'fund_id', 'wallet_id', 'parent_id', 'name', 'type', 'balance', 'currency', 'icon'];
+    protected $fillable = ['user_id', 'fund_id', 'wallet_id', 'parent_id', 'name', 'custodian_name', 'type', 'balance', 'currency', 'icon'];
 
     public function user(): BelongsTo
     {

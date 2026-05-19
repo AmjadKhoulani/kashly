@@ -25,6 +25,7 @@ class PaymentMethodController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
+            'custodian_name' => 'nullable|string|max:255',
             'type' => 'required|string|in:bank,cash,credit_card,debit_card,other',
             'balance' => 'required|numeric',
             'currency' => 'required|string|size:3',
@@ -36,6 +37,7 @@ class PaymentMethodController extends Controller
         PaymentMethod::create([
             'user_id' => auth()->id(),
             'name' => $validated['name'],
+            'custodian_name' => $validated['custodian_name'] ?? null,
             'type' => $validated['type'],
             'balance' => $validated['balance'],
             'currency' => $validated['currency'],

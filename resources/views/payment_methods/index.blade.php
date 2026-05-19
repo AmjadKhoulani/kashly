@@ -52,7 +52,7 @@
                             </p>
 
                             <!-- Dependency Badge -->
-                            <div class="mb-8 flex flex-wrap gap-2">
+                            <div class="mb-2 flex flex-wrap gap-2">
                                 @if($method->fund)
                                     <span class="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-black bg-orange-50 text-orange-600 border border-orange-100">
                                         <span class="w-2 h-2 rounded-full bg-orange-500 ml-2"></span>
@@ -66,6 +66,13 @@
                                 @else
                                     <span class="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-black bg-slate-50 text-slate-500 border border-slate-100">
                                         غير مرتبط
+                                    </span>
+                                @endif
+
+                                @if($method->custodian_name)
+                                    <span class="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-black bg-amber-50 text-amber-700 border border-amber-100">
+                                        <span class="w-2 h-2 rounded-full bg-amber-500 ml-2"></span>
+                                        عهدة: {{ $method->custodian_name }}
                                     </span>
                                 @endif
                             </div>
@@ -96,6 +103,11 @@
                     <div>
                         <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 mr-2">اسم الحساب / الوسيلة</label>
                         <input type="text" name="name" required class="w-full bg-gray-50 border-0 rounded-[2rem] p-6 font-bold text-lg focus:ring-2 focus:ring-indigo-500" placeholder="مثلاً: بنك الراجحي، خزينة المحل...">
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 mr-2">اسم أمين العهدة / المسؤول (اختياري)</label>
+                        <input type="text" name="custodian_name" class="w-full bg-gray-50 border-0 rounded-[2rem] p-6 font-bold text-lg focus:ring-2 focus:ring-indigo-500" placeholder="مثلاً: يوسف، محمد...">
                     </div>
                     
                     <div>

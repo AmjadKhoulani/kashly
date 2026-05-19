@@ -69,15 +69,48 @@ class TransactionController extends Controller
             'payment_method_id' => 'nullable|exists:payment_methods,id',
         ]);
 
-        $finalAmount = $validated['amount'];
-        $originalAmount = null;
         $currency = $request->filled('currency') ? $request->input('currency') : 'USD';
-        $rate = $request->filled('exchange_rate') ? $request->input('exchange_rate') : 1;
+        $rate = $request->filled('exchange_rate') ? (float)$request->input('exchange_rate') : 1.0;
+        if ($rate <= 0) {
+            $rate = 1.0;
+        }
 
-        if ($currency !== 'USD') {
-            $originalAmount = $validated['amount'];
-            // Safeguard against division by zero
-            $finalAmount = $rate > 0 ? $originalAmount / $rate : $originalAmount;
+        // Determine the target currency and calculate amounts
+        $targetCurrency = 'USD';
+        if ($validated['source_type'] === 'Wallet') {
+            $wallet = Wallet::find($validated['source_id']);
+            $targetCurrency = $wallet ? $wallet->currency : 'USD';
+        } elseif ($validated['source_type'] === 'InvestmentFund') {
+            $fund = InvestmentFund::find($validated['source_id']);
+            $targetCurrency = $fund ? $fund->currency : 'USD';
+        }
+
+        // If a payment method is selected, its currency overrides the target currency
+        if ($request->filled('payment_method_id')) {
+            $pm = PaymentMethod::find($request->input('payment_method_id'));
+            if ($pm) {
+                $targetCurrency = $pm->currency;
+            }
+        }
+
+        // Calculate Target Amount (the amount deducted/added to the local Wallet/Account)
+        // If currencies match, targetAmount is the exact transaction amount.
+        // If they differ, targetAmount = transactionAmount * exchange_rate.
+        $transactionAmount = $validated['amount'];
+        if ($currency === $targetCurrency) {
+            $targetAmount = $transactionAmount;
+        } else {
+            $targetAmount = $transactionAmount * $rate;
+        }
+
+        // Calculate the USD equivalent (finalAmount) for the global transaction reports
+        if ($currency === 'USD') {
+            $finalAmount = $transactionAmount;
+        } elseif ($targetCurrency === 'USD') {
+            $finalAmount = $targetAmount;
+        } else {
+            // Fallback: If neither is USD, we assume targetAmount can be treated as USD, or convert if possible.
+            $finalAmount = $targetAmount;
         }
 
         $invoicePath = null;
@@ -85,14 +118,24 @@ class TransactionController extends Controller
             $invoicePath = $request->file('invoice')->store('invoices', 'public');
         }
 
+        // Handle category name from category_id if not explicitly provided
+        $categoryName = $validated['category'];
+        if ($request->filled('category_id') && !$categoryName) {
+            $cat = Category::find($request->input('category_id'));
+            if ($cat) {
+                $categoryName = $cat->name;
+            }
+        }
+
+        // Create the Transaction
         $transaction = Transaction::create([
             'amount' => $finalAmount,
-            'original_amount' => $originalAmount,
+            'original_amount' => $transactionAmount !== $finalAmount ? $transactionAmount : null,
             'currency' => $currency,
             'exchange_rate' => $rate,
             'type' => $validated['type'],
-            'category' => $validated['category'],
-            'category_id' => $validated['category_id'],
+            'category' => $categoryName,
+            'category_id' => $validated['category_id'] ?? null,
             'description' => $validated['description'],
             'invoice_path' => $invoicePath,
             'payment_method_id' => $request->input('payment_method_id'),
@@ -102,39 +145,30 @@ class TransactionController extends Controller
             'transaction_date' => $validated['transaction_date'] ?? now(),
         ]);
 
-        // 1. Update InvestmentFund current_value if applicable
-        if ($validated['source_type'] === 'InvestmentFund') {
-            $fund = InvestmentFund::find($validated['source_id']);
-            if ($fund) {
-                if ($validated['type'] === 'income') {
-                    $fund->increment('current_value', $finalAmount);
-                } else {
-                    $fund->decrement('current_value', $finalAmount);
-                }
+        // Update Wallet Balance if source is Wallet
+        if ($validated['source_type'] === 'Wallet' && isset($wallet)) {
+            if ($validated['type'] === 'income') {
+                $wallet->increment('balance', $targetAmount);
+            } else {
+                $wallet->decrement('balance', $targetAmount);
             }
         }
 
-        // 2. Update Wallet balance if applicable
-        if ($validated['source_type'] === 'Wallet') {
-            $wallet = Wallet::find($validated['source_id']);
-            if ($wallet) {
-                if ($validated['type'] === 'income') {
-                    $wallet->increment('balance', $finalAmount);
-                } else {
-                    $wallet->decrement('balance', $finalAmount);
-                }
+        // Update Fund Balance if source is InvestmentFund
+        if ($validated['source_type'] === 'InvestmentFund' && isset($fund)) {
+            if ($validated['type'] === 'income') {
+                $fund->increment('current_value', $targetAmount);
+            } else {
+                $fund->decrement('current_value', $targetAmount);
             }
         }
 
-        // 3. Update Payment Method balance if selected
-        if ($request->filled('payment_method_id')) {
-            $pm = PaymentMethod::find($request->input('payment_method_id'));
-            if ($pm) {
-                if ($validated['type'] === 'income') {
-                    $pm->increment('balance', $finalAmount);
-                } else {
-                    $pm->decrement('balance', $finalAmount);
-                }
+        // Update Payment Method Balance if selected
+        if ($request->filled('payment_method_id') && isset($pm)) {
+            if ($validated['type'] === 'income') {
+                $pm->increment('balance', $targetAmount);
+            } else {
+                $pm->decrement('balance', $targetAmount);
             }
         }
 
