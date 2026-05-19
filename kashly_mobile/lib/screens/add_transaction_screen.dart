@@ -358,7 +358,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.between,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 'الدفع / الاستلام بعملة بديلة',
