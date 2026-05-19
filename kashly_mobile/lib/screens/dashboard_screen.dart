@@ -114,50 +114,79 @@ class _DashboardScreenState extends State<DashboardScreen> {
       height: 220,
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [Colors.indigo.shade700, Colors.indigo.shade400],
+          colors: [Color(0xFF1E1B4B), Color(0xFF312E81), Color(0xFF4338CA)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(40),
+        borderRadius: BorderRadius.circular(32),
         boxShadow: [
-          BoxShadow(color: Colors.indigo.shade200.withOpacity(0.6), blurRadius: 30, offset: Offset(0, 15)),
+          BoxShadow(color: Color(0xFF4338CA).withOpacity(0.3), blurRadius: 25, offset: Offset(0, 12)),
         ],
       ),
-      child: Stack(
-        children: [
-          Positioned(
-            right: -30,
-            top: -30,
-            child: CircleAvatar(radius: 80, backgroundColor: Colors.white.withOpacity(0.1)),
-          ),
-          Padding(
-            padding: EdgeInsets.all(35),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('إجمالي الثروة التقديري', style: GoogleFonts.almarai(color: Colors.white.withOpacity(0.8), fontWeight: FontWeight.bold, fontSize: 14)),
-                    Icon(Icons.auto_graph, color: Colors.white.withOpacity(0.8), size: 20),
-                  ],
-                ),
-                SizedBox(height: 10),
-                Text(format.format(data?['estimated_total_usd'] ?? 0), 
-                  style: GoogleFonts.outfit(color: Colors.white, fontSize: 48, fontWeight: FontWeight.w900, letterSpacing: -2)),
-                Spacer(),
-                Row(
-                  children: (data?['total_by_currency'] is Map ? (data?['total_by_currency'] as Map) : {}).entries.where((e) => e.key != 'USD').take(3).map((e) => Container(
-                    margin: EdgeInsets.only(left: 10),
-                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), borderRadius: BorderRadius.circular(12)),
-                    child: Text('${e.value} ${e.key}', style: GoogleFonts.almarai(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
-                  )).toList(),
-                )
-              ],
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(32),
+        child: Stack(
+          children: [
+            Positioned(
+              right: -50,
+              bottom: -50,
+              child: CircleAvatar(
+                radius: 120,
+                backgroundColor: Colors.white.withOpacity(0.03),
+              ),
             ),
-          ),
-        ],
+            Positioned(
+              left: -30,
+              top: -30,
+              child: CircleAvatar(
+                radius: 80,
+                backgroundColor: Colors.white.withOpacity(0.02),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.all(30),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.between,
+                    children: [
+                      Text('إجمالي الثروة التقديري', 
+                        style: GoogleFonts.almarai(color: Colors.white.withOpacity(0.7), fontWeight: FontWeight.bold, fontSize: 13, letterSpacing: 0.5)),
+                      Container(
+                        padding: EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(Icons.account_balance, color: Colors.amber.shade400, size: 18),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 10),
+                  Text(format.format(data?['estimated_total_usd'] ?? 0), 
+                    style: GoogleFonts.outfit(color: Colors.white, fontSize: 44, fontWeight: FontWeight.w900, letterSpacing: -1.5)),
+                  Spacer(),
+                  Text('العملات الأخرى المتوفرة:', 
+                    style: GoogleFonts.almarai(color: Colors.white.withOpacity(0.5), fontSize: 11, fontWeight: FontWeight.bold)),
+                  SizedBox(height: 8),
+                  Row(
+                    children: (data?['total_by_currency'] is Map ? (data?['total_by_currency'] as Map) : {}).entries.where((e) => e.key != 'USD').take(3).map((e) => Container(
+                      margin: EdgeInsets.only(left: 8),
+                      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.1), 
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.white.withOpacity(0.05)),
+                      ),
+                      child: Text('${e.value} ${e.key}', style: GoogleFonts.outfit(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w800)),
+                    )).toList(),
+                  )
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -175,7 +204,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Widget _buildSectionHeader(String title, {Color color = Colors.indigo, VoidCallback? onTap}) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      mainAxisAlignment: MainAxisAlignment.between,
       children: [
         Text(title, style: GoogleFonts.almarai(fontSize: 22, fontWeight: FontWeight.w900, color: Colors.blueGrey.shade900)),
         if (onTap != null)
@@ -191,7 +220,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final wallets = data?['wallets'] as List? ?? [];
     if (wallets.isEmpty) return _buildEmptyAsset('لا توجد محافظ');
     return Container(
-      height: 160,
+      height: 170,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         itemCount: wallets.length,
@@ -200,23 +229,50 @@ class _DashboardScreenState extends State<DashboardScreen> {
           return GestureDetector(
             onTap: () => Get.to(() => WalletDetailScreen(walletId: w['id'])),
             child: Container(
-              width: 200,
+              width: 220,
               margin: EdgeInsets.only(left: 15, bottom: 10),
-              padding: EdgeInsets.all(25),
+              padding: EdgeInsets.all(22),
               decoration: BoxDecoration(
-                color: Colors.white, 
-                borderRadius: BorderRadius.circular(30), 
-                border: Border.all(color: Colors.white, width: 2),
-                boxShadow: [BoxShadow(color: Colors.indigo.shade50.withOpacity(0.5), blurRadius: 20, offset: Offset(0, 10))],
+                gradient: LinearGradient(
+                  colors: [Colors.white, Color(0xFFF8FAFC)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(28), 
+                border: Border.all(color: Colors.grey.shade100, width: 1.5),
+                boxShadow: [BoxShadow(color: Colors.indigo.shade900.withOpacity(0.03), blurRadius: 20, offset: Offset(0, 10))],
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.account_balance_wallet, color: Colors.indigo.shade300, size: 28),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.between,
+                    children: [
+                      Container(
+                        padding: EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Colors.indigo.shade50,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Icon(Icons.account_balance_wallet, color: Colors.indigo.shade600, size: 22),
+                      ),
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.green.shade50,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          w['currency'] ?? 'USD',
+                          style: GoogleFonts.outfit(color: Colors.green.shade700, fontWeight: FontWeight.bold, fontSize: 10),
+                        ),
+                      )
+                    ],
+                  ),
                   Spacer(),
-                  Text(w['name'], style: GoogleFonts.almarai(fontWeight: FontWeight.w900, fontSize: 15, color: Colors.blueGrey.shade800)),
-                  SizedBox(height: 4),
-                  Text('${w['balance']} ${w['currency']}', style: GoogleFonts.outfit(color: Colors.indigo.shade600, fontWeight: FontWeight.w900, fontSize: 22)),
+                  Text(w['name'], style: GoogleFonts.almarai(fontWeight: FontWeight.w900, fontSize: 14, color: Colors.blueGrey.shade900)),
+                  SizedBox(height: 6),
+                  Text('${w['balance']} ${w['currency']}', style: GoogleFonts.outfit(color: Colors.indigo.shade700, fontWeight: FontWeight.w900, fontSize: 20)),
                 ],
               ),
             ),
@@ -230,7 +286,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final businesses = data?['businesses'] as List? ?? [];
     if (businesses.isEmpty) return _buildEmptyAsset('لا توجد أعمال');
     return Container(
-      height: 160,
+      height: 170,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         itemCount: businesses.length,
@@ -239,22 +295,50 @@ class _DashboardScreenState extends State<DashboardScreen> {
           return GestureDetector(
             onTap: () => Get.to(() => BusinessDetailScreen(businessId: b['id'])),
             child: Container(
-              width: 200,
+              width: 220,
               margin: EdgeInsets.only(left: 15, bottom: 10),
-              padding: EdgeInsets.all(25),
+              padding: EdgeInsets.all(22),
               decoration: BoxDecoration(
-                color: Colors.amber.shade50, 
-                borderRadius: BorderRadius.circular(30), 
-                boxShadow: [BoxShadow(color: Colors.amber.shade100.withOpacity(0.3), blurRadius: 20, offset: Offset(0, 10))],
+                gradient: LinearGradient(
+                  colors: [Colors.amber.shade50, Colors.amber.shade100.withOpacity(0.5)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(28), 
+                border: Border.all(color: Colors.amber.shade100, width: 1.5),
+                boxShadow: [BoxShadow(color: Colors.amber.shade900.withOpacity(0.02), blurRadius: 20, offset: Offset(0, 10))],
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.storefront, color: Colors.amber.shade700, size: 28),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.between,
+                    children: [
+                      Container(
+                        padding: EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Icon(Icons.storefront, color: Colors.amber.shade800, size: 22),
+                      ),
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.amber.shade800,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          b['currency'] ?? 'USD',
+                          style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 10),
+                        ),
+                      )
+                    ],
+                  ),
                   Spacer(),
-                  Text(b['name'], style: GoogleFonts.almarai(fontWeight: FontWeight.w900, fontSize: 15, color: Colors.amber.shade900)),
-                  SizedBox(height: 4),
-                  Text('${b['total_value']} ${b['currency'] ?? 'USD'}', style: GoogleFonts.outfit(color: Colors.amber.shade700, fontWeight: FontWeight.w900, fontSize: 22)),
+                  Text(b['name'], style: GoogleFonts.almarai(fontWeight: FontWeight.w900, fontSize: 14, color: Colors.amber.shade900)),
+                  SizedBox(height: 6),
+                  Text('${b['total_value']} ${b['currency'] ?? 'USD'}', style: GoogleFonts.outfit(color: Colors.amber.shade900, fontWeight: FontWeight.w900, fontSize: 20)),
                 ],
               ),
             ),
@@ -268,7 +352,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final fundsList = data?['funds'] as List? ?? [];
     if (fundsList.isEmpty) return _buildEmptyAsset('لا توجد استثمارات');
     return Container(
-      height: 160,
+      height: 170,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         itemCount: fundsList.length,
@@ -277,22 +361,50 @@ class _DashboardScreenState extends State<DashboardScreen> {
           return GestureDetector(
             onTap: () => Get.to(() => FundDetailScreen(fundId: f['id'])),
             child: Container(
-              width: 200,
+              width: 220,
               margin: EdgeInsets.only(left: 15, bottom: 10),
-              padding: EdgeInsets.all(25),
+              padding: EdgeInsets.all(22),
               decoration: BoxDecoration(
-                color: Colors.green.shade50, 
-                borderRadius: BorderRadius.circular(30), 
-                boxShadow: [BoxShadow(color: Colors.green.shade100.withOpacity(0.3), blurRadius: 20, offset: Offset(0, 10))],
+                gradient: LinearGradient(
+                  colors: [Colors.green.shade50, Colors.green.shade100.withOpacity(0.5)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(28), 
+                border: Border.all(color: Colors.green.shade100, width: 1.5),
+                boxShadow: [BoxShadow(color: Colors.green.shade900.withOpacity(0.02), blurRadius: 20, offset: Offset(0, 10))],
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(f['icon'] ?? '📈', style: TextStyle(fontSize: 24)),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.between,
+                    children: [
+                      Container(
+                        padding: EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Text(f['icon'] ?? '📈', style: TextStyle(fontSize: 22)),
+                      ),
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.green.shade700,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          f['currency'] ?? 'USD',
+                          style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 10),
+                        ),
+                      )
+                    ],
+                  ),
                   Spacer(),
-                  Text(f['name'], style: GoogleFonts.almarai(fontWeight: FontWeight.w900, fontSize: 15, color: Colors.green.shade900)),
-                  SizedBox(height: 4),
-                  Text('${f['current_value']} ${f['currency']}', style: GoogleFonts.outfit(color: Colors.green.shade700, fontWeight: FontWeight.w900, fontSize: 22)),
+                  Text(f['name'], style: GoogleFonts.almarai(fontWeight: FontWeight.w900, fontSize: 14, color: Colors.green.shade900)),
+                  SizedBox(height: 6),
+                  Text('${f['current_value']} ${f['currency']}', style: GoogleFonts.outfit(color: Colors.green.shade800, fontWeight: FontWeight.w900, fontSize: 20)),
                 ],
               ),
             ),
@@ -305,7 +417,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _buildEmptyAsset(String text) {
     return Container(
       padding: EdgeInsets.all(30),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(30), border: Border.all(color: Colors.indigo.shade50, width: 2)),
+      decoration: BoxDecoration(
+        color: Colors.white, 
+        borderRadius: BorderRadius.circular(28), 
+        border: Border.all(color: Colors.grey.shade100, width: 1.5),
+        boxShadow: [BoxShadow(color: Colors.indigo.shade900.withOpacity(0.01), blurRadius: 15, offset: Offset(0, 5))],
+      ),
       child: Center(child: Text(text, style: GoogleFonts.almarai(color: Colors.blueGrey.shade200, fontWeight: FontWeight.bold))),
     );
   }
@@ -317,55 +434,67 @@ class _DashboardScreenState extends State<DashboardScreen> {
       children: txs.map((t) {
         final categoryRelationRaw = t['category_relation'];
         final category = categoryRelationRaw is Map ? categoryRelationRaw : null;
-        final categoryName = category?['name'] ?? t['category'] ?? 'بدون تصنيف';
-        final categoryIcon = category?['icon'] ?? '💸';
-        final categoryColor = category?['color'] ?? '#94a3b8';
-        final amount = t['amount']?.toString() ?? '0';
-        final type = t['type'] ?? 'expense';
-        final description = t['description'] ?? categoryName;
         
-        final paymentMethodRaw = t['payment_method'];
-        final paymentMethod = paymentMethodRaw is Map ? paymentMethodRaw : null;
-        final currency = paymentMethod?['currency'] ?? (t['currency'] ?? '');
+        final String categoryColor = (category != null && category['color'] != null) 
+            ? category['color'].toString() 
+            : '#6366f1';
+        final String categoryIcon = (category != null && category['icon'] != null) 
+            ? category['icon'].toString() 
+            : (t['type'] == 'income' ? '↓' : '↑');
+        final String categoryName = (category != null && category['name'] != null) 
+            ? category['name'].toString() 
+            : (t['category']?.toString() ?? 'بدون تصنيف');
+        final String description = t['description']?.toString() ?? categoryName;
+        final String amount = t['amount']?.toString() ?? '0.00';
+        final String type = t['type'] ?? 'expense';
+        
+        final String currency = (t['payment_method'] != null && t['payment_method']['currency'] != null)
+            ? t['payment_method']['currency'].toString()
+            : (t['currency']?.toString() ?? '');
+
+        Color iconColor = Color(int.parse(categoryColor.replaceFirst('#', '0xFF')));
+        Color typeColor = type == 'income' ? Colors.green.shade600 : (type == 'capital' ? Colors.amber.shade700 : Colors.red.shade600);
 
         return Container(
-          margin: EdgeInsets.only(bottom: 15),
-          padding: EdgeInsets.all(20),
+          margin: EdgeInsets.only(bottom: 14),
+          padding: EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: Colors.white, 
-            borderRadius: BorderRadius.circular(30),
-            boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: Offset(0, 5))]
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: Colors.grey.shade50, width: 1.5),
+            boxShadow: [BoxShadow(color: Colors.indigo.shade900.withOpacity(0.01), blurRadius: 15, offset: Offset(0, 5))]
           ),
           child: Row(
             children: [
               Container(
-                width: 55, height: 55,
+                width: 52, height: 52,
                 decoration: BoxDecoration(
-                  color: Color(int.parse(categoryColor.replaceFirst('#', '0xFF'))).withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(18),
+                  color: iconColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(16),
                 ),
-                child: Center(child: Text(categoryIcon, style: TextStyle(fontSize: 24))),
+                child: Center(child: Text(categoryIcon, style: TextStyle(fontSize: 22))),
               ),
               SizedBox(width: 15),
               Expanded(child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(description, style: GoogleFonts.almarai(fontWeight: FontWeight.w900, fontSize: 16, color: Colors.blueGrey.shade900)),
-                  SizedBox(height: 2),
-                  Text(categoryName, style: GoogleFonts.almarai(color: Colors.blueGrey.shade300, fontSize: 12, fontWeight: FontWeight.bold)),
+                  Text(description, style: GoogleFonts.almarai(fontWeight: FontWeight.w900, fontSize: 15, color: Colors.blueGrey.shade900)),
+                  SizedBox(height: 3),
+                  Text(categoryName, style: GoogleFonts.almarai(color: Colors.blueGrey.shade300, fontSize: 11, fontWeight: FontWeight.bold)),
                 ],
               )),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text('${type == 'expense' ? '-' : '+'}$amount', 
+                  Text('${type == 'income' ? '+' : '-'}$amount', 
                     style: GoogleFonts.outfit(
                       fontWeight: FontWeight.w900, 
-                      fontSize: 18, 
-                      color: type == 'income' ? Colors.green.shade600 : (type == 'capital' ? Colors.amber.shade700 : Colors.pink.shade600)
+                      fontSize: 17, 
+                      color: typeColor,
                     )
                   ),
-                  Text(currency, style: GoogleFonts.almarai(fontSize: 10, fontWeight: FontWeight.w900, color: Colors.blueGrey.shade200)),
+                  SizedBox(height: 3),
+                  Text(currency, style: GoogleFonts.outfit(fontSize: 10, fontWeight: FontWeight.w800, color: Colors.blueGrey.shade300)),
                 ],
               ),
             ],
@@ -396,7 +525,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(40),
-        boxShadow: [BoxShadow(color: Colors.indigo.shade50.withOpacity(0.4), blurRadius: 30, offset: Offset(0, 10))],
+        border: Border.all(color: Colors.grey.shade50, width: 1.5),
+        boxShadow: [BoxShadow(color: Colors.indigo.shade900.withOpacity(0.01), blurRadius: 30, offset: Offset(0, 10))],
       ),
       child: LineChart(
         LineChartData(
@@ -437,19 +567,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
               spots: List.generate(commercial.length, (i) => FlSpot(i.toDouble(), commercial[i])),
               isCurved: true,
               color: Colors.amber.shade400,
-              barWidth: 5,
+              barWidth: 4,
               isStrokeCapRound: true,
               dotData: FlDotData(show: false),
-              belowBarData: BarAreaData(show: true, gradient: LinearGradient(colors: [Colors.amber.shade400.withOpacity(0.2), Colors.amber.shade400.withOpacity(0.0)], begin: Alignment.topCenter, end: Alignment.bottomCenter)),
+              belowBarData: BarAreaData(show: true, gradient: LinearGradient(colors: [Colors.amber.shade400.withOpacity(0.15), Colors.amber.shade400.withOpacity(0.0)], begin: Alignment.topCenter, end: Alignment.bottomCenter)),
             ),
             LineChartBarData(
               spots: List.generate(personal.length, (i) => FlSpot(i.toDouble(), personal[i])),
               isCurved: true,
               color: Colors.indigo.shade500,
-              barWidth: 5,
+              barWidth: 4,
               isStrokeCapRound: true,
               dotData: FlDotData(show: false),
-              belowBarData: BarAreaData(show: true, gradient: LinearGradient(colors: [Colors.indigo.shade500.withOpacity(0.2), Colors.indigo.shade500.withOpacity(0.0)], begin: Alignment.topCenter, end: Alignment.bottomCenter)),
+              belowBarData: BarAreaData(show: true, gradient: LinearGradient(colors: [Colors.indigo.shade500.withOpacity(0.15), Colors.indigo.shade500.withOpacity(0.0)], begin: Alignment.topCenter, end: Alignment.bottomCenter)),
             ),
           ],
         ),
@@ -464,19 +594,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
         if (refresh == true) loadData();
       },
       child: Container(
-        width: 180,
-        height: 65,
+        width: 200,
+        height: 60,
         decoration: BoxDecoration(
-          color: Colors.indigo.shade900,
+          gradient: LinearGradient(
+            colors: [Color(0xFF4338CA), Color(0xFF6366F1)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
           borderRadius: BorderRadius.circular(30),
-          boxShadow: [BoxShadow(color: Colors.indigo.shade900.withOpacity(0.3), blurRadius: 20, offset: Offset(0, 10))],
+          boxShadow: [BoxShadow(color: Color(0xFF6366F1).withOpacity(0.35), blurRadius: 20, offset: Offset(0, 10))],
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.add, color: Colors.white, size: 28),
-            SizedBox(width: 12),
-            Text('تسجيل حركة', style: GoogleFonts.almarai(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 18)),
+            Icon(Icons.add, color: Colors.white, size: 24),
+            SizedBox(width: 8),
+            Text('تسجيل حركة جديدة', style: GoogleFonts.almarai(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 16)),
           ],
         ),
       ),
