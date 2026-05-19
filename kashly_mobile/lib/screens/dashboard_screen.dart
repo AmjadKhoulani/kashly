@@ -315,9 +315,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
     if (txs.isEmpty) return _buildEmptyAsset('لا توجد عمليات حديثة');
     return Column(
       children: txs.map((t) {
-        final categoryRaw = t['category'];
-        final category = categoryRaw is Map ? categoryRaw : null;
-        final categoryName = category?['name'] ?? 'بدون تصنيف';
+        final categoryRelationRaw = t['category_relation'];
+        final category = categoryRelationRaw is Map ? categoryRelationRaw : null;
+        final categoryName = category?['name'] ?? t['category'] ?? 'بدون تصنيف';
         final categoryIcon = category?['icon'] ?? '💸';
         final categoryColor = category?['color'] ?? '#94a3b8';
         final amount = t['amount']?.toString() ?? '0';

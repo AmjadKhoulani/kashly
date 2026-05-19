@@ -60,6 +60,9 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                       itemCount: transactions.length,
                       itemBuilder: (context, i) {
                         final t = transactions[i];
+                        final categoryRelationRaw = t['category_relation'];
+                        final category = categoryRelationRaw is Map ? categoryRelationRaw : null;
+                        
                         return Container(
                           margin: EdgeInsets.only(bottom: 18),
                           padding: EdgeInsets.all(18),
@@ -73,21 +76,21 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                               Container(
                                 width: 55, height: 55,
                                 decoration: BoxDecoration(
-                                  color: t['category_id'] != null && t['category'] != null
-                                    ? Color(int.parse(t['category']['color'].replaceFirst('#', '0xFF'))).withOpacity(0.15) 
+                                  color: category != null
+                                    ? Color(int.parse(category['color'].replaceFirst('#', '0xFF'))).withOpacity(0.15) 
                                     : (t['type'] == 'income' ? Colors.green.withOpacity(0.15) : Colors.red.withOpacity(0.15)),
                                   borderRadius: BorderRadius.circular(18)
                                 ),
-                                child: Center(child: Text(t['category_id'] != null && t['category'] != null ? t['category']['icon'] : (t['type'] == 'income' ? '↓' : '↑'), style: TextStyle(fontSize: 24))),
+                                child: Center(child: Text(category != null ? category['icon'] : (t['type'] == 'income' ? '↓' : '↑'), style: TextStyle(fontSize: 24))),
                               ),
                               SizedBox(width: 18),
                               Expanded(child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(t['description'] ?? (t['category_id'] != null && t['category'] != null ? t['category']['name'] : t['category']), 
+                                  Text(t['description'] ?? (category != null ? category['name'] : (t['category'] ?? 'بدون وصف')), 
                                     style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: Colors.blueGrey.shade800)),
                                   SizedBox(height: 4),
-                                  Text('${t['category_id'] != null && t['category'] != null ? t['category']['name'] : t['category']} • ${t['transaction_date']}', 
+                                  Text('${category != null ? category['name'] : (t['category'] ?? 'بدون تصنيف')} • ${t['transaction_date']}', 
                                     style: TextStyle(color: Colors.blueGrey.shade400, fontSize: 12, fontWeight: FontWeight.bold)),
                                 ],
                               )),
