@@ -20,7 +20,7 @@ class TransactionController extends Controller
             $query->where('category', $request->category);
         }
 
-        $transactions = $query->with(['transactionable', 'paymentMethod', 'category'])
+        $transactions = $query->with(['transactionable', 'paymentMethod', 'categoryRelation'])
             ->latest('transaction_date')
             ->paginate(30);
 

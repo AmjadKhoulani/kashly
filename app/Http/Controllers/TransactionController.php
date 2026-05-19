@@ -56,7 +56,7 @@ class TransactionController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'type' => 'required|in:income,expense',
+            'type' => 'required|in:income,expense,capital',
             'amount' => 'required|numeric',
             'category_id' => 'nullable|exists:categories,id',
             'category' => 'nullable|string',
@@ -148,7 +148,7 @@ class TransactionController extends Controller
 
         // Update Wallet Balance if source is Wallet
         if ($validated['source_type'] === 'Wallet' && isset($wallet)) {
-            if ($validated['type'] === 'income') {
+            if ($validated['type'] === 'income' || $validated['type'] === 'capital') {
                 $wallet->increment('balance', $targetAmount);
             } else {
                 $wallet->decrement('balance', $targetAmount);
@@ -157,7 +157,7 @@ class TransactionController extends Controller
 
         // Update Fund Balance if source is InvestmentFund
         if ($validated['source_type'] === 'InvestmentFund' && isset($fund)) {
-            if ($validated['type'] === 'income') {
+            if ($validated['type'] === 'income' || $validated['type'] === 'capital') {
                 $fund->increment('current_value', $targetAmount);
             } else {
                 $fund->decrement('current_value', $targetAmount);
@@ -166,7 +166,7 @@ class TransactionController extends Controller
 
         // Update Payment Method Balance if selected
         if ($request->filled('payment_method_id') && isset($pm)) {
-            if ($validated['type'] === 'income') {
+            if ($validated['type'] === 'income' || $validated['type'] === 'capital') {
                 $pm->increment('balance', $targetAmount);
             } else {
                 $pm->decrement('balance', $targetAmount);
@@ -182,7 +182,7 @@ class TransactionController extends Controller
         
         $validated = $request->validate([
             'amount' => 'required|numeric',
-            'type' => 'required|in:income,expense',
+            'type' => 'required|in:income,expense,capital',
             'category' => 'required|string',
             'transaction_date' => 'required|date',
         ]);
