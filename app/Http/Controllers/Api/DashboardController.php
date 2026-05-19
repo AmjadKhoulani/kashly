@@ -15,7 +15,7 @@ class DashboardController extends Controller
     {
         $user = $request->user();
 
-        $wallets = Wallet::where('user_id', $user->id)->get();
+        $wallets = Wallet::where('user_id', $user->id)->with('paymentMethods')->get();
         $funds = InvestmentFund::where('user_id', $user->id)->get();
         $businesses = Business::where('user_id', $user->id)->get();
 

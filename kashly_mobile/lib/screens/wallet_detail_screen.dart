@@ -51,6 +51,7 @@ class _WalletDetailScreenState extends State<WalletDetailScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               _buildHeaderCard(),
+              _buildSubAccountsSection(),
               SizedBox(height: 35),
               _buildSectionTitle('الحركات الأخيرة'),
               SizedBox(height: 15),
@@ -105,6 +106,81 @@ class _WalletDetailScreenState extends State<WalletDetailScreen> {
 
   Widget _buildSectionTitle(String title) {
     return Text(title, style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Colors.blueGrey.shade900));
+  }
+
+  Widget _buildSubAccountsSection() {
+    final subAccounts = data?['payment_methods'] as List? ?? [];
+    if (subAccounts.isEmpty) return SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(height: 30),
+        _buildSectionTitle('الحسابات والعهود الفرعية'),
+        SizedBox(height: 15),
+        ...subAccounts.map((sa) => Container(
+          margin: EdgeInsets.only(bottom: 12),
+          padding: EdgeInsets.all(18),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(25),
+            border: Border.all(color: Colors.grey.shade200),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.indigo.shade50,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  sa['type'] == 'bank' ? Icons.account_balance : Icons.person_outline,
+                  color: Colors.indigo,
+                  size: 22,
+                ),
+              ),
+              SizedBox(width: 15),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      sa['name'],
+                      style: TextStyle(
+                        fontWeight: FontWeight.w900,
+                        fontSize: 16,
+                        color: Colors.indigo.shade900,
+                      ),
+                    ),
+                    if (sa['custodian_name'] != null && sa['custodian_name'].toString().isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4.0),
+                        child: Text(
+                          'عهدة: ${sa['custodian_name']}',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.amber.shade800,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              Text(
+                '${sa['balance']} ${sa['currency']}',
+                style: TextStyle(
+                  fontWeight: FontWeight.w900,
+                  fontSize: 16,
+                  color: Colors.indigo.shade700,
+                ),
+              ),
+            ],
+          ),
+        )).toList(),
+      ],
+    );
   }
 
   Widget _buildTransactionsList() {

@@ -12,15 +12,19 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   final apiService = ApiService();
   final amountController = TextEditingController();
   final descController = TextEditingController();
+  final exchangeRateController = TextEditingController(text: '1.0');
   
   String type = 'expense';
   String? selectedAccountType;
   int? selectedAccountId;
+  int? selectedSubAccountId;
+  bool payInAlternative = false;
+  String selectedAltCurrency = 'USD';
   dynamic selectedCategory; // Now stores the whole category object
   DateTime selectedDate = DateTime.now();
   
-  List funds = [];
   List wallets = [];
+  List funds = [];
   List businesses = [];
   List allCategories = [];
   bool isLoading = true;
@@ -81,7 +85,11 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
           ? 'App\\Models\\InvestmentFund' 
           : (selectedAccountType == 'business' ? 'App\\Models\\Business' : 'App\\Models\\Wallet'),
       'description': descController.text,
-      'payment_method_id': selectedAccountType == 'wallet' ? selectedAccountId : null,
+      'payment_method_id': selectedAccountType == 'wallet' ? selectedSubAccountId : null,
+      if (payInAlternative) ...{
+        'currency': selectedAltCurrency,
+        'exchange_rate': exchangeRateController.text,
+      }
     };
 
     final success = await apiService.addTransaction(data);
@@ -118,6 +126,12 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                 _buildDatePicker(),
                 SizedBox(height: 15),
                 _buildAccountSelector(),
+                if (selectedAccountType == 'wallet') ...[
+                  SizedBox(height: 15),
+                  _buildSubAccountSelector(),
+                ],
+                SizedBox(height: 15),
+                _buildMultiCurrencySection(),
                 SizedBox(height: 15),
                 _buildTextField(descController, 'الوصف (اختياري)', Icons.description, TextInputType.text),
                 SizedBox(height: 30),
@@ -268,6 +282,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
               setState(() {
                 selectedAccountType = parts[0];
                 selectedAccountId = int.parse(parts[1]);
+                selectedSubAccountId = null; // Reset sub-account selection when wallet changes
                 
                 // Safety check: if type was capital but new account is not a fund, reset type
                 if (selectedAccountType != 'fund' && type == 'capital') {
@@ -278,6 +293,144 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
             }
           },
         ),
+      ),
+    );
+  }
+
+  Widget _buildSubAccountSelector() {
+    dynamic wallet;
+    for (var w in wallets) {
+      if (w['id'] == selectedAccountId) {
+        wallet = w;
+        break;
+      }
+    }
+    final subAccounts = wallet?['payment_methods'] as List? ?? [];
+
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 15),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<int?>(
+          hint: Text('اختر الحساب الفرعي / العهدة'),
+          value: selectedSubAccountId,
+          isExpanded: true,
+          items: [
+            DropdownMenuItem<int?>(
+              value: null,
+              child: Row(
+                children: [
+                  Icon(Icons.account_balance_wallet_outlined, size: 16, color: Colors.indigo),
+                  SizedBox(width: 10),
+                  Text('الرصيد الرئيسي للمحفظة (${wallet?['currency'] ?? ''})'),
+                ],
+              ),
+            ),
+            ...subAccounts.map<DropdownMenuItem<int?>>((sa) => DropdownMenuItem<int?>(
+              value: sa['id'],
+              child: Row(
+                children: [
+                  Icon(sa['type'] == 'bank' ? Icons.account_balance : Icons.person_outline, size: 16, color: Colors.indigo),
+                  SizedBox(width: 10),
+                  Text('${sa['name']} (${sa['currency']}) ${sa['custodian_name'] != null && sa['custodian_name'].toString().isNotEmpty ? "- عهدة: " + sa['custodian_name'] : ""}'),
+                ],
+              ),
+            )),
+          ],
+          onChanged: (val) {
+            setState(() {
+              selectedSubAccountId = val;
+            });
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMultiCurrencySection() {
+    return Container(
+      padding: EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.between,
+            children: [
+              Text(
+                'الدفع / الاستلام بعملة بديلة',
+                style: TextStyle(fontWeight: FontWeight.bold, color: Colors.indigo.shade900),
+              ),
+              Switch(
+                value: payInAlternative,
+                onChanged: (val) {
+                  setState(() {
+                    payInAlternative = val;
+                  });
+                },
+                activeColor: Colors.indigo,
+              ),
+            ],
+          ),
+          if (payInAlternative) ...[
+            SizedBox(height: 15),
+            Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 10),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade50,
+                      borderRadius: BorderRadius.circular(15),
+                      border: Border.all(color: Colors.grey.shade200),
+                    ),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        value: selectedAltCurrency,
+                        items: ['USD', 'TRY', 'SAR', 'EUR'].map((curr) => DropdownMenuItem(
+                          value: curr,
+                          child: Text(curr, style: TextStyle(fontWeight: FontWeight.bold)),
+                        )).toList(),
+                        onChanged: (val) {
+                          if (val != null) {
+                            setState(() {
+                              selectedAltCurrency = val;
+                            });
+                          }
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 15),
+                Expanded(
+                  flex: 2,
+                  child: TextField(
+                    controller: exchangeRateController,
+                    keyboardType: TextInputType.numberWithOptions(decimal: true),
+                    decoration: InputDecoration(
+                      labelText: 'سعر الصرف',
+                      filled: true,
+                      fillColor: Colors.grey.shade50,
+                      contentPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(15),
+                        borderSide: BorderSide(color: Colors.grey.shade200),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(15),
+                        borderSide: BorderSide(color: Colors.grey.shade200),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ],
       ),
     );
   }

@@ -19,7 +19,7 @@ class WalletController extends Controller
         $wallet = Wallet::where('user_id', $request->user()->id)
             ->with(['transactions' => function($q) {
                 $q->latest('transaction_date')->take(20);
-            }])
+            }, 'paymentMethods'])
             ->findOrFail($id);
             
         return response()->json($wallet);
