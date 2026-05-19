@@ -82,7 +82,7 @@ class InvestmentFundController extends Controller
 
         $transactions = Transaction::where('transactionable_id', $fund->id)
             ->where('transactionable_type', InvestmentFund::class)
-            ->with('paymentMethod')
+            ->with(['paymentMethod', 'categoryRelation'])
             ->latest()
             ->limit(5)
             ->get();
@@ -114,7 +114,7 @@ class InvestmentFundController extends Controller
         
         $transactions = Transaction::where('transactionable_id', $fund->id)
             ->where('transactionable_type', InvestmentFund::class)
-            ->with('paymentMethod')
+            ->with(['paymentMethod', 'categoryRelation'])
             ->latest()
             ->paginate(20);
 

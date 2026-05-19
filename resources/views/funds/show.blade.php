@@ -183,13 +183,13 @@
                                 <div class="flex items-center justify-between p-6 rounded-[2.5rem] hover:bg-slate-50 transition-all border-2 border-transparent hover:border-slate-100 group">
                                     <div class="flex items-center gap-6">
                                         <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl shadow-inner border-2 border-white transition-transform group-hover:rotate-6" 
-                                             style="background-color: {{ $transaction->category->color ?? ($transaction->type == 'income' ? '#10B981' : '#EF4444') }}20; 
-                                                    color: {{ $transaction->category->color ?? ($transaction->type == 'income' ? '#10B981' : '#EF4444') }};">
-                                            {{ $transaction->category->icon ?? ($transaction->type == 'income' ? '↓' : '↑') }}
+                                             style="background-color: {{ $transaction->categoryRelation ? $transaction->categoryRelation->color : ($transaction->type == 'income' ? '#10B981' : '#EF4444') }}20; 
+                                                     color: {{ $transaction->categoryRelation ? $transaction->categoryRelation->color : ($transaction->type == 'income' ? '#10B981' : '#EF4444') }};">
+                                            {{ $transaction->categoryRelation ? $transaction->categoryRelation->icon : ($transaction->type == 'income' ? '↓' : '↑') }}
                                         </div>
                                         <div>
-                                            <p class="text-base font-black text-slate-900 mb-1">{{ $transaction->description ?: $transaction->category->name }}</p>
-                                            <p class="text-xs font-black text-slate-400 uppercase tracking-widest">{{ $transaction->transaction_date->format('Y/m/d') }} • {{ $transaction->category->name }}</p>
+                                            <p class="text-base font-black text-slate-900 mb-1">{{ $transaction->description ?: ($transaction->categoryRelation ? $transaction->categoryRelation->name : $transaction->category) }}</p>
+                                            <p class="text-xs font-black text-slate-400 uppercase tracking-widest">{{ $transaction->transaction_date->format('Y/m/d') }} • {{ $transaction->categoryRelation ? $transaction->categoryRelation->name : $transaction->category }}</p>
                                         </div>
                                     </div>
                                     <div class="text-left">

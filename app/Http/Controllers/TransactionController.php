@@ -14,7 +14,7 @@ class TransactionController extends Controller
     public function index(Request $request)
     {
         $query = Transaction::where('user_id', auth()->id())
-            ->with(['transactionable', 'paymentMethod']);
+            ->with(['transactionable', 'paymentMethod', 'categoryRelation']);
 
         // Advanced Filters
         if ($request->filled('month')) {

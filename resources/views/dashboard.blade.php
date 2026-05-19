@@ -108,10 +108,10 @@
                                 <div class="flex items-center justify-between group bg-white p-4 rounded-3xl border border-rose-100 shadow-sm hover:shadow-md transition-shadow">
                                     <div class="flex items-center gap-4">
                                         <div class="w-14 h-14 bg-rose-50 rounded-2xl flex items-center justify-center text-2xl group-hover:scale-110 transition-transform border border-rose-100">
-                                            {{ $transaction->category->icon ?? '💸' }}
+                                            {{ $transaction->categoryRelation ? $transaction->categoryRelation->icon : '💸' }}
                                         </div>
                                         <div>
-                                            <p class="text-base font-black text-rose-900">{{ $transaction->description ?: $transaction->category->name }}</p>
+                                            <p class="text-base font-black text-rose-900">{{ $transaction->description ?: ($transaction->categoryRelation ? $transaction->categoryRelation->name : $transaction->category) }}</p>
                                             <p class="text-[10px] font-bold text-rose-400 uppercase tracking-widest mt-1">{{ $transaction->transaction_date->diffForHumans() }}</p>
                                         </div>
                                     </div>

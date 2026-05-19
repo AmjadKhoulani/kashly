@@ -122,11 +122,11 @@
                         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
                             <div class="flex items-center gap-8">
                                 <div class="w-20 h-20 {{ $transaction->type == 'income' ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-600' }} rounded-[2rem] flex items-center justify-center text-4xl transition-all duration-500 group-hover:scale-110 group-hover:rotate-3 shadow-inner border-2 border-white">
-                                    {{ $transaction->category->icon ?? ($transaction->type == 'income' ? '📈' : '📉') }}
+                                    {{ $transaction->categoryRelation ? $transaction->categoryRelation->icon : ($transaction->type == 'income' ? '📈' : '📉') }}
                                 </div>
                                 <div>
                                     <p class="text-2xl font-black text-slate-900 flex items-center gap-4 group-hover:text-indigo-600 transition-colors">
-                                        {{ $transaction->description ?: $transaction->category->name }}
+                                        {{ $transaction->description ?: ($transaction->categoryRelation ? $transaction->categoryRelation->name : $transaction->category) }}
                                         @if($transaction->invoice_path)
                                             <a href="{{ asset('storage/' . $transaction->invoice_path) }}" target="_blank" class="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center text-xs border border-indigo-100 hover:bg-indigo-600 hover:text-white transition-all shadow-sm" title="عرض الفاتورة">📄</a>
                                         @endif
@@ -135,7 +135,7 @@
                                         <span class="text-xs font-black text-slate-400 uppercase tracking-widest">{{ $transaction->transaction_date->format('Y/m/d') }}</span>
                                         <span class="w-1.5 h-1.5 bg-slate-200 rounded-full"></span>
                                         <span class="text-xs font-black px-4 py-1.5 rounded-xl uppercase tracking-widest bg-slate-50 border border-slate-100 text-slate-600">
-                                            {{ $transaction->category->name }}
+                                            {{ $transaction->categoryRelation ? $transaction->categoryRelation->name : $transaction->category }}
                                         </span>
                                     </div>
                                 </div>

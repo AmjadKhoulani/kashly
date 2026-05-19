@@ -53,7 +53,7 @@ class DashboardController extends Controller
 
         // Recent Transactions
         $recentTransactions = Transaction::where('user_id', $user->id)
-            ->with('transactionable')
+            ->with(['transactionable', 'categoryRelation'])
             ->latest()
             ->take(5)
             ->get();

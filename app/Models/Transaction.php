@@ -35,8 +35,8 @@ class Transaction extends Model
         return $this->belongsTo(PaymentMethod::class);
     }
 
-    public function category(): BelongsTo
+    public function categoryRelation(): BelongsTo
     {
-        return $this->belongsTo(Category::class);
+        return $this->belongsTo(Category::class, 'category_id');
     }
 }

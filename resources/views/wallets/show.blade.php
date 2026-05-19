@@ -154,7 +154,7 @@
                                         <span class="text-sm font-black text-slate-400 group-hover:text-indigo-600 transition-colors tracking-widest">{{ $transaction->transaction_date->format('Y-m-d') }}</span>
                                     </td>
                                     <td class="px-8 py-8">
-                                        <p class="font-black text-slate-900 text-lg group-hover:text-indigo-600 transition-colors">{{ $transaction->description ?: ($transaction->category ? $transaction->category->name : $transaction->category) }}</p>
+                                        <p class="font-black text-slate-900 text-lg group-hover:text-indigo-600 transition-colors">{{ $transaction->description ?: ($transaction->categoryRelation ? $transaction->categoryRelation->name : $transaction->category) }}</p>
                                     </td>
                                     <td class="px-8 py-8 text-center">
                                         @if($transaction->paymentMethod)
@@ -172,7 +172,7 @@
                                     </td>
                                     <td class="px-8 py-8 text-center">
                                         <span class="px-5 py-2 bg-white border border-slate-200 text-slate-600 rounded-xl text-xs font-black uppercase tracking-widest shadow-sm">
-                                            {{ $transaction->category ? $transaction->category->icon : '📦' }} {{ $transaction->category ? $transaction->category->name : $transaction->category }}
+                                            {{ $transaction->categoryRelation ? $transaction->categoryRelation->icon : '📦' }} {{ $transaction->categoryRelation ? $transaction->categoryRelation->name : $transaction->category }}
                                         </span>
                                     </td>
                                     <td class="px-8 py-8 text-center">

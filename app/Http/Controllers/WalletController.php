@@ -42,7 +42,7 @@ class WalletController extends Controller
         
         $transactions = Transaction::where('transactionable_id', $wallet->id)
             ->where('transactionable_type', Wallet::class)
-            ->with(['category', 'paymentMethod'])
+            ->with(['categoryRelation', 'paymentMethod'])
             ->latest()
             ->paginate(20);
 
