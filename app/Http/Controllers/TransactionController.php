@@ -7,6 +7,7 @@ use App\Models\Business;
 use App\Models\InvestmentFund;
 use App\Models\Wallet;
 use App\Models\PaymentMethod;
+use App\Models\Category;
 use Illuminate\Http\Request;
 
 class TransactionController extends Controller
