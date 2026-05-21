@@ -12,7 +12,7 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                sans: ['Almarai', 'Noto Sans Arabic', ...defaultTheme.fontFamily.sans],
+                sans: ['Readex Pro', 'Noto Sans Arabic', ...defaultTheme.fontFamily.sans],
             },
         },
     },

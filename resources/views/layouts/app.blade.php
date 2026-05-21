@@ -10,7 +10,7 @@
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
 
         <!-- Scripts -->
         <script src="https://cdn.tailwindcss.com"></script>
@@ -19,7 +19,7 @@
                 theme: {
                     extend: {
                         fontFamily: {
-                            sans: ['Almarai', 'sans-serif'],
+                            sans: ['Readex Pro', 'sans-serif'],
                         },
                     }
                 }
@@ -33,7 +33,7 @@
             
             /* Global Background Upgrade */
             body { 
-                font-family: 'Almarai', sans-serif; 
+                font-family: 'Readex Pro', sans-serif; 
                 background-color: #F1F5F9; /* Rich Tinted Off-White */
             }
 
