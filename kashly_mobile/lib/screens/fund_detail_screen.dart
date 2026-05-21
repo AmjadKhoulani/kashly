@@ -262,3 +262,4 @@ class _FundDetailScreenState extends State<FundDetailScreen> {
     );
   }
 }
+

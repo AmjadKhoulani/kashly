@@ -35,8 +35,9 @@ class KashlyApp extends StatelessWidget {
       ],
       theme: ThemeData(
         primarySwatch: Colors.indigo,
-        textTheme: GoogleFonts.tajawalTextTheme(
-          Theme.of(context).textTheme,
+        fontFamily: 'Ramis Arabic',
+        textTheme: Theme.of(context).textTheme.apply(
+          fontFamily: 'Ramis Arabic',
         ),
         scaffoldBackgroundColor: const Color(0xFFF8FAFC),
       ),
@@ -48,3 +49,4 @@ class KashlyApp extends StatelessWidget {
     );
   }
 }
+

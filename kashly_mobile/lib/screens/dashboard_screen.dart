@@ -94,7 +94,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       backgroundColor: Color(0xFFF0F4F8),
       elevation: 0,
       centerTitle: false,
-      title: Text('كاشلي.', style: GoogleFonts.almarai(fontWeight: FontWeight.w900, color: Colors.indigo.shade900, fontSize: 26)),
+      title: Text('كاشلي.', style: TextStyle(fontWeight: FontWeight.w900, color: Colors.indigo.shade900, fontSize: 26)),
       actions: [
         IconButton(
           icon: Container(
@@ -152,7 +152,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text('إجمالي الثروة التقديري', 
-                        style: GoogleFonts.almarai(color: Colors.white.withOpacity(0.7), fontWeight: FontWeight.bold, fontSize: 13, letterSpacing: 0.5)),
+                        style: TextStyle(color: Colors.white.withOpacity(0.7), fontWeight: FontWeight.bold, fontSize: 13, letterSpacing: 0.5)),
                       Container(
                         padding: EdgeInsets.all(8),
                         decoration: BoxDecoration(
@@ -165,10 +165,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                   SizedBox(height: 10),
                   Text(format.format(data?['estimated_total_usd'] ?? 0), 
-                    style: GoogleFonts.outfit(color: Colors.white, fontSize: 44, fontWeight: FontWeight.w900, letterSpacing: -1.5)),
+                    style: TextStyle(color: Colors.white, fontSize: 44, fontWeight: FontWeight.w900, letterSpacing: -1.5)),
                   Spacer(),
                   Text('العملات الأخرى المتوفرة:', 
-                    style: GoogleFonts.almarai(color: Colors.white.withOpacity(0.5), fontSize: 11, fontWeight: FontWeight.bold)),
+                    style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 11, fontWeight: FontWeight.bold)),
                   SizedBox(height: 8),
                   Row(
                     children: (data?['total_by_currency'] is Map ? (data?['total_by_currency'] as Map) : {}).entries.where((e) => e.key != 'USD').take(3).map((e) => Container(
@@ -179,7 +179,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(color: Colors.white.withOpacity(0.05)),
                       ),
-                      child: Text('${e.value} ${e.key}', style: GoogleFonts.outfit(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w800)),
+                      child: Text('${e.value} ${e.key}', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w800)),
                     )).toList(),
                   )
                 ],
@@ -206,11 +206,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(title, style: GoogleFonts.almarai(fontSize: 22, fontWeight: FontWeight.w900, color: Colors.blueGrey.shade900)),
+        Text(title, style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Colors.blueGrey.shade900)),
         if (onTap != null)
           TextButton(
             onPressed: onTap,
-            child: Text('مشاهدة الكل', style: GoogleFonts.almarai(color: Colors.indigo.shade400, fontWeight: FontWeight.bold, fontSize: 14)),
+            child: Text('مشاهدة الكل', style: TextStyle(color: Colors.indigo.shade400, fontWeight: FontWeight.bold, fontSize: 14)),
           ),
       ],
     );
@@ -264,15 +264,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         ),
                         child: Text(
                           w['currency'] ?? 'USD',
-                          style: GoogleFonts.outfit(color: Colors.green.shade700, fontWeight: FontWeight.bold, fontSize: 10),
+                          style: TextStyle(color: Colors.green.shade700, fontWeight: FontWeight.bold, fontSize: 10),
                         ),
                       )
                     ],
                   ),
                   Spacer(),
-                  Text(w['name'], style: GoogleFonts.almarai(fontWeight: FontWeight.w900, fontSize: 14, color: Colors.blueGrey.shade900)),
+                  Text(w['name'], style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, color: Colors.blueGrey.shade900)),
                   SizedBox(height: 6),
-                  Text('${w['balance']} ${w['currency']}', style: GoogleFonts.outfit(color: Colors.indigo.shade700, fontWeight: FontWeight.w900, fontSize: 20)),
+                  Text('${w['balance']} ${w['currency']}', style: TextStyle(color: Colors.indigo.shade700, fontWeight: FontWeight.w900, fontSize: 20)),
                 ],
               ),
             ),
@@ -330,15 +330,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         ),
                         child: Text(
                           b['currency'] ?? 'USD',
-                          style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 10),
+                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 10),
                         ),
                       )
                     ],
                   ),
                   Spacer(),
-                  Text(b['name'], style: GoogleFonts.almarai(fontWeight: FontWeight.w900, fontSize: 14, color: Colors.amber.shade900)),
+                  Text(b['name'], style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, color: Colors.amber.shade900)),
                   SizedBox(height: 6),
-                  Text('${b['total_value']} ${b['currency'] ?? 'USD'}', style: GoogleFonts.outfit(color: Colors.amber.shade900, fontWeight: FontWeight.w900, fontSize: 20)),
+                  Text('${b['total_value']} ${b['currency'] ?? 'USD'}', style: TextStyle(color: Colors.amber.shade900, fontWeight: FontWeight.w900, fontSize: 20)),
                 ],
               ),
             ),
@@ -396,15 +396,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         ),
                         child: Text(
                           f['currency'] ?? 'USD',
-                          style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 10),
+                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 10),
                         ),
                       )
                     ],
                   ),
                   Spacer(),
-                  Text(f['name'], style: GoogleFonts.almarai(fontWeight: FontWeight.w900, fontSize: 14, color: Colors.green.shade900)),
+                  Text(f['name'], style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, color: Colors.green.shade900)),
                   SizedBox(height: 6),
-                  Text('${f['current_value']} ${f['currency']}', style: GoogleFonts.outfit(color: Colors.green.shade800, fontWeight: FontWeight.w900, fontSize: 20)),
+                  Text('${f['current_value']} ${f['currency']}', style: TextStyle(color: Colors.green.shade800, fontWeight: FontWeight.w900, fontSize: 20)),
                 ],
               ),
             ),
@@ -423,7 +423,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         border: Border.all(color: Colors.grey.shade100, width: 1.5),
         boxShadow: [BoxShadow(color: Colors.indigo.shade900.withOpacity(0.01), blurRadius: 15, offset: Offset(0, 5))],
       ),
-      child: Center(child: Text(text, style: GoogleFonts.almarai(color: Colors.blueGrey.shade200, fontWeight: FontWeight.bold))),
+      child: Center(child: Text(text, style: TextStyle(color: Colors.blueGrey.shade200, fontWeight: FontWeight.bold))),
     );
   }
 
@@ -478,23 +478,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
               Expanded(child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(description, style: GoogleFonts.almarai(fontWeight: FontWeight.w900, fontSize: 15, color: Colors.blueGrey.shade900)),
+                  Text(description, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15, color: Colors.blueGrey.shade900)),
                   SizedBox(height: 3),
-                  Text(categoryName, style: GoogleFonts.almarai(color: Colors.blueGrey.shade300, fontSize: 11, fontWeight: FontWeight.bold)),
+                  Text(categoryName, style: TextStyle(color: Colors.blueGrey.shade300, fontSize: 11, fontWeight: FontWeight.bold)),
                 ],
               )),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text('${type == 'income' ? '+' : '-'}$amount', 
-                    style: GoogleFonts.outfit(
+                    style: TextStyle(
                       fontWeight: FontWeight.w900, 
                       fontSize: 17, 
                       color: typeColor,
                     )
                   ),
                   SizedBox(height: 3),
-                  Text(currency, style: GoogleFonts.outfit(fontSize: 10, fontWeight: FontWeight.w800, color: Colors.blueGrey.shade300)),
+                  Text(currency, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: Colors.blueGrey.shade300)),
                 ],
               ),
             ],
@@ -543,7 +543,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 getTitlesWidget: (value, meta) {
                   int index = value.toInt();
                   if (index >= 0 && index < days.length) {
-                    return Text(days[index], style: GoogleFonts.almarai(color: Colors.indigo.shade200, fontWeight: FontWeight.bold, fontSize: 10));
+                    return Text(days[index], style: TextStyle(color: Colors.indigo.shade200, fontWeight: FontWeight.bold, fontSize: 10));
                   }
                   return Text('');
                 },
@@ -554,8 +554,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 showTitles: true,
                 interval: 5000,
                 getTitlesWidget: (value, meta) {
-                  if (value == 0) return Text('0', style: GoogleFonts.outfit(color: Colors.indigo.shade100, fontSize: 10));
-                  return Text('${(value / 1000).toStringAsFixed(0)}k', style: GoogleFonts.outfit(color: Colors.indigo.shade200, fontWeight: FontWeight.bold, fontSize: 10));
+                  if (value == 0) return Text('0', style: TextStyle(color: Colors.indigo.shade100, fontSize: 10));
+                  return Text('${(value / 1000).toStringAsFixed(0)}k', style: TextStyle(color: Colors.indigo.shade200, fontWeight: FontWeight.bold, fontSize: 10));
                 },
                 reservedSize: 35,
               ),
@@ -610,11 +610,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
           children: [
             Icon(Icons.add, color: Colors.white, size: 24),
             SizedBox(width: 8),
-            Text('تسجيل حركة جديدة', style: GoogleFonts.almarai(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 16)),
+            Text('تسجيل حركة جديدة', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 16)),
           ],
         ),
       ),
     );
   }
 }
+
 

@@ -159,3 +159,4 @@ class _BusinessesScreenState extends State<BusinessesScreen> {
     );
   }
 }
+

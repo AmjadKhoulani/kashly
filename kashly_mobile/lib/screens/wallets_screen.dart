@@ -163,3 +163,4 @@ class _WalletsScreenState extends State<WalletsScreen> {
     );
   }
 }
+

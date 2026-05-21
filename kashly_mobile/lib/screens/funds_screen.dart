@@ -127,3 +127,4 @@ class _FundsScreenState extends State<FundsScreen> {
     );
   }
 }
+
