@@ -10,7 +10,7 @@
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@100..900&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&display=swap" rel="stylesheet">
 
         <!-- Scripts -->
         <script src="https://cdn.tailwindcss.com"></script>
@@ -19,7 +19,7 @@
                 theme: {
                     extend: {
                         fontFamily: {
-                            sans: ['Ramis Arabic', 'sans-serif'],
+                            sans: ['Almarai', 'sans-serif'],
                         },
                     }
                 }
@@ -27,14 +27,7 @@
         </script>
         <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
         <style>
-            @font-face {
-                font-family: 'Ramis Arabic';
-                src: url('/fonts/Ramis Arabic.otf') format('opentype');
-                font-weight: normal;
-                font-style: normal;
-            }
-
-            body { font-family: 'Ramis Arabic', sans-serif; background-color: #FDFDFC; }
+            body { font-family: 'Almarai', sans-serif; background-color: #FDFDFC; }
             [x-cloak] { display: none !important; }
         </style>
     </head>

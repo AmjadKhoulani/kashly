@@ -10,7 +10,7 @@
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@200;300;400;500;700;800;900&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&display=swap" rel="stylesheet">
 
         <!-- Scripts -->
         <script src="https://cdn.tailwindcss.com"></script>
@@ -19,7 +19,7 @@
                 theme: {
                     extend: {
                         fontFamily: {
-                            sans: ['Ramis Arabic', 'sans-serif'],
+                            sans: ['Almarai', 'sans-serif'],
                         },
                     }
                 }
@@ -29,18 +29,11 @@
         <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 
         <style>
-            @font-face {
-                font-family: 'Ramis Arabic';
-                src: url('/fonts/Ramis Arabic.otf') format('opentype');
-                font-weight: normal;
-                font-style: normal;
-            }
-
             [x-cloak] { display: none !important; }
             
             /* Global Background Upgrade */
             body { 
-                font-family: 'Ramis Arabic', sans-serif; 
+                font-family: 'Almarai', sans-serif; 
                 background-color: #F1F5F9; /* Rich Tinted Off-White */
             }
 
