@@ -19,7 +19,7 @@
                 theme: {
                     extend: {
                         fontFamily: {
-                            sans: ['Tajawal', 'sans-serif'],
+                            sans: ['Ramis Arabic', 'Tajawal', 'sans-serif'],
                         },
                     }
                 }
@@ -29,11 +29,18 @@
         <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 
         <style>
+            @font-face {
+                font-family: 'Ramis Arabic';
+                src: url('/fonts/Ramis Arabic.otf') format('opentype');
+                font-weight: normal;
+                font-style: normal;
+            }
+
             [x-cloak] { display: none !important; }
             
             /* Global Background Upgrade */
             body { 
-                font-family: 'Tajawal', sans-serif; 
+                font-family: 'Ramis Arabic', 'Tajawal', sans-serif; 
                 background-color: #F1F5F9; /* Rich Tinted Off-White */
             }
 

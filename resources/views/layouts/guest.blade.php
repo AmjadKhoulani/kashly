@@ -19,7 +19,7 @@
                 theme: {
                     extend: {
                         fontFamily: {
-                            sans: ['Noto Sans Arabic', 'sans-serif'],
+                            sans: ['Ramis Arabic', 'Noto Sans Arabic', 'sans-serif'],
                         },
                     }
                 }
@@ -27,7 +27,14 @@
         </script>
         <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
         <style>
-            body { font-family: 'Noto Sans Arabic', sans-serif; background-color: #FDFDFC; }
+            @font-face {
+                font-family: 'Ramis Arabic';
+                src: url('/fonts/Ramis Arabic.otf') format('opentype');
+                font-weight: normal;
+                font-style: normal;
+            }
+
+            body { font-family: 'Ramis Arabic', 'Noto Sans Arabic', sans-serif; background-color: #FDFDFC; }
             [x-cloak] { display: none !important; }
         </style>
     </head>
