@@ -35,6 +35,7 @@ class KashlyApp extends StatelessWidget {
       ],
       theme: ThemeData(
         primarySwatch: Colors.indigo,
+        fontFamily: GoogleFonts.readexPro().fontFamily,
         textTheme: GoogleFonts.readexProTextTheme(
           Theme.of(context).textTheme,
         ),
