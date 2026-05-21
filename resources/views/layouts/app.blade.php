@@ -19,7 +19,7 @@
                 theme: {
                     extend: {
                         fontFamily: {
-                            sans: ['Ramis Arabic', 'Tajawal', 'sans-serif'],
+                            sans: ['Ramis Arabic', 'sans-serif'],
                         },
                     }
                 }
@@ -40,7 +40,7 @@
             
             /* Global Background Upgrade */
             body { 
-                font-family: 'Ramis Arabic', 'Tajawal', sans-serif; 
+                font-family: 'Ramis Arabic', sans-serif; 
                 background-color: #F1F5F9; /* Rich Tinted Off-White */
             }
 

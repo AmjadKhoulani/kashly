@@ -19,7 +19,7 @@
                 theme: {
                     extend: {
                         fontFamily: {
-                            sans: ['Ramis Arabic', 'Noto Sans Arabic', 'sans-serif'],
+                            sans: ['Ramis Arabic', 'sans-serif'],
                         },
                     }
                 }
@@ -34,7 +34,7 @@
                 font-style: normal;
             }
 
-            body { font-family: 'Ramis Arabic', 'Noto Sans Arabic', sans-serif; background-color: #FDFDFC; }
+            body { font-family: 'Ramis Arabic', sans-serif; background-color: #FDFDFC; }
             [x-cloak] { display: none !important; }
         </style>
     </head>
