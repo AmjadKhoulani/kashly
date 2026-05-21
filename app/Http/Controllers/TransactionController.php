@@ -178,7 +178,9 @@ class TransactionController extends Controller
 
     public function update(Request $request, Transaction $transaction)
     {
-        $this->authorize('update', $transaction);
+        if ($transaction->user_id !== auth()->id()) {
+            abort(403, 'غير مصرح لك بتعديل هذه العملية');
+        }
         
         $validated = $request->validate([
             'amount' => 'required|numeric',
@@ -194,9 +196,63 @@ class TransactionController extends Controller
 
     public function destroy(Transaction $transaction)
     {
-        $this->authorize('delete', $transaction);
-        $transaction->delete();
-        return back()->with('success', 'تم حذف العملية');
+        if ($transaction->user_id !== auth()->id()) {
+            abort(403, 'غير مصرح لك بحذف هذه العملية');
+        }
+
+        \DB::transaction(function () use ($transaction) {
+            $type = $transaction->type;
+
+            // 1. Revert Wallet or Fund balance
+            if ($transaction->transactionable_type === 'App\Models\Wallet') {
+                $wallet = $transaction->transactionable;
+                if ($wallet) {
+                    $targetAmount = $transaction->original_amount ?? $transaction->amount;
+                    if ($transaction->currency !== $wallet->currency) {
+                        $targetAmount = $targetAmount * ($transaction->exchange_rate ?? 1.0);
+                    }
+                    if ($type === 'income' || $type === 'capital') {
+                        $wallet->decrement('balance', $targetAmount);
+                    } else {
+                        $wallet->increment('balance', $targetAmount);
+                    }
+                }
+            } elseif ($transaction->transactionable_type === 'App\Models\InvestmentFund') {
+                $fund = $transaction->transactionable;
+                if ($fund) {
+                    $targetAmount = $transaction->original_amount ?? $transaction->amount;
+                    if ($transaction->currency !== $fund->currency) {
+                        $targetAmount = $targetAmount * ($transaction->exchange_rate ?? 1.0);
+                    }
+                    if ($type === 'income' || $type === 'capital') {
+                        $fund->decrement('current_value', $targetAmount);
+                    } else {
+                        $fund->increment('current_value', $targetAmount);
+                    }
+                }
+            }
+
+            // 2. Revert Payment Method balance
+            if ($transaction->payment_method_id) {
+                $pm = $transaction->paymentMethod;
+                if ($pm) {
+                    $targetAmountPm = $transaction->original_amount ?? $transaction->amount;
+                    if ($transaction->currency !== $pm->currency) {
+                        $targetAmountPm = $targetAmountPm * ($transaction->exchange_rate ?? 1.0);
+                    }
+                    if ($type === 'income' || $type === 'capital') {
+                        $pm->decrement('balance', $targetAmountPm);
+                    } else {
+                        $pm->increment('balance', $targetAmountPm);
+                    }
+                }
+            }
+
+            // 3. Delete the transaction
+            $transaction->delete();
+        });
+
+        return back()->with('success', 'تم حذف العملية وتحديث الأرصدة بنجاح');
     }
 
     public function transfer(Request $request)
