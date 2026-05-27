@@ -52,7 +52,9 @@ class WalletController extends Controller
             $q->where('user_id', auth()->id())->orWhere('is_default', true);
         })->get();
 
-        return view('wallets.show', compact('wallet', 'transactions', 'paymentMethods', 'categories'));
+        $sypRate = \App\Services\ExchangeRateService::getSypRate();
+
+        return view('wallets.show', compact('wallet', 'transactions', 'paymentMethods', 'categories', 'sypRate'));
     }
 
     public function reconcile(Request $request, $id)

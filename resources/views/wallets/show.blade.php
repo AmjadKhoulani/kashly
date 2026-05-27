@@ -90,10 +90,32 @@
                                 {{ number_format($wallet->balance, 2) }}
                             </p>
                             <p class="text-indigo-300 text-xl font-black mt-2">{{ $wallet->currency }}</p>
+                            @if($wallet->currency === 'SYP' && $sypRate > 0)
+                                <div class="mt-4 flex items-center gap-3">
+                                    <div class="bg-white/15 backdrop-blur-sm border border-white/20 rounded-2xl px-5 py-3">
+                                        <p class="text-white/60 text-[10px] font-black uppercase tracking-widest mb-1">ما يعادل بالدولار</p>
+                                        <p class="text-2xl font-black text-emerald-300 tracking-tighter">
+                                            ${{ number_format($wallet->balance / $sypRate, 2) }}
+                                        </p>
+                                    </div>
+                                    <div class="bg-white/10 border border-white/15 rounded-2xl px-4 py-3 text-center">
+                                        <p class="text-white/50 text-[10px] font-black uppercase tracking-widest mb-1">سعر الصرف</p>
+                                        <p class="text-sm font-black text-amber-300">{{ number_format($sypRate, 0) }} ل.س</p>
+                                    </div>
+                                </div>
+                            @endif
                         </div>
-                        <span class="px-4 py-2 bg-white/20 backdrop-blur-sm text-white text-xs font-black rounded-2xl border border-white/20">
-                            ✅ نشط
-                        </span>
+                        <div class="flex flex-col items-end gap-2">
+                            <span class="px-4 py-2 bg-white/20 backdrop-blur-sm text-white text-xs font-black rounded-2xl border border-white/20">
+                                ✅ نشط
+                            </span>
+                            @if($wallet->currency === 'SYP' && $sypRate > 0)
+                                <span class="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500/20 border border-emerald-400/30 rounded-xl text-[10px] font-black text-emerald-300">
+                                    <span class="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></span>
+                                    سعر لحظي
+                                </span>
+                            @endif
+                        </div>
                     </div>
 
                     {{-- Mini Chart --}}
@@ -156,6 +178,24 @@
                         <p class="text-[10px] text-slate-400 font-bold">عملية مسجلة</p>
                     </div>
                 </div>
+
+                @if($wallet->currency === 'SYP' && $sypRate > 0)
+                {{-- USD Equivalent --}}
+                <div class="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-2xl p-6 border border-emerald-100 shadow-sm flex items-center gap-4 flex-1">
+                    <div class="w-12 h-12 bg-emerald-100 rounded-2xl flex items-center justify-center flex-shrink-0">
+                        <svg class="w-6 h-6 text-emerald-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </div>
+                    <div class="min-w-0">
+                        <div class="flex items-center gap-1.5 mb-1">
+                            <p class="text-[10px] font-black text-emerald-600 uppercase tracking-widest">ما يعادل بالدولار</p>
+                            <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
+                        </div>
+                        <p class="text-2xl font-black text-emerald-700 tracking-tighter truncate">${{ number_format($wallet->balance / $sypRate, 2) }}</p>
+                        <p class="text-[10px] text-emerald-500 font-bold">بسعر {{ number_format($sypRate, 0) }} ل.س/دولار</p>
+                    </div>
+                </div>
+                @endif
+
             </div>
         </div>
 
