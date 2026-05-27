@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="py-12 px-6">
+    <div class="py-12 px-6" x-data="{ showEditModal: false, editingTransaction: {}, type: 'income' }">
         <div class="max-w-7xl mx-auto space-y-12">
             
             <!-- Breadcrumbs & Header -->
@@ -53,7 +53,8 @@
                                 <th class="px-6 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">التصنيف</th>
                                 <th class="px-6 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">الوسيلة</th>
                                 <th class="px-6 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">المبلغ</th>
-                                <th class="px-10 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest text-left">مرفق</th>
+                                <th class="px-6 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">مرفق</th>
+                                <th class="px-10 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest text-left">الإجراءات</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-50">
@@ -84,19 +85,43 @@
                                             {{ $transaction->type == 'income' ? '+' : '-' }}${{ number_format($transaction->amount, 0) }}
                                         </span>
                                     </td>
-                                    <td class="px-10 py-6 text-left">
+                                    <td class="px-6 py-6 text-center">
                                         @if($transaction->invoice_path)
-                                            <a href="{{ asset('storage/' . $transaction->invoice_path) }}" target="_blank" class="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center hover:bg-indigo-600 hover:text-white transition-all">
+                                            <a href="{{ asset('storage/' . $transaction->invoice_path) }}" target="_blank" class="inline-flex w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl items-center justify-center hover:bg-indigo-600 hover:text-white transition-all shadow-sm">
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
                                             </a>
                                         @else
                                             <span class="text-gray-300">--</span>
                                         @endif
                                     </td>
+                                    <td class="px-10 py-6 text-left">
+                                        <div class="flex items-center gap-3 justify-end">
+                                            <button @click="editingTransaction = {
+                                                id: '{{ $transaction->id }}',
+                                                amount: '{{ $transaction->original_amount ?? $transaction->amount }}',
+                                                type: '{{ $transaction->type }}',
+                                                category: '{{ $transaction->category }}',
+                                                description: '{{ $transaction->description }}',
+                                                transaction_date: '{{ $transaction->transaction_date->format('Y-m-d') }}',
+                                                payment_method_id: '{{ $transaction->payment_method_id }}'
+                                            }; type = editingTransaction.type; showEditModal = true"
+                                            class="w-10 h-10 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center hover:bg-amber-500 hover:text-white transition-all shadow-sm"
+                                            title="تعديل الحركة">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                            </button>
+                                            <form action="{{ route('transactions.destroy', $transaction->id) }}" method="POST" onsubmit="return confirm('هل أنت متأكد من حذف هذه الحركة نهائياً وتحديث أرصدة الصندوق؟')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="w-10 h-10 bg-rose-50 text-rose-600 rounded-xl flex items-center justify-center hover:bg-rose-600 hover:text-white transition-all shadow-sm" title="حذف الحركة">
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="px-10 py-20 text-center text-gray-400 font-bold">لا توجد عمليات مسجلة حالياً لهذا الصندوق</td>
+                                    <td colspan="7" class="px-10 py-20 text-center text-gray-400 font-bold">لا توجد عمليات مسجلة حالياً لهذا الصندوق</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -107,6 +132,90 @@
                         {{ $transactions->links() }}
                     </div>
                 @endif
+            </div>
+        </div>
+
+        <!-- Edit Transaction Modal -->
+        <div x-show="showEditModal" class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-gray-900/60 backdrop-blur-md" x-cloak x-transition>
+            <div class="bg-white rounded-[4rem] w-full max-w-xl p-12 shadow-2xl relative text-right overflow-y-auto max-h-[90vh]" @click.away="showEditModal = false">
+                <div class="flex justify-between items-center mb-10">
+                    <h3 class="text-3xl font-black text-gray-900">تعديل الحركة المالية</h3>
+                    <button @click="showEditModal = false" class="text-gray-400 hover:text-gray-900 transition-colors">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+                
+                <form :action="`/transactions/${editingTransaction.id}`" method="POST" class="space-y-8">
+                    @csrf
+                    @method('PUT')
+                    
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 tracking-widest mr-2">نوع العملية</label>
+                        <div class="grid grid-cols-2 gap-4 p-2 bg-gray-50 rounded-[2rem]">
+                            <label class="cursor-pointer">
+                                <input type="radio" name="type" value="income" x-model="type" class="hidden peer">
+                                <div class="py-4 text-center rounded-[1.5rem] font-black text-xs peer-checked:bg-white peer-checked:text-emerald-600 peer-checked:shadow-sm transition-all">إيراد / أرباح</div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="radio" name="type" value="expense" x-model="type" class="hidden peer">
+                                <div class="py-4 text-center rounded-[1.5rem] font-black text-xs peer-checked:bg-white peer-checked:text-rose-600 peer-checked:shadow-sm transition-all">مصروف / التزام</div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 tracking-widest mr-2">المبلغ</label>
+                        <input type="number" step="0.01" name="amount" x-model="editingTransaction.amount" required class="w-full premium-input text-3xl" placeholder="0.00">
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 tracking-widest mr-2">التفاصيل / البيان</label>
+                        <input type="text" name="description" x-model="editingTransaction.description" class="w-full premium-input font-bold" placeholder="بيان الحركة...">
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 tracking-widest mr-2">التصنيف</label>
+                            <select name="category" x-model="editingTransaction.category" required class="w-full premium-input">
+                                <template x-if="type == 'income'">
+                                    <optgroup label="تصنيفات الأرباح">
+                                        <option value="أرباح">أرباح</option>
+                                        <option value="إيداع">إيداع</option>
+                                        <option value="تحويل واصل">تحويل واصل</option>
+                                        <option value="بيع أصول">بيع أصول</option>
+                                        <option value="أخرى">أخرى</option>
+                                    </optgroup>
+                                </template>
+                                <template x-if="type == 'expense'">
+                                    <optgroup label="تصنيفات المصاريف">
+                                        <option value="مصاريف تشغيل">مصاريف تشغيل</option>
+                                        <option value="رواتب">رواتب</option>
+                                        <option value="إيجار">إيجار</option>
+                                        <option value="صيانة">صيانة</option>
+                                        <option value="خسارة تداول">خسارة تداول</option>
+                                        <option value="أخرى">أخرى</option>
+                                    </optgroup>
+                                </template>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 tracking-widest mr-2">التاريخ</label>
+                            <input type="date" name="transaction_date" x-model="editingTransaction.transaction_date" required class="w-full premium-input">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 tracking-widest mr-2">وسيلة الدفع / الحساب</label>
+                        <select name="payment_method_id" x-model="editingTransaction.payment_method_id" class="w-full premium-input">
+                            <option value="">-- اختر الحساب --</option>
+                            @foreach($paymentMethods as $pm)
+                                <option value="{{ $pm->id }}">{{ $pm->name }} ({{ number_format($pm->balance, 0) }} {{ $pm->currency }})</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <button type="submit" class="w-full bg-indigo-600 text-white py-6 rounded-[2.5rem] font-black text-xl shadow-xl shadow-indigo-500/20 hover:bg-indigo-700 transition-all">تحديث الحركة</button>
+                </form>
             </div>
         </div>
     </div>

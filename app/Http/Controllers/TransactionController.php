@@ -183,15 +183,133 @@ class TransactionController extends Controller
         }
         
         $validated = $request->validate([
-            'amount' => 'required|numeric',
+            'amount' => 'required|numeric|min:0.01',
             'type' => 'required|in:income,expense,capital',
             'category' => 'required|string',
+            'description' => 'nullable|string',
             'transaction_date' => 'required|date',
+            'payment_method_id' => 'nullable|exists:payment_methods,id',
         ]);
 
-        $transaction->update($validated);
+        \DB::transaction(function () use ($validated, $transaction, $request) {
+            // --- 1. REVERT OLD TRANSACTION EFFECTS ---
+            $oldType = $transaction->type;
+            if ($transaction->transactionable_type === 'App\Models\Wallet') {
+                $wallet = $transaction->transactionable;
+                if ($wallet) {
+                    $targetAmount = $transaction->original_amount ?? $transaction->amount;
+                    if ($transaction->currency !== $wallet->currency) {
+                        $targetAmount = $targetAmount * ($transaction->exchange_rate ?? 1.0);
+                    }
+                    if ($oldType === 'income' || $oldType === 'capital') {
+                        $wallet->decrement('balance', $targetAmount);
+                    } else {
+                        $wallet->increment('balance', $targetAmount);
+                    }
+                }
+            } elseif ($transaction->transactionable_type === 'App\Models\InvestmentFund') {
+                $fund = $transaction->transactionable;
+                if ($fund) {
+                    $targetAmount = $transaction->original_amount ?? $transaction->amount;
+                    if ($transaction->currency !== $fund->currency) {
+                        $targetAmount = $targetAmount * ($transaction->exchange_rate ?? 1.0);
+                    }
+                    if ($oldType === 'income' || $oldType === 'capital') {
+                        $fund->decrement('current_value', $targetAmount);
+                    } else {
+                        $fund->increment('current_value', $targetAmount);
+                    }
+                }
+            }
 
-        return back()->with('success', 'تم تحديث العملية بنجاح');
+            if ($transaction->payment_method_id) {
+                $pm = $transaction->paymentMethod;
+                if ($pm) {
+                    $targetAmountPm = $transaction->original_amount ?? $transaction->amount;
+                    if ($transaction->currency !== $pm->currency) {
+                        $targetAmountPm = $targetAmountPm * ($transaction->exchange_rate ?? 1.0);
+                    }
+                    if ($oldType === 'income' || $oldType === 'capital') {
+                        $pm->decrement('balance', $targetAmountPm);
+                    } else {
+                        $pm->increment('balance', $targetAmountPm);
+                    }
+                }
+            }
+
+            // --- 2. CALCULATE NEW VALUES ---
+            $newAmount = $validated['amount'];
+            $newType = $validated['type'];
+            $currency = $transaction->currency;
+            $rate = $transaction->exchange_rate ?? 1.0;
+
+            // Determine target currency
+            $targetCurrency = 'USD';
+            if ($transaction->transactionable_type === 'App\Models\Wallet' && isset($wallet)) {
+                $targetCurrency = $wallet->currency;
+            } elseif ($transaction->transactionable_type === 'App\Models\InvestmentFund' && isset($fund)) {
+                $targetCurrency = $fund->currency;
+            }
+
+            // If new payment method is selected
+            $newPm = null;
+            if ($request->filled('payment_method_id')) {
+                $newPm = PaymentMethod::find($request->input('payment_method_id'));
+                if ($newPm) {
+                    $targetCurrency = $newPm->currency;
+                }
+            }
+
+            if ($currency === $targetCurrency) {
+                $targetAmount = $newAmount;
+            } else {
+                $targetAmount = $newAmount * $rate;
+            }
+
+            if ($currency === 'USD') {
+                $finalAmount = $newAmount;
+            } elseif ($targetCurrency === 'USD') {
+                $finalAmount = $targetAmount;
+            } else {
+                $finalAmount = $targetAmount;
+            }
+
+            // --- 3. APPLY NEW EFFECTS ---
+            if ($transaction->transactionable_type === 'App\Models\Wallet' && isset($wallet)) {
+                if ($newType === 'income' || $newType === 'capital') {
+                    $wallet->increment('balance', $targetAmount);
+                } else {
+                    $wallet->decrement('balance', $targetAmount);
+                }
+            } elseif ($transaction->transactionable_type === 'App\Models\InvestmentFund' && isset($fund)) {
+                if ($newType === 'income' || $newType === 'capital') {
+                    $fund->increment('current_value', $targetAmount);
+                } else {
+                    $fund->decrement('current_value', $targetAmount);
+                }
+            }
+
+            if ($request->filled('payment_method_id') && $newPm) {
+                if ($newType === 'income' || $newType === 'capital') {
+                    $newPm->increment('balance', $targetAmount);
+                } else {
+                    $newPm->decrement('balance', $targetAmount);
+                }
+            }
+
+            // --- 4. UPDATE TRANSACTION RECORD ---
+            $transaction->update([
+                'amount' => $finalAmount,
+                'original_amount' => $newAmount !== $finalAmount ? $newAmount : null,
+                'type' => $newType,
+                'category' => $validated['category'],
+                'description' => $validated['description'] ?? null,
+                'transaction_date' => $validated['transaction_date'],
+                'payment_method_id' => $request->input('payment_method_id'),
+            ]);
+        });
+
+        return back()->with('success', 'تم تحديث العملية وتعديل الأرصدة بنجاح');
     }
 
     public function destroy(Transaction $transaction)

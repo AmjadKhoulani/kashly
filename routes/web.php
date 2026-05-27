@@ -38,6 +38,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions.index');
     Route::post('/transactions', [TransactionController::class, 'store'])->name('transactions.store');
     Route::post('/transactions/transfer', [TransactionController::class, 'transfer'])->name('transactions.transfer');
+    Route::put('/transactions/{transaction}', [TransactionController::class, 'update'])->name('transactions.update');
     Route::delete('/transactions/{transaction}', [TransactionController::class, 'destroy'])->name('transactions.destroy');
     Route::get('/integrations', [IntegrationsController::class, 'index'])->name('integrations.index');
     Route::post('/integrations', [IntegrationsController::class, 'store'])->name('integrations.store');
