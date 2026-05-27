@@ -167,14 +167,23 @@
 
             <div>
                 <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 tracking-widest mr-2">التصنيف</label>
-                <select name="category_id" required class="w-full premium-input">
-                    @foreach(\App\Models\Category::where('is_default', true)->orWhere('user_id', auth()->id())->get() as $cat)
+                <select name="category_id" class="w-full premium-input">
+                    @php
+                        $cats = \App\Models\Category::where('is_default', true)->orWhere('user_id', auth()->id())->get();
+                        $hasCapital = $cats->where('type', 'capital')->isNotEmpty();
+                    @endphp
+                    @foreach($cats as $cat)
                         <option value="{{ $cat->id }}" 
                                 x-show="txType == '{{ $cat->type }}'"
                                 x-cloak>
                             {{ $cat->icon }} {{ $cat->name }}
                         </option>
                     @endforeach
+                    @if(!$hasCapital)
+                        <option value="" x-show="txType == 'capital'" x-cloak selected>
+                            🏢 رأس مال مساهم
+                        </option>
+                    @endif
                 </select>
             </div>
 

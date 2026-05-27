@@ -127,6 +127,9 @@ class TransactionController extends Controller
                 $categoryName = $cat->name;
             }
         }
+        if ($validated['type'] === 'capital' && !$categoryName) {
+            $categoryName = 'رأس مال مساهم';
+        }
 
         // Create the Transaction
         $transaction = Transaction::create([
