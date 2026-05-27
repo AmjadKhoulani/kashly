@@ -24,6 +24,9 @@ class CategorySeeder extends Seeder
             ['name' => 'عمل حر', 'type' => 'income', 'icon' => '💻', 'color' => '#6366F1'],
             ['name' => 'استثمارات', 'type' => 'income', 'icon' => '📈', 'color' => '#F59E0B'],
             ['name' => 'هدايا', 'type' => 'income', 'icon' => '🎁', 'color' => '#D946EF'],
+
+            // Capital
+            ['name' => 'رأس مال مساهم', 'type' => 'capital', 'icon' => '🏢', 'color' => '#B45309'],
         ];
 
         foreach ($defaults as $item) {

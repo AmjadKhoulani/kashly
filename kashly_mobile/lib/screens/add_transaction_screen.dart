@@ -44,6 +44,19 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
       businesses = dashboard?['businesses'] ?? [];
       funds = fundsList ?? [];
       allCategories = categoriesList ?? [];
+      
+      // Auto pre-select account from arguments
+      if (Get.arguments != null && Get.arguments is Map) {
+        final args = Get.arguments as Map;
+        if (args.containsKey('accountType') && args.containsKey('accountId')) {
+          selectedAccountType = args['accountType'];
+          selectedAccountId = args['accountId'];
+          if (selectedAccountType == 'fund') {
+            type = 'capital'; // Default to capital for pooled investment funds
+          }
+        }
+      }
+      
       isLoading = false;
     });
   }
@@ -77,7 +90,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     final data = {
       'amount': amountController.text,
       'type': type,
-      'category_id': selectedCategory['id'],
+      'category_id': (selectedCategory['id'] == 0 || selectedCategory['id'] == null) ? null : selectedCategory['id'],
       'category': selectedCategory['name'],
       'transaction_date': DateFormat('yyyy-MM-dd').format(selectedDate),
       'transactionable_id': selectedAccountId,
@@ -170,10 +183,27 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   }
 
   Widget _buildCategorySelector() {
-    final list = allCategories.where((c) {
+    var list = allCategories.where((c) {
       if (type == 'capital') return c['type'] == 'capital';
       return c['type'] == type;
     }).toList();
+
+    // Dynamic Fallback: If type is capital but there are no capital categories in the DB,
+    // inject a default category so the user can select it and save successfully.
+    if (type == 'capital' && list.isEmpty) {
+      final fallbackCategory = {
+        'id': 0, // id 0 will be translated to null category_id in save()
+        'name': 'رأس مال مساهم',
+        'type': 'capital',
+        'icon': '🏢'
+      };
+      list = [fallbackCategory];
+      
+      // Auto-select the fallback category to make UX seamless
+      if (selectedCategory == null) {
+        selectedCategory = fallbackCategory;
+      }
+    }
     
     // Reset selected if type changed and current selection is no longer valid
     if (selectedCategory != null && selectedCategory['type'] != type) {

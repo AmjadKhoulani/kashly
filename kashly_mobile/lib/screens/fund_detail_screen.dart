@@ -76,7 +76,10 @@ class _FundDetailScreenState extends State<FundDetailScreen> {
     return Row(
       children: [
         Expanded(child: _actionButton('إضافة عملية', Icons.add_box, Colors.indigo, () async {
-          final res = await Get.to(() => AddTransactionScreen());
+          final res = await Get.to(() => AddTransactionScreen(), arguments: {
+            'accountType': 'fund',
+            'accountId': widget.fundId
+          });
           if (res == true) loadDetail();
         })),
         SizedBox(width: 15),
