@@ -145,14 +145,18 @@
             <input type="hidden" name="source_type" value="InvestmentFund">
             <input type="hidden" name="source_id" value="{{ $fund->id }}">
             
-            <div class="grid grid-cols-2 gap-4 p-2 bg-gray-50 rounded-[2rem] border border-gray-100 shadow-inner">
+            <div class="grid grid-cols-3 gap-4 p-2 bg-gray-50 rounded-[2rem] border border-gray-100 shadow-inner">
                 <label class="cursor-pointer">
                     <input type="radio" name="type" value="income" x-model="txType" class="hidden peer">
-                    <div class="py-4 text-center rounded-[1.5rem] font-black text-xs peer-checked:bg-white peer-checked:text-emerald-600 peer-checked:shadow-md transition-all">إيراد / أرباح</div>
+                    <div class="py-4 text-center rounded-[1.5rem] font-black text-xs peer-checked:bg-white peer-checked:text-emerald-600 peer-checked:shadow-md transition-all">إيراد</div>
                 </label>
                 <label class="cursor-pointer">
                     <input type="radio" name="type" value="expense" x-model="txType" class="hidden peer">
-                    <div class="py-4 text-center rounded-[1.5rem] font-black text-xs peer-checked:bg-white peer-checked:text-rose-600 peer-checked:shadow-md transition-all">مصروف / تكلفة</div>
+                    <div class="py-4 text-center rounded-[1.5rem] font-black text-xs peer-checked:bg-white peer-checked:text-rose-600 peer-checked:shadow-md transition-all">مصروف</div>
+                </label>
+                <label class="cursor-pointer">
+                    <input type="radio" name="type" value="capital" x-model="txType" class="hidden peer">
+                    <div class="py-4 text-center rounded-[1.5rem] font-black text-xs peer-checked:bg-white peer-checked:text-amber-600 peer-checked:shadow-md transition-all">رأس مال</div>
                 </label>
             </div>
 

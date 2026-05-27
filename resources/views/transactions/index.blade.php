@@ -205,7 +205,7 @@
                     @csrf
                     <div>
                         <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 tracking-widest mr-2">نوع العملية</label>
-                        <div class="grid grid-cols-2 gap-4 p-2 bg-gray-50 rounded-[2rem]">
+                        <div class="grid grid-cols-3 gap-4 p-2 bg-gray-50 rounded-[2rem]">
                             <label class="cursor-pointer">
                                 <input type="radio" name="type" value="income" x-model="type" class="hidden peer">
                                 <div class="py-4 text-center rounded-[1.5rem] font-black text-xs peer-checked:bg-white peer-checked:text-emerald-600 peer-checked:shadow-sm transition-all">إيراد / أرباح</div>
@@ -213,6 +213,10 @@
                             <label class="cursor-pointer">
                                 <input type="radio" name="type" value="expense" x-model="type" class="hidden peer">
                                 <div class="py-4 text-center rounded-[1.5rem] font-black text-xs peer-checked:bg-white peer-checked:text-rose-600 peer-checked:shadow-sm transition-all">مصروف / التزام</div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="radio" name="type" value="capital" x-model="type" class="hidden peer">
+                                <div class="py-4 text-center rounded-[1.5rem] font-black text-xs peer-checked:bg-white peer-checked:text-amber-600 peer-checked:shadow-sm transition-all">رأس مال</div>
                             </label>
                         </div>
                     </div>
@@ -261,6 +265,12 @@
                                         <option value="إيجار">إيجار</option>
                                         <option value="صيانة">صيانة</option>
                                         <option value="خسارة تداول">خسارة تداول</option>
+                                        <option value="أخرى">أخرى</option>
+                                    </optgroup>
+                                </template>
+                                <template x-if="type == 'capital'">
+                                    <optgroup label="تصنيفات رأس المال">
+                                        <option value="رأس مال مساهم">رأس مال مساهم</option>
                                         <option value="أخرى">أخرى</option>
                                     </optgroup>
                                 </template>
