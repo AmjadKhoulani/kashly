@@ -52,6 +52,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/categories/{id}', [\App\Http\Controllers\CategoryController::class, 'update'])->name('categories.update');
     Route::delete('/categories/{id}', [\App\Http\Controllers\CategoryController::class, 'destroy'])->name('categories.destroy');
 
+    // Ledger: الديون والمديونيات
+    Route::get('/ledger', [\App\Http\Controllers\LedgerController::class, 'index'])->name('ledger.index');
+    Route::post('/ledger', [\App\Http\Controllers\LedgerController::class, 'store'])->name('ledger.store');
+    Route::get('/ledger/{id}', [\App\Http\Controllers\LedgerController::class, 'show'])->name('ledger.show');
+    Route::put('/ledger/{id}', [\App\Http\Controllers\LedgerController::class, 'update'])->name('ledger.update');
+    Route::delete('/ledger/{id}', [\App\Http\Controllers\LedgerController::class, 'destroy'])->name('ledger.destroy');
+    Route::post('/ledger/{id}/payment', [\App\Http\Controllers\LedgerController::class, 'addPayment'])->name('ledger.payment');
+
     // ShamCash Integration
     Route::post('/shamcash/initiate', [\App\Http\Controllers\ShamCashController::class, 'initiateLinking'])->name('shamcash.initiate');
     Route::get('/shamcash/status/{sessionId}', [\App\Http\Controllers\ShamCashController::class, 'checkLinkStatus'])->name('shamcash.status');

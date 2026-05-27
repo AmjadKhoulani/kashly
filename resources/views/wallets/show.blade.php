@@ -539,13 +539,27 @@
                     </select>
                 </div>
 
-                <div x-show="type !== 'capital'">
-                    <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 tracking-widest">التصنيف</label>
-                    <select name="category_id" class="w-full bg-gray-50 border-0 rounded-2xl p-4 font-bold text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
-                        @foreach($categories as $cat)
-                            <option value="{{ $cat->id }}">{{ $cat->icon }} {{ $cat->name }}</option>
-                        @endforeach
-                    </select>
+                <div x-data="{
+                    allCats: {{ \App\Models\Category::where('is_default', true)->orWhere('user_id', auth()->id())->get()->map(fn($c) => ['id'=>$c->id,'name'=>$c->name,'icon'=>$c->icon,'type'=>$c->type])->toJson() }},
+                    get filtered() {
+                        let f = this.allCats.filter(c => c.type === this.$root.type);
+                        if (this.$root.type === 'capital' && f.length === 0)
+                            return [{ id: '', name: 'رأس مال مساهم', icon: '💼', type: 'capital' }];
+                        return f;
+                    }
+                }">
+                    <div x-show="type !== 'capital' || filtered.length > 0">
+                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 tracking-widest">التصنيف</label>
+                        <select name="category_id" class="w-full bg-gray-50 border-0 rounded-2xl p-4 font-bold text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                            <template x-for="cat in filtered" :key="cat.id">
+                                <option :value="cat.id" x-text="cat.icon + ' ' + cat.name"></option>
+                            </template>
+                        </select>
+                        <p class="text-[10px] mt-1.5 px-1 font-bold"
+                           :class="type==='income' ? 'text-emerald-500' : type==='capital' ? 'text-indigo-500' : 'text-rose-500'"
+                           x-text="type==='income' ? '✅ تصنيفات الإيداعات' : type==='capital' ? '💼 تصنيفات رأس المال' : '🔴 تصنيفات المصاريف'">
+                        </p>
+                    </div>
                 </div>
 
                 <div>

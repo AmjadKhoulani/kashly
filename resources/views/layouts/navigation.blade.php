@@ -25,6 +25,9 @@
                         <x-nav-link :href="route('wallets.index')" :active="request()->routeIs('wallets.*')" class="text-sm font-bold">
                             المحافظ
                         </x-nav-link>
+                        <x-nav-link :href="route('ledger.index')" :active="request()->routeIs('ledger.*')" class="text-sm font-bold">
+                            الديوان 📒
+                        </x-nav-link>
                         <x-nav-link :href="route('partners.index')" :active="request()->routeIs('partners.*')" class="text-sm font-bold">
                             الشركاء
                         </x-nav-link>
