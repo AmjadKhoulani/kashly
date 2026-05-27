@@ -32,10 +32,14 @@ class DashboardController extends Controller
         }
 
         // Calculate Estimated Total in USD
+        $sypRate = \App\Services\ExchangeRateService::getSypRate();
         $estimatedTotalUSD = 0;
         foreach($totalByCurrency as $curr => $val) {
             if ($curr === 'USD') {
                 $estimatedTotalUSD += $val;
+            } elseif ($curr === 'SYP') {
+                // Real-time exchange rate from sp-today.com!
+                $estimatedTotalUSD += ($sypRate > 0) ? $val / $sypRate : $val;
             } else {
                 // Find last transaction with this currency to get rate, fallback to 1 if not found
                 $lastRate = Transaction::where('user_id', $user->id)
@@ -94,7 +98,8 @@ class DashboardController extends Controller
             'businesses',
             'funds',
             'wallets',
-            'chartData'
+            'chartData',
+            'sypRate'
         ));
     }
 }

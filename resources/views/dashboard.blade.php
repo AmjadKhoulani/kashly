@@ -6,12 +6,18 @@
             <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 pb-10">
                 <div>
                     <h2 class="text-6xl font-black text-slate-800 tracking-tighter leading-none mb-4">كاشلي.</h2>
-                    <p class="text-xl font-bold text-slate-500">أهلاً {{ Auth::user()->name }}، نظرة ملونة ومشرقة لأصولك اليوم.</p>
+                    <div class="flex flex-wrap items-center gap-3">
+                        <p class="text-xl font-bold text-slate-500">أهلاً {{ Auth::user()->name }}، نظرة ملونة ومشرقة لأصولك اليوم.</p>
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-600 rounded-full text-xs font-black border border-emerald-100 shadow-sm animate-pulse">
+                            <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
+                            الدولار (مبيع): {{ number_format($sypRate, 0) }} ل.س
+                        </span>
+                    </div>
                 </div>
                 <div class="flex items-center gap-10 bg-indigo-50 px-8 py-5 rounded-3xl border-2 border-indigo-100 shadow-lg shadow-indigo-100/50">
                     <div class="text-left border-l-2 border-indigo-200 pl-8 ml-8">
-                        <p class="text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em] mb-1">صافي الثروة</p>
-                        <p class="text-4xl font-black text-indigo-700 tracking-tighter">${{ number_format($totalByCurrency['USD'] ?? 0, 0) }}</p>
+                        <p class="text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em] mb-1">صافي الثروة المقدرة</p>
+                        <p class="text-4xl font-black text-indigo-700 tracking-tighter">${{ number_format($estimatedTotalUSD, 0) }}</p>
                     </div>
                     <button class="bg-indigo-600 text-white px-8 py-4 rounded-2xl text-lg font-black shadow-xl shadow-indigo-200 hover:bg-indigo-700 hover:-translate-y-1 transition-all">
                         تسجيل حركة +

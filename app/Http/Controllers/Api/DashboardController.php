@@ -28,10 +28,13 @@ class DashboardController extends Controller
         }
 
         // Calculate Estimated Total in USD (simplified for API for now)
+        $sypRate = \App\Services\ExchangeRateService::getSypRate();
         $estimatedTotalUSD = 0;
         foreach($totalByCurrency as $curr => $val) {
             if ($curr === 'USD') {
                 $estimatedTotalUSD += $val;
+            } elseif ($curr === 'SYP') {
+                $estimatedTotalUSD += ($sypRate > 0) ? $val / $sypRate : $val;
             } else {
                 $lastRate = Transaction::where('user_id', $user->id)
                     ->where('currency', $curr)
@@ -75,6 +78,7 @@ class DashboardController extends Controller
 
         return response()->json([
             'estimated_total_usd' => (float)$estimatedTotalUSD,
+            'syp_rate' => (float)$sypRate,
             'total_by_currency' => (object)$totalByCurrency,
             'wallets' => $wallets,
             'businesses' => $businesses,
