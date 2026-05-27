@@ -140,7 +140,10 @@
 <div x-show="showModal" class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-gray-900/60 backdrop-blur-md" x-cloak x-transition>
     <div class="bg-white rounded-[4rem] w-full max-w-lg p-12 shadow-2xl relative text-right overflow-y-auto max-h-[90vh]" @click.away="showModal = false">
         <h3 class="text-3xl font-black text-gray-900 mb-10 text-center">تسجيل عملية جديدة</h3>
-        <form action="{{ route('transactions.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6" x-data="{ multiCurrency: false, txType: 'expense' }">
+        <form action="{{ route('transactions.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6" x-data="{ 
+            txType: 'expense', 
+            categories: {{ \App\Models\Category::where('is_default', true)->orWhere('user_id', auth()->id())->get()->toJson() }} 
+        }">
             @csrf
             <input type="hidden" name="source_type" value="InvestmentFund">
             <input type="hidden" name="source_id" value="{{ $fund->id }}">
@@ -168,22 +171,12 @@
             <div>
                 <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 tracking-widest mr-2">التصنيف</label>
                 <select name="category_id" class="w-full premium-input">
-                    @php
-                        $cats = \App\Models\Category::where('is_default', true)->orWhere('user_id', auth()->id())->get();
-                        $hasCapital = $cats->where('type', 'capital')->isNotEmpty();
-                    @endphp
-                    @foreach($cats as $cat)
-                        <option value="{{ $cat->id }}" 
-                                x-show="txType == '{{ $cat->type }}'"
-                                x-cloak>
-                            {{ $cat->icon }} {{ $cat->name }}
-                        </option>
-                    @endforeach
-                    @if(!$hasCapital)
-                        <option value="" x-show="txType == 'capital'" x-cloak selected>
-                            🏢 رأس مال مساهم
-                        </option>
-                    @endif
+                    <template x-for="cat in categories.filter(c => c.type === txType)" :key="cat.id">
+                        <option :value="cat.id" x-text="cat.icon + ' ' + cat.name"></option>
+                    </template>
+                    <template x-if="txType === 'capital' && !categories.some(c => c.type === 'capital')">
+                        <option value="" selected>🏢 رأس مال مساهم</option>
+                    </template>
                 </select>
             </div>
 

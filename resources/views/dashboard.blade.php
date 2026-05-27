@@ -28,7 +28,7 @@
             </div>
 
             <!-- Colorful Stats Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
                 <!-- Cash Card (Light Blue) -->
                 <div class="p-10 rounded-[3rem] bg-sky-50 border-2 border-sky-200 shadow-2xl shadow-sky-200/50 group hover:bg-sky-100 transition-all duration-300">
                     <div class="w-20 h-20 bg-sky-200 text-sky-700 rounded-3xl flex items-center justify-center text-4xl mb-8 border-2 border-sky-300 shadow-inner group-hover:scale-110 transition-transform">💵</div>
@@ -41,24 +41,18 @@
                     </div>
                 </div>
 
-                <!-- Business Assets Card (Light Yellow/Amber) -->
+                <!-- Business & Investments Card (Light Yellow/Amber) -->
                 <div class="p-10 rounded-[3rem] bg-amber-50 border-2 border-amber-200 shadow-2xl shadow-amber-200/50 group hover:bg-amber-100 transition-all duration-300">
-                    <div class="w-20 h-20 bg-amber-200 text-amber-700 rounded-3xl flex items-center justify-center text-4xl mb-8 border-2 border-amber-300 shadow-inner group-hover:scale-110 transition-transform">🏢</div>
-                    <p class="text-xs font-black text-amber-600 uppercase tracking-widest mb-2">قطاع الأعمال</p>
+                    <div class="w-20 h-20 bg-amber-200 text-amber-700 rounded-3xl flex items-center justify-center text-4xl mb-8 border-2 border-amber-300 shadow-inner group-hover:scale-110 transition-transform">💼</div>
+                    <p class="text-xs font-black text-amber-600 uppercase tracking-widest mb-2">الأعمال والاستثمارات</p>
                     <h3 class="text-5xl font-black text-amber-900 tracking-tighter mb-8">${{ number_format($totalBusinessValue, 0) }}</h3>
-                    <div class="flex items-center gap-3 bg-white w-max px-4 py-2 rounded-xl border border-amber-200 shadow-sm">
-                        <span class="w-3 h-3 bg-amber-400 rounded-full animate-pulse shadow-sm shadow-amber-400"></span>
-                        <span class="text-xs font-black text-amber-700 uppercase tracking-widest">أصول عاملة</span>
-                    </div>
-                </div>
-
-                <!-- Investments Card (Light Green) -->
-                <div class="p-10 rounded-[3rem] bg-emerald-50 border-2 border-emerald-200 shadow-2xl shadow-emerald-200/50 group hover:bg-emerald-100 transition-all duration-300">
-                    <div class="w-20 h-20 bg-emerald-200 text-emerald-700 rounded-3xl flex items-center justify-center text-4xl mb-8 border-2 border-emerald-300 shadow-inner group-hover:scale-110 transition-transform">📈</div>
-                    <p class="text-xs font-black text-emerald-600 uppercase tracking-widest mb-2">الاستثمارات</p>
-                    <h3 class="text-5xl font-black text-emerald-900 tracking-tighter mb-8">${{ number_format($funds->sum('current_value'), 0) }}</h3>
-                    <div class="flex items-center gap-3">
-                        <span class="text-xs font-black text-emerald-800 bg-white px-4 py-2 rounded-xl border border-emerald-200 shadow-sm">+ نمو مستقر</span>
+                    <div class="flex flex-wrap gap-3">
+                        <span class="text-xs font-black text-amber-800 bg-white px-4 py-2 rounded-xl border border-amber-200 shadow-sm">
+                            المشاريع: ${{ number_format($businesses->sum('total_value'), 0) }}
+                        </span>
+                        <span class="text-xs font-black text-amber-800 bg-white px-4 py-2 rounded-xl border border-amber-200 shadow-sm">
+                            الصناديق: ${{ number_format($funds->sum('current_value'), 0) }}
+                        </span>
                     </div>
                 </div>
             </div>

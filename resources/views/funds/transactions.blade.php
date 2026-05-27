@@ -26,19 +26,47 @@
             </div>
 
             <!-- Mini Stats -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
                 <div class="premium-card p-8 bg-emerald-50 border-emerald-100 border">
-                    <p class="text-[10px] text-emerald-600 font-black uppercase mb-2 tracking-widest">إجمالي الإيرادات</p>
-                    <p class="text-3xl font-black text-emerald-700 tracking-tighter">${{ number_format($income, 0) }}</p>
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-8 h-8 bg-emerald-100 rounded-xl flex items-center justify-center">
+                            <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 11l5-5m0 0l5 5m-5-5v12"/></svg>
+                        </div>
+                        <p class="text-[10px] text-emerald-600 font-black uppercase tracking-widest">إجمالي الإيرادات</p>
+                    </div>
+                    <p class="text-3xl font-black text-emerald-700 tracking-tighter">{{ number_format($income, 0) }}</p>
+                    <p class="text-[10px] text-emerald-500 font-bold mt-1">{{ $fund->currency }}</p>
                 </div>
                 <div class="premium-card p-8 bg-rose-50 border-rose-100 border">
-                    <p class="text-[10px] text-rose-600 font-black uppercase mb-2 tracking-widest">إجمالي المصاريف</p>
-                    <p class="text-3xl font-black text-rose-700 tracking-tighter">${{ number_format($expense, 0) }}</p>
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-8 h-8 bg-rose-100 rounded-xl flex items-center justify-center">
+                            <svg class="w-4 h-4 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 13l-5 5m0 0l-5-5m5 5V6"/></svg>
+                        </div>
+                        <p class="text-[10px] text-rose-600 font-black uppercase tracking-widest">إجمالي المصاريف</p>
+                    </div>
+                    <p class="text-3xl font-black text-rose-700 tracking-tighter">{{ number_format($expense, 0) }}</p>
+                    <p class="text-[10px] text-rose-500 font-bold mt-1">{{ $fund->currency }}</p>
+                </div>
+                <div class="premium-card p-8 bg-violet-50 border-violet-100 border">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-8 h-8 bg-violet-100 rounded-xl flex items-center justify-center">
+                            <svg class="w-4 h-4 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        </div>
+                        <p class="text-[10px] text-violet-600 font-black uppercase tracking-widest">حركات رأس المال</p>
+                    </div>
+                    <p class="text-3xl font-black text-violet-700 tracking-tighter">{{ number_format($capital, 0) }}</p>
+                    <p class="text-[10px] text-violet-500 font-bold mt-1">{{ $fund->currency }}</p>
                 </div>
                 @php $profit = $income - $expense; @endphp
                 <div class="premium-card p-8 {{ $profit >= 0 ? 'bg-indigo-50 border-indigo-100' : 'bg-amber-50 border-amber-100' }} border">
-                    <p class="text-[10px] {{ $profit >= 0 ? 'text-indigo-600' : 'text-amber-600' }} font-black uppercase mb-2 tracking-widest">صافي الربح/الخسارة</p>
-                    <p class="text-3xl font-black {{ $profit >= 0 ? 'text-indigo-700' : 'text-amber-700' }} tracking-tighter">${{ number_format($profit, 0) }}</p>
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-8 h-8 {{ $profit >= 0 ? 'bg-indigo-100' : 'bg-amber-100' }} rounded-xl flex items-center justify-center">
+                            <svg class="w-4 h-4 {{ $profit >= 0 ? 'text-indigo-600' : 'text-amber-600' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                        </div>
+                        <p class="text-[10px] {{ $profit >= 0 ? 'text-indigo-600' : 'text-amber-600' }} font-black uppercase tracking-widest">صافي الربح/الخسارة</p>
+                    </div>
+                    <p class="text-3xl font-black {{ $profit >= 0 ? 'text-indigo-700' : 'text-amber-700' }} tracking-tighter">{{ $profit >= 0 ? '+' : '' }}{{ number_format($profit, 0) }}</p>
+                    <p class="text-[10px] {{ $profit >= 0 ? 'text-indigo-500' : 'text-amber-500' }} font-bold mt-1">{{ $fund->currency }}</p>
                 </div>
             </div>
 
@@ -81,9 +109,19 @@
                                         </div>
                                     </td>
                                     <td class="px-6 py-6 text-center">
-                                        <span class="text-lg font-black {{ $transaction->type == 'income' ? 'text-emerald-600' : 'text-rose-600' }}">
-                                            {{ $transaction->type == 'income' ? '+' : '-' }}${{ number_format($transaction->amount, 0) }}
+                                        <span class="text-lg font-black 
+                                            @if($transaction->type == 'income') text-emerald-600
+                                            @elseif($transaction->type == 'capital') text-violet-600
+                                            @else text-rose-600 @endif">
+                                            @if($transaction->type == 'income') +
+                                            @elseif($transaction->type == 'capital') ●
+                                            @else - @endif
+                                            {{ number_format($transaction->amount, 0) }}
+                                            <span class="text-xs opacity-60 font-bold">{{ $transaction->paymentMethod->currency ?? $fund->currency }}</span>
                                         </span>
+                                        @if($transaction->type == 'capital')
+                                            <p class="text-[10px] text-violet-400 font-black uppercase tracking-widest mt-1">رأس مال</p>
+                                        @endif
                                     </td>
                                     <td class="px-6 py-6 text-center">
                                         @if($transaction->invoice_path)

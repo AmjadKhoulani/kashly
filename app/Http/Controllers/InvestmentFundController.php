@@ -126,9 +126,13 @@ class InvestmentFundController extends Controller
             ->where('transactionable_type', InvestmentFund::class)
             ->where('type', 'expense')->sum('amount');
 
+        $capital = Transaction::where('transactionable_id', $fund->id)
+            ->where('transactionable_type', InvestmentFund::class)
+            ->where('type', 'capital')->sum('amount');
+
         $paymentMethods = PaymentMethod::where('user_id', auth()->id())->get();
 
-        return view('funds.transactions', compact('fund', 'transactions', 'income', 'expense', 'paymentMethods'));
+        return view('funds.transactions', compact('fund', 'transactions', 'income', 'expense', 'capital', 'paymentMethods'));
     }
 
     public function addPartner(Request $request, $id)
