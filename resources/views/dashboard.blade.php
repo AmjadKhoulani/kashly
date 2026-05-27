@@ -14,14 +14,16 @@
                         </span>
                     </div>
                 </div>
-                <div class="flex items-center gap-10 bg-indigo-50 px-8 py-5 rounded-3xl border-2 border-indigo-100 shadow-lg shadow-indigo-100/50">
-                    <div class="text-left border-l-2 border-indigo-200 pl-8 ml-8">
+                <div class="flex items-center bg-indigo-50 px-8 py-5 rounded-3xl border-2 border-indigo-100 shadow-lg shadow-indigo-100/50">
+                    <div class="text-left">
                         <p class="text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em] mb-1">صافي الثروة المقدرة</p>
                         <p class="text-4xl font-black text-indigo-700 tracking-tighter">${{ number_format($estimatedTotalUSD, 0) }}</p>
+                        @if(isset($totalByCurrency['SYP']) && $totalByCurrency['SYP'] > 0)
+                            <p class="text-[9px] font-bold text-indigo-400 mt-1.5 block">
+                                * يشمل {{ number_format($totalByCurrency['SYP'], 0) }} ل.س بسعر صرف {{ number_format($sypRate, 0) }} ل.س
+                            </p>
+                        @endif
                     </div>
-                    <button class="bg-indigo-600 text-white px-8 py-4 rounded-2xl text-lg font-black shadow-xl shadow-indigo-200 hover:bg-indigo-700 hover:-translate-y-1 transition-all">
-                        تسجيل حركة +
-                    </button>
                 </div>
             </div>
 
