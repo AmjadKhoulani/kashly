@@ -8,7 +8,7 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@100..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- Styles -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -17,7 +17,22 @@
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['Noto Sans Arabic', 'sans-serif'],
+                        sans: ['Readex Pro', 'sans-serif'],
+                    },
+                    fontSize: {
+                        'xs': ['0.7rem', { lineHeight: '1rem' }],
+                        'sm': ['0.775rem', { lineHeight: '1.25rem' }],
+                        'base': ['0.875rem', { lineHeight: '1.5rem' }],
+                        'lg': ['1rem', { lineHeight: '1.75rem' }],
+                        'xl': ['1.1rem', { lineHeight: '1.75rem' }],
+                        '2xl': ['1.25rem', { lineHeight: '2rem' }],
+                        '3xl': ['1.5rem', { lineHeight: '2.25rem' }],
+                        '4xl': ['1.85rem', { lineHeight: '2.5rem' }],
+                        '5xl': ['2.4rem', { lineHeight: '3rem' }],
+                        '6xl': ['3.1rem', { lineHeight: '1' }],
+                        '7xl': ['3.8rem', { lineHeight: '1' }],
+                        '8xl': ['5rem', { lineHeight: '1' }],
+                        '9xl': ['6.5rem', { lineHeight: '1' }],
                     },
                     colors: {
                         kashly: {
@@ -32,7 +47,7 @@
         }
     </script>
     <style>
-        body { font-family: 'Noto Sans Arabic', sans-serif; background-color: #FDFDFC; overflow-x: hidden; }
+        body { font-family: 'Readex Pro', sans-serif; background-color: #FDFDFC; overflow-x: hidden; }
         .glass { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); }
         .hero-gradient { background: radial-gradient(circle at top right, #fdf4ff, transparent 40%), radial-gradient(circle at bottom left, #f0f9ff, transparent 40%); }
     </style>

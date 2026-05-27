@@ -21,6 +21,21 @@
                         fontFamily: {
                             sans: ['Readex Pro', 'sans-serif'],
                         },
+                        fontSize: {
+                            'xs': ['0.7rem', { lineHeight: '1rem' }],
+                            'sm': ['0.775rem', { lineHeight: '1.25rem' }],
+                            'base': ['0.875rem', { lineHeight: '1.5rem' }],
+                            'lg': ['1rem', { lineHeight: '1.75rem' }],
+                            'xl': ['1.1rem', { lineHeight: '1.75rem' }],
+                            '2xl': ['1.25rem', { lineHeight: '2rem' }],
+                            '3xl': ['1.5rem', { lineHeight: '2.25rem' }],
+                            '4xl': ['1.85rem', { lineHeight: '2.5rem' }],
+                            '5xl': ['2.4rem', { lineHeight: '3rem' }],
+                            '6xl': ['3.1rem', { lineHeight: '1' }],
+                            '7xl': ['3.8rem', { lineHeight: '1' }],
+                            '8xl': ['5rem', { lineHeight: '1' }],
+                            '9xl': ['6.5rem', { lineHeight: '1' }],
+                        }
                     }
                 }
             }
