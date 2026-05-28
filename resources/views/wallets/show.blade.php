@@ -501,7 +501,7 @@
                 {{-- Type Toggle --}}
                 <div>
                     <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 tracking-widest">نوع العملية</label>
-                    <div class="grid grid-cols-3 gap-2 p-1.5 bg-gray-100 rounded-2xl">
+                    <div class="grid grid-cols-2 gap-2 p-1.5 bg-gray-100 rounded-2xl">
                         <label class="cursor-pointer">
                             <input type="radio" name="type" value="income" x-model="type" class="hidden peer">
                             <div class="py-3 text-center rounded-xl text-xs font-black transition-all peer-checked:bg-white peer-checked:text-emerald-600 peer-checked:shadow-sm text-slate-500">📈 إيداع</div>
@@ -509,10 +509,6 @@
                         <label class="cursor-pointer">
                             <input type="radio" name="type" value="expense" x-model="type" class="hidden peer">
                             <div class="py-3 text-center rounded-xl text-xs font-black transition-all peer-checked:bg-white peer-checked:text-rose-600 peer-checked:shadow-sm text-slate-500">📉 سحب</div>
-                        </label>
-                        <label class="cursor-pointer">
-                            <input type="radio" name="type" value="capital" x-model="type" class="hidden peer">
-                            <div class="py-3 text-center rounded-xl text-xs font-black transition-all peer-checked:bg-white peer-checked:text-indigo-600 peer-checked:shadow-sm text-slate-500">💼 رأس مال</div>
                         </label>
                     </div>
                 </div>
