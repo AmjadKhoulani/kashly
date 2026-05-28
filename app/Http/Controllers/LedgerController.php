@@ -10,16 +10,20 @@ class LedgerController extends Controller
 {
     public function index()
     {
+        $statusOrder = ['overdue' => 0, 'active' => 1, 'partial' => 2, 'settled' => 3];
+
         $entries = LedgerEntry::where('user_id', auth()->id())
             ->withCount('payments')
-            ->orderByRaw("FIELD(status, 'overdue', 'active', 'partial', 'settled')")
             ->orderBy('due_date')
-            ->get();
+            ->get()
+            ->sortBy(fn($e) => $statusOrder[$e->status] ?? 99);
 
-        $totalReceivable = $entries->where('type', 'receivable')->whereIn('status', ['active','partial','overdue'])->sum('remaining_amount');
-        $totalPayable    = $entries->where('type', 'payable')->whereIn('status', ['active','partial','overdue'])->sum('remaining_amount');
-        $totalInstallment = $entries->where('type', 'installment')->whereIn('status', ['active','partial','overdue'])->sum('remaining_amount');
-        $totalLoan       = $entries->where('type', 'loan')->whereIn('status', ['active','partial','overdue'])->sum('remaining_amount');
+        $active = $entries->whereIn('status', ['active', 'partial', 'overdue']);
+
+        $totalReceivable  = $active->where('type', 'receivable')->sum(fn($e) => $e->remaining_amount);
+        $totalPayable     = $active->where('type', 'payable')->sum(fn($e) => $e->remaining_amount);
+        $totalInstallment = $active->where('type', 'installment')->sum(fn($e) => $e->remaining_amount);
+        $totalLoan        = $active->where('type', 'loan')->sum(fn($e) => $e->remaining_amount);
 
         return view('ledger.index', compact(
             'entries', 'totalReceivable', 'totalPayable', 'totalInstallment', 'totalLoan'
