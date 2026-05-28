@@ -118,4 +118,25 @@ class LedgerController extends Controller
 
         return back()->with('success', 'تم تسجيل الدفعة بنجاح ✅');
     }
-}
+
+    // إضافة مبلغ للذمة (زيادة الدين)
+    public function addCharge(Request $request, $id)
+    {
+        $entry = LedgerEntry::where('user_id', auth()->id())->findOrFail($id);
+
+        $request->validate([
+            'amount' => 'required|numeric|min:0.01',
+            'notes'  => 'nullable|string',
+        ]);
+
+        $entry->total_amount += $request->amount;
+
+        // سجّل ملاحظة في آخر الملاحظات
+        $note = now()->format('d/m/Y') . ': أضيف ' . number_format($request->amount, 2) . ' ' . $entry->currency;
+        if ($request->notes) $note .= ' — ' . $request->notes;
+        $entry->notes = $entry->notes ? $entry->notes . "\n" . $note : $note;
+
+        $entry->syncStatus();
+
+        return back()->with('success', 'تم إضافة المبلغ للذمة ✅');
+    }

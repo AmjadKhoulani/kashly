@@ -59,6 +59,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/ledger/{id}', [\App\Http\Controllers\LedgerController::class, 'update'])->name('ledger.update');
     Route::delete('/ledger/{id}', [\App\Http\Controllers\LedgerController::class, 'destroy'])->name('ledger.destroy');
     Route::post('/ledger/{id}/payment', [\App\Http\Controllers\LedgerController::class, 'addPayment'])->name('ledger.payment');
+    Route::post('/ledger/{id}/charge', [\App\Http\Controllers\LedgerController::class, 'addCharge'])->name('ledger.charge');
 
     // ShamCash Integration
     Route::post('/shamcash/initiate', [\App\Http\Controllers\ShamCashController::class, 'initiateLinking'])->name('shamcash.initiate');

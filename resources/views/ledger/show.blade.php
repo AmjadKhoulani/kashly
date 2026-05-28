@@ -1,6 +1,6 @@
 <x-app-layout>
 <div class="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/20"
-     x-data="{ showPayment: false, showEdit: false }">
+     x-data="{ showPayment: false, showEdit: false, showCharge: false }">
 
     {{-- ===================== HEADER ===================== --}}
     <div class="bg-white border-b border-slate-100 sticky top-0 z-40 backdrop-blur-xl bg-white/90">
@@ -34,6 +34,13 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
                         </svg>
                         تسجيل دفعة
+                    </button>
+                    <button @click="showCharge = true"
+                        class="flex items-center gap-2 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-black text-sm shadow-lg shadow-amber-500/20 transition-all hover:scale-105">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        إضافة للذمة
                     </button>
                 @endif
                 <button @click="showEdit = true"
@@ -405,6 +412,66 @@
 
                 <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-2xl font-black text-base shadow-lg shadow-indigo-500/20 transition-all">
                     ✓ حفظ التعديلات
+                </button>
+            </form>
+        </div>
+    </div>
+
+    {{-- ===================== ADD CHARGE MODAL ===================== --}}
+    <div x-show="showCharge" class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-4 sm:p-6 bg-gray-900/60 backdrop-blur-md" x-cloak x-transition>
+        <div class="bg-white rounded-3xl w-full max-w-md shadow-2xl text-right" @click.away="showCharge = false">
+            <div class="px-8 py-5 border-b border-slate-100 flex items-center justify-between">
+                <div>
+                    <h3 class="text-xl font-black text-gray-900">إضافة للذمة</h3>
+                    <p class="text-xs font-bold text-amber-600 mt-0.5">
+                        @if($entry->type === 'receivable') أقرضت {{ $entry->party_name }} مبلغاً إضافياً
+                        @elseif($entry->type === 'payable') اقترضت مبلغاً إضافياً من {{ $entry->party_name }}
+                        @elseif($entry->type === 'installment') أضفت قسطاً أو تكلفة إضافية
+                        @else أضفت التزاماً إضافياً على القرض
+                        @endif
+                    </p>
+                </div>
+                <button @click="showCharge = false" class="w-8 h-8 bg-gray-100 text-gray-400 rounded-xl flex items-center justify-center hover:bg-rose-50 hover:text-rose-500 transition-all">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <form action="{{ route('ledger.charge', $entry->id) }}" method="POST" class="p-8 space-y-5">
+                @csrf
+
+                {{-- Current total context --}}
+                <div class="bg-amber-50 border border-amber-100 rounded-2xl px-5 py-4">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-[10px] font-black text-amber-600 uppercase tracking-widest">الذمة الحالية (الإجمالي)</p>
+                            <p class="text-2xl font-black text-amber-800 tracking-tighter">
+                                {{ number_format($entry->total_amount, 2) }}
+                                <span class="text-sm opacity-60">{{ $entry->currency }}</span>
+                            </p>
+                        </div>
+                        <div class="text-3xl">📋</div>
+                    </div>
+                    <div class="flex items-center gap-2 mt-3 text-xs font-bold text-amber-600">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                        سيُضاف المبلغ الجديد على الإجمالي
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-black text-gray-400 uppercase mb-2 tracking-widest">المبلغ المضاف ({{ $entry->currency }})</label>
+                    <input type="number" name="amount" step="0.01" required
+                           class="w-full bg-gray-50 border-0 rounded-2xl p-4 font-black text-2xl focus:ring-2 focus:ring-amber-500 outline-none text-center"
+                           placeholder="0.00">
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-black text-gray-400 uppercase mb-2 tracking-widest">سبب الإضافة (اختياري)</label>
+                    <input type="text" name="notes"
+                           class="w-full bg-gray-50 border-0 rounded-2xl p-4 font-bold text-sm focus:ring-2 focus:ring-amber-500 outline-none"
+                           placeholder="@if($entry->type === 'receivable')مثلاً: أقرضته مزيداً لشراء سيارة...@elseif($entry->type === 'payable')مثلاً: اقترضت للإيجار...@else مثلاً: فائدة إضافية، قسط مؤجل...@endif">
+                </div>
+
+                <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-white py-4 rounded-2xl font-black text-base shadow-lg shadow-amber-500/20 transition-all">
+                    ✓ إضافة للذمة
                 </button>
             </form>
         </div>
