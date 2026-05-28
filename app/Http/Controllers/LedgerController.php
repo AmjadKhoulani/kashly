@@ -144,3 +144,4 @@ class LedgerController extends Controller
 
         return back()->with('success', 'تم إضافة المبلغ للذمة ✅');
     }
+}
