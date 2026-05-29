@@ -112,8 +112,8 @@ class _WalletDetailScreenState extends State<WalletDetailScreen> {
                     _buildStatsRow(w, format),
                     SizedBox(height: 35),
 
-                    // 4. Sub-Accounts & Custodians (الحسابات والعهود الفرعية)
-                    _buildSectionHeader('الحسابات والعهود الفرعية'),
+                    // 4. Sub-Accounts (الحسابات والبطاقات الفرعية)
+                    _buildSectionHeader('الحسابات والبطاقات الفرعية'),
                     SizedBox(height: 15),
                     _buildSubAccountsSection(w, format),
                     SizedBox(height: 35),

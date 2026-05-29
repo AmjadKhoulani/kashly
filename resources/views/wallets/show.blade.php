@@ -204,11 +204,11 @@
             <div class="flex items-center justify-between pb-4 border-b border-slate-100">
                 <h3 class="text-base font-black text-slate-900 flex items-center gap-2">
                     <span class="w-7 h-7 bg-indigo-50 text-indigo-600 rounded-lg flex items-center justify-center text-sm">🏛️</span>
-                    الحسابات والبطاقات والعهد
+                    الحسابات والبطاقات الفرعية
                 </h3>
                 <button @click="showAccountModal = true" class="flex items-center gap-1.5 text-xs font-black text-indigo-600 hover:text-indigo-800 transition-colors bg-indigo-50 hover:bg-indigo-100 px-3.5 py-2 rounded-xl">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
-                    إضافة عهدة / حساب
+                    إضافة حساب فرعي / بطاقة
                 </button>
             </div>
 
