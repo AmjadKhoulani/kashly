@@ -33,27 +33,61 @@ class DashboardController extends Controller
 
         // Calculate Estimated Total in USD
         $sypRate = \App\Services\ExchangeRateService::getSypRate();
-        $estimatedTotalUSD = 0;
-        foreach($totalByCurrency as $curr => $val) {
-            if ($curr === 'USD') {
-                $estimatedTotalUSD += $val;
-            } elseif ($curr === 'SYP') {
+        
+        $convertToUsd = function ($amount, $currency) use ($user, $sypRate) {
+            if ($currency === 'USD') {
+                return $amount;
+            } elseif ($currency === 'SYP') {
                 // Real-time exchange rate from sp-today.com!
-                $estimatedTotalUSD += ($sypRate > 0) ? $val / $sypRate : $val;
+                return ($sypRate > 0) ? $amount / $sypRate : $amount;
             } else {
                 // Find last transaction with this currency to get rate, fallback to 1 if not found
                 $lastRate = Transaction::where('user_id', $user->id)
-                    ->where('currency', $curr)
+                    ->where('currency', $currency)
                     ->where('exchange_rate', '>', 1) // Only real rates
                     ->latest()
                     ->value('exchange_rate') ?? 1;
 
-                $estimatedTotalUSD += ($lastRate > 0) ? $val / $lastRate : $val;
+                return ($lastRate > 0) ? $amount / $lastRate : $amount;
             }
+        };
+
+        $estimatedTotalUSD = 0;
+        foreach($totalByCurrency as $curr => $val) {
+            $estimatedTotalUSD += $convertToUsd($val, $curr);
         }
 
         $totalPersonalCash = $wallets->sum('balance'); // Keep for legacy if needed, but we'll use breakdown
         $totalBusinessValue = $businesses->sum('total_value') + $funds->sum('current_value');
+
+        // Fetch active ledger entries
+        $ledgerEntries = \App\Models\LedgerEntry::where('user_id', $user->id)
+            ->where('status', '!=', 'settled')
+            ->get();
+
+        $totalReceivablesUSD = 0;
+        $totalPayablesUSD = 0;
+
+        foreach ($ledgerEntries as $entry) {
+            $rem = $entry->remaining_amount; // dynamic attribute: max(0, total_amount - paid_amount)
+            $remUsd = $convertToUsd($rem, $entry->currency);
+            if ($entry->type === 'receivable') {
+                $totalReceivablesUSD += $remUsd;
+            } else {
+                // payable, installment, loan
+                $totalPayablesUSD += $remUsd;
+            }
+        }
+
+        $netDebtsUSD = $totalReceivablesUSD - $totalPayablesUSD;
+
+        // Fetch top 3 upcoming unpaid/outstanding debts with due dates
+        $upcomingDebts = \App\Models\LedgerEntry::where('user_id', $user->id)
+            ->where('status', '!=', 'settled')
+            ->whereNotNull('due_date')
+            ->orderBy('due_date', 'asc')
+            ->take(3)
+            ->get();
 
         // Recent Transactions
         $recentTransactions = Transaction::where('user_id', $user->id)
@@ -99,7 +133,11 @@ class DashboardController extends Controller
             'funds',
             'wallets',
             'chartData',
-            'sypRate'
+            'sypRate',
+            'totalReceivablesUSD',
+            'totalPayablesUSD',
+            'netDebtsUSD',
+            'upcomingDebts'
         ));
     }
 }
