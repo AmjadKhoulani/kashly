@@ -71,6 +71,19 @@
             </div>
         @endif
 
+        @if($errors->any())
+            <div class="bg-rose-50 border border-rose-200 text-rose-700 font-bold text-sm rounded-2xl px-5 py-4 space-y-1">
+                <div class="flex items-center gap-2 font-black">
+                    ❌ حدث خطأ أثناء الحفظ:
+                </div>
+                <ul class="list-disc list-inside mr-6 text-xs space-y-0.5">
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         {{-- ===================== HERO CARD ===================== --}}
         @php
             $colorMap = [

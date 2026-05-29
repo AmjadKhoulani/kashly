@@ -101,15 +101,22 @@ class LedgerController extends Controller
     {
         $entry = LedgerEntry::where('user_id', auth()->id())->findOrFail($id);
 
-        $request->validate([
-            'amount'            => 'required|numeric|min:0.01',
+        $rules = [
             'payment_date'      => 'required|date',
             'notes'             => 'nullable|string',
             'pay_in_alt'        => 'nullable|boolean',
-            'original_amount'   => 'nullable|numeric|min:0.01',
-            'original_currency' => 'nullable|string|size:3',
-            'exchange_rate'     => 'nullable|numeric|min:0.0001',
-        ]);
+        ];
+
+        if ($request->boolean('pay_in_alt')) {
+            $rules['original_amount']   = 'required|numeric|min:0.01';
+            $rules['original_currency'] = 'required|string|size:3';
+            $rules['exchange_rate']     = 'required|numeric|min:0.0001';
+            $rules['amount']            = 'nullable';
+        } else {
+            $rules['amount']            = 'required|numeric|min:0.01';
+        }
+
+        $request->validate($rules);
 
         // حساب المبلغ بعملة القيد
         $amount           = (float) $request->amount;
@@ -149,14 +156,22 @@ class LedgerController extends Controller
     {
         $entry = LedgerEntry::where('user_id', auth()->id())->findOrFail($id);
 
-        $request->validate([
-            'amount'            => 'required|numeric|min:0.01',
+        $rules = [
+            'charge_date'       => 'nullable|date',
             'notes'             => 'nullable|string',
             'pay_in_alt'        => 'nullable|boolean',
-            'original_amount'   => 'nullable|numeric|min:0.01',
-            'original_currency' => 'nullable|string|size:3',
-            'exchange_rate'     => 'nullable|numeric|min:0.0001',
-        ]);
+        ];
+
+        if ($request->boolean('pay_in_alt')) {
+            $rules['original_amount']   = 'required|numeric|min:0.01';
+            $rules['original_currency'] = 'required|string|size:3';
+            $rules['exchange_rate']     = 'required|numeric|min:0.0001';
+            $rules['amount']            = 'nullable';
+        } else {
+            $rules['amount']            = 'required|numeric|min:0.01';
+        }
+
+        $request->validate($rules);
 
         $amount = (float) $request->amount;
         $noteExtra = '';
