@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="py-10 bg-[#F8FAFC] min-h-screen font-sans" x-data="{ 
+    <div class="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/20 font-sans" x-data="{ 
         editingEquity: null, 
         showModal: false, 
         showAssetModal: false, 
@@ -12,50 +12,66 @@
         partnerSource: 'existing',
         type: 'expense'
     }">
-        <div class="max-w-[1600px] mx-auto px-6 space-y-12">
-            
-            <!-- Header Section: Premium Hero -->
-            <div class="relative overflow-hidden bg-white rounded-[4rem] border-2 border-slate-100 shadow-2xl shadow-indigo-500/10 p-12 md:p-16">
-                <div class="absolute -right-24 -top-24 w-96 h-96 bg-indigo-50 rounded-full blur-3xl opacity-50"></div>
-                <div class="absolute -left-24 -bottom-24 w-80 h-80 bg-emerald-50 rounded-full blur-3xl opacity-30"></div>
-                
-                <div class="relative z-10 flex flex-col lg:flex-row justify-between items-center gap-12">
-                    <div class="flex flex-col md:flex-row items-center gap-10">
-                        <div class="w-28 h-28 bg-gradient-to-br from-indigo-600 to-indigo-400 text-white rounded-[3rem] flex items-center justify-center text-5xl shadow-2xl shadow-indigo-500/40 transform -rotate-3 border-4 border-white/20">
+
+        {{-- Sticky Header --}}
+        <div class="bg-white/95 border-b border-slate-100 sticky top-0 z-40 backdrop-blur-xl">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6">
+                <div class="flex items-center justify-between h-16 gap-4">
+
+                    {{-- Icon + Name + Breadcrumb --}}
+                    <div class="flex items-center gap-3 min-w-0">
+                        <div class="w-9 h-9 bg-indigo-600 text-white rounded-xl flex items-center justify-center text-lg shadow-md shadow-indigo-500/20 flex-shrink-0">
                             {{ $fund->icon ?? '🏘️' }}
                         </div>
-                        <div class="text-center md:text-right">
-                            <nav class="flex items-center justify-center md:justify-start gap-3 text-xs font-black text-slate-400 uppercase tracking-widest mb-4">
-                                <a href="{{ route('funds.index') }}" class="hover:text-indigo-600 transition-colors">صناديق الاستثمار</a>
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"></path></svg>
-                                <span class="text-indigo-600">{{ $fund->name }}</span>
-                            </nav>
-                            <h2 class="text-6xl font-black text-slate-900 tracking-tight mb-4">{{ $fund->name }}</h2>
-                            <div class="flex items-center justify-center md:justify-start gap-4">
-                                <span class="px-5 py-2 bg-indigo-50 text-indigo-700 text-xs font-black rounded-full border-2 border-indigo-100 shadow-sm">صندوق نشط ✅</span>
-                                <span class="px-5 py-2 bg-emerald-50 text-emerald-700 text-xs font-black rounded-full border-2 border-emerald-100 shadow-sm">تحديث فوري ⚡</span>
+                        <div class="min-w-0">
+                            <div class="flex items-center gap-1.5 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                <a href="{{ route('funds.index') }}" class="hover:text-indigo-600 transition-colors">الكيانات</a>
+                                <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"/></svg>
+                                <span class="text-indigo-600 truncate">{{ $fund->name }}</span>
                             </div>
+                            <h1 class="text-base font-black text-slate-900 tracking-tight truncate leading-tight">{{ $fund->name }}</h1>
                         </div>
                     </div>
 
-                    <div class="flex flex-wrap justify-center gap-6">
-                        <div class="flex items-center bg-slate-50 p-2.5 rounded-[2.5rem] border-2 border-slate-100 shadow-inner">
-                            <button @click="showAccountModal = true" class="px-8 py-4 text-xs font-black text-slate-600 hover:text-indigo-600 transition-all uppercase tracking-widest">الحسابات</button>
-                            <div class="w-px h-8 bg-slate-200"></div>
-                            <button @click="showPartnerModal = true" class="px-8 py-4 text-xs font-black text-slate-600 hover:text-indigo-600 transition-all uppercase tracking-widest">الشركاء</button>
-                            <div class="w-px h-8 bg-slate-200"></div>
-                            <button @click="showAssetModal = true" class="px-8 py-4 text-xs font-black text-slate-600 hover:text-indigo-600 transition-all uppercase tracking-widest">الأصول</button>
-                        </div>
-                        <div class="flex items-center gap-5">
-                            <button @click="showTransferModal = true" class="bg-amber-100 hover:bg-amber-200 text-amber-700 px-10 py-5 rounded-[2rem] font-black text-sm transition-all flex items-center gap-3 border-2 border-amber-200/50 shadow-lg shadow-amber-200/20">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
-                                تحويل داخلي
-                            </button>
-                            <button @click="showModal = true" class="bg-indigo-600 hover:bg-indigo-700 text-white px-12 py-5 rounded-[2rem] font-black text-lg shadow-2xl shadow-indigo-500/30 transition-all hover:scale-105 active:scale-95">تسجيل عملية</button>
-                        </div>
+                    {{-- Action Buttons --}}
+                    <div class="flex items-center gap-2 flex-shrink-0">
+                        {{-- Small icon buttons --}}
+                        <button @click="showAccountModal = true"
+                            class="flex items-center gap-1.5 px-3 py-2 text-xs font-black text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+                            الحسابات
+                        </button>
+                        <button @click="showPartnerModal = true"
+                            class="flex items-center gap-1.5 px-3 py-2 text-xs font-black text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0"/></svg>
+                            الشركاء
+                        </button>
+                        <button @click="showAssetModal = true"
+                            class="flex items-center gap-1.5 px-3 py-2 text-xs font-black text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                            الأصول
+                        </button>
+
+                        <div class="w-px h-6 bg-slate-200 mx-1"></div>
+
+                        {{-- Transfer button --}}
+                        <button @click="showTransferModal = true"
+                            class="flex items-center gap-1.5 px-4 py-2.5 bg-amber-100 hover:bg-amber-200 text-amber-700 rounded-xl font-black text-xs transition-all border border-amber-200/50 shadow-sm">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+                            تحويل داخلي
+                        </button>
+
+                        {{-- Register operation button --}}
+                        <button @click="showModal = true"
+                            class="px-5 py-2.5 bg-indigo-600 text-white rounded-xl font-black text-sm shadow-lg shadow-indigo-500/20 hover:scale-105 active:scale-95 transition-all">
+                            تسجيل عملية
+                        </button>
                     </div>
                 </div>
             </div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8">
 
             <!-- Stats Overview: Sleek Cards -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">

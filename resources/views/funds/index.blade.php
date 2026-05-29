@@ -1,115 +1,126 @@
 <x-app-layout>
-    <div class="py-12 px-6" x-data="{ showModal: false }">
-        <div class="max-w-7xl mx-auto space-y-12">
+    <div class="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/20" x-data="{ showModal: false }">
 
-            @if(session('error'))
-                <div class="bg-rose-50 border border-rose-100 p-6 rounded-[2rem] flex items-center gap-4 shadow-sm">
-                    <div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-xl shadow-sm">⚠️</div>
+        {{-- Sticky Header --}}
+        <div class="bg-white/95 border-b border-slate-100 sticky top-0 z-40 backdrop-blur-xl">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6">
+                <div class="flex items-center justify-between h-16">
                     <div>
-                        <h4 class="text-sm font-black text-rose-900">حدث خطأ أثناء المعالجة</h4>
-                        <p class="text-xs font-bold text-rose-600 mt-1">{{ session('error') }}</p>
+                        <h1 class="text-lg font-black text-slate-900 tracking-tight">الكيانات الاستثمارية</h1>
+                        <p class="text-xs text-slate-400 font-semibold">تتبع وإدارة محافظك الاستثمارية</p>
+                    </div>
+                    <button @click="showModal = true"
+                        class="px-5 py-2.5 bg-indigo-600 text-white rounded-xl font-black text-sm shadow-lg shadow-indigo-500/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        كيان جديد
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-6">
+
+            {{-- Flash Messages --}}
+            @if(session('error'))
+                <div class="flex items-center gap-3 bg-rose-50 border border-rose-100 rounded-2xl px-5 py-3 shadow-sm">
+                    <span class="text-lg">⚠️</span>
+                    <div>
+                        <p class="text-sm font-black text-rose-800">حدث خطأ أثناء المعالجة</p>
+                        <p class="text-xs font-semibold text-rose-500 mt-0.5">{{ session('error') }}</p>
                     </div>
                 </div>
             @endif
 
             @if(session('success'))
-                <div class="bg-emerald-50 border border-emerald-100 p-6 rounded-[2rem] flex items-center gap-4 shadow-sm">
-                    <div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-xl shadow-sm">✅</div>
+                <div class="flex items-center gap-3 bg-emerald-50 border border-emerald-100 rounded-2xl px-5 py-3 shadow-sm">
+                    <span class="text-lg">✅</span>
                     <div>
-                        <h4 class="text-sm font-black text-emerald-900">تمت العملية بنجاح</h4>
-                        <p class="text-xs font-bold text-emerald-600 mt-1">{{ session('success') }}</p>
+                        <p class="text-sm font-black text-emerald-800">تمت العملية بنجاح</p>
+                        <p class="text-xs font-semibold text-emerald-500 mt-0.5">{{ session('success') }}</p>
                     </div>
                 </div>
             @endif
-            
-            <!-- Header Section -->
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
-                <div>
-                    <h2 class="text-5xl font-black text-slate-900 tracking-tight">الكيانات الاستثمارية</h2>
-                    <p class="text-slate-500 font-bold mt-3 text-lg">تتبع نمو محافظك العقارية والتجارية وإدارة حصص الشركاء باحترافية.</p>
-                </div>
-                <button @click="showModal = true" class="bg-indigo-600 hover:bg-indigo-700 text-white px-10 py-5 rounded-[2.5rem] text-lg font-black shadow-2xl shadow-indigo-500/30 flex items-center transition-all hover:scale-105 active:scale-95">
-                    <svg class="w-6 h-6 ml-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path></svg>
-                    إنشاء كيان استثماري
-                </button>
-            </div>
 
-            <!-- Global Stats Summary -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div class="premium-card p-10 flex items-center justify-between border-2 border-slate-100 bg-white">
+            {{-- Stats Bar --}}
+            @php
+                $totalProfit = $funds->sum('current_value') - $funds->sum('capital');
+                $profitPercent = $funds->sum('capital') > 0 ? ($totalProfit / $funds->sum('capital')) * 100 : 0;
+            @endphp
+            <div class="grid grid-cols-3 gap-3">
+                <div class="bg-gradient-to-br from-indigo-50 to-blue-50 rounded-2xl p-4 border border-indigo-100 shadow-sm flex items-center justify-between">
                     <div>
-                        <p class="text-xs text-slate-400 font-black uppercase tracking-widest mb-2">إجمالي رأس المال</p>
-                        <p class="text-4xl font-black text-slate-900 tracking-tighter">${{ number_format($funds->sum('capital'), 0) }}</p>
+                        <p class="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-1">رأس المال</p>
+                        <p class="text-2xl font-black text-slate-900 tracking-tighter">${{ number_format($funds->sum('capital'), 0) }}</p>
                     </div>
-                    <div class="w-16 h-16 bg-indigo-50 rounded-2xl flex items-center justify-center text-3xl shadow-inner border border-indigo-100">🏛️</div>
+                    <div class="w-10 h-10 bg-white/70 rounded-xl flex items-center justify-center text-xl shadow-sm">🏛️</div>
                 </div>
-                <div class="premium-card p-10 flex items-center justify-between border-2 border-slate-100 bg-white">
+                <div class="bg-gradient-to-br from-violet-50 to-indigo-50 rounded-2xl p-4 border border-violet-100 shadow-sm flex items-center justify-between">
                     <div>
-                        <p class="text-xs text-slate-400 font-black uppercase tracking-widest mb-2">القيمة السوقية الحالية</p>
-                        <p class="text-4xl font-black text-indigo-600 tracking-tighter">${{ number_format($funds->sum('current_value'), 0) }}</p>
+                        <p class="text-[10px] font-black text-violet-400 uppercase tracking-widest mb-1">القيمة الحالية</p>
+                        <p class="text-2xl font-black text-indigo-600 tracking-tighter">${{ number_format($funds->sum('current_value'), 0) }}</p>
                     </div>
-                    <div class="w-16 h-16 bg-emerald-50 rounded-2xl flex items-center justify-center text-3xl shadow-inner border border-emerald-100">📈</div>
+                    <div class="w-10 h-10 bg-white/70 rounded-xl flex items-center justify-center text-xl shadow-sm">📈</div>
                 </div>
-                <div class="premium-card p-10 flex items-center justify-between border-2 border-slate-100 bg-white">
+                <div class="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-2xl p-4 border border-emerald-100 shadow-sm flex items-center justify-between">
                     <div>
-                        <p class="text-xs text-slate-400 font-black uppercase tracking-widest mb-2">العائد الإجمالي</p>
-                        @php
-                            $totalProfit = $funds->sum('current_value') - $funds->sum('capital');
-                            $profitPercent = $funds->sum('capital') > 0 ? ($totalProfit / $funds->sum('capital')) * 100 : 0;
-                        @endphp
-                        <p class="text-4xl font-black text-emerald-600 tracking-tighter">+{{ number_format($profitPercent, 1) }}%</p>
+                        <p class="text-[10px] font-black text-emerald-400 uppercase tracking-widest mb-1">صافي العائد</p>
+                        <p class="text-2xl font-black text-emerald-600 tracking-tighter">+{{ number_format($profitPercent, 1) }}%</p>
                     </div>
-                    <div class="w-16 h-16 bg-emerald-50 rounded-2xl flex items-center justify-center text-3xl shadow-inner border border-emerald-100">💰</div>
+                    <div class="w-10 h-10 bg-white/70 rounded-xl flex items-center justify-center text-xl shadow-sm">💰</div>
                 </div>
             </div>
 
-            <!-- Funds Grid -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+            {{-- Funds Grid --}}
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
                 @foreach($funds as $fund)
-                    <a href="{{ route('funds.show', $fund->id) }}" class="premium-card p-12 group relative overflow-hidden block border-2 border-slate-100 bg-white hover:border-indigo-200 transition-all duration-500">
-                        <div class="absolute -right-10 -top-10 w-48 h-48 bg-indigo-500/5 rounded-full blur-3xl group-hover:bg-indigo-500/10 transition-all duration-700"></div>
-                        
-                        <div class="flex justify-between items-start mb-14 relative z-10">
-                            <div class="w-24 h-24 bg-slate-50 text-slate-900 rounded-[2.5rem] flex items-center justify-center text-5xl group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 border-2 border-white shadow-lg">
-                                {{ $fund->icon ?? '🏘️' }}
+                    @php
+                        $fundProfit = $fund->current_value - $fund->capital;
+                        $fundProfitPct = $fund->capital > 0 ? (($fund->current_value - $fund->capital) / $fund->capital) * 100 : 0;
+                        $barPercent = min(100, ($fund->current_value / max($fund->capital, 1)) * 100);
+                    @endphp
+                    <a href="{{ route('funds.show', $fund->id) }}"
+                        class="bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md hover:border-indigo-200 transition-all duration-300 block overflow-hidden group">
+                        <div class="p-5">
+                            {{-- Top row: icon + name + badge --}}
+                            <div class="flex items-start justify-between mb-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-2xl border border-slate-100 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">
+                                        {{ $fund->icon ?? '🏘️' }}
+                                    </div>
+                                    <div>
+                                        <h3 class="text-base font-black text-slate-900 group-hover:text-indigo-600 transition-colors leading-tight">{{ $fund->name }}</h3>
+                                        <p class="text-xs text-slate-400 font-semibold mt-0.5">{{ $fund->currency ?? 'USD' }}</p>
+                                    </div>
+                                </div>
+                                <span class="px-3 py-1 {{ $fund->status == 'active' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-slate-50 text-slate-400 border-slate-100' }} text-[10px] font-black uppercase rounded-lg tracking-widest border shadow-sm">
+                                    {{ $fund->status == 'active' ? '● نشط' : 'مغلق' }}
+                                </span>
                             </div>
-                            <span class="px-6 py-2.5 {{ $fund->status == 'active' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-slate-50 text-slate-400 border-slate-100' }} text-xs font-black uppercase rounded-xl tracking-widest border shadow-sm">
-                                {{ $fund->status == 'active' ? '● نشط حالياً' : 'مغلق' }}
-                            </span>
-                        </div>
 
-                        <div class="relative z-10">
-                            <h3 class="text-4xl font-black text-slate-900 mb-6 tracking-tight group-hover:text-indigo-600 transition-colors">{{ $fund->name }}</h3>
-                            <div class="flex items-center gap-8 mb-12">
-                                <div class="flex -space-x-4 space-x-reverse overflow-hidden">
-                                    @for($i = 0; $i < 3; $i++)
-                                        <div class="inline-block h-10 w-10 rounded-full ring-4 ring-white bg-slate-100 flex items-center justify-center text-xs font-black text-slate-400 border border-slate-200 shadow-sm">P</div>
-                                    @endfor
+                            {{-- Capital vs Current Value --}}
+                            <div class="grid grid-cols-2 gap-3 mb-4">
+                                <div class="bg-slate-50 rounded-xl p-3 border border-slate-100">
+                                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">رأس المال</p>
+                                    <p class="text-lg font-black text-slate-900 tracking-tighter">${{ number_format($fund->capital, 0) }}</p>
                                 </div>
-                                <span class="text-sm font-black text-slate-400 uppercase tracking-widest">إدارة الشركاء والمساهمات</span>
-                            </div>
-                            
-                            <div class="grid grid-cols-2 gap-10 border-t-2 border-slate-50 pt-12">
-                                <div>
-                                    <p class="text-xs text-slate-400 font-black uppercase mb-3 tracking-widest">رأس المال المستثمر</p>
-                                    <p class="text-3xl font-black text-slate-900 tracking-tighter">${{ number_format($fund->capital, 0) }}</p>
-                                </div>
-                                <div>
-                                    <p class="text-xs text-slate-400 font-black uppercase mb-3 tracking-widest">القيمة الحالية</p>
-                                    <div class="flex items-center gap-3">
-                                        <p class="text-3xl font-black text-indigo-600 tracking-tighter">${{ number_format($fund->current_value, 0) }}</p>
-                                        <span class="text-xs font-black text-emerald-600 bg-emerald-50 px-3 py-1 rounded-lg border border-emerald-100 shadow-sm">
-                                            +{{ number_format((($fund->current_value - $fund->capital) / max($fund->capital, 1)) * 100, 1) }}%
+                                <div class="bg-indigo-50/60 rounded-xl p-3 border border-indigo-100">
+                                    <p class="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-1">القيمة الحالية</p>
+                                    <div class="flex items-baseline gap-2">
+                                        <p class="text-lg font-black text-indigo-600 tracking-tighter">${{ number_format($fund->current_value, 0) }}</p>
+                                        <span class="text-[10px] font-black {{ $fundProfitPct >= 0 ? 'text-emerald-600 bg-emerald-50' : 'text-rose-600 bg-rose-50' }} px-1.5 py-0.5 rounded-md">
+                                            {{ $fundProfitPct >= 0 ? '+' : '' }}{{ number_format($fundProfitPct, 1) }}%
                                         </span>
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- Progress Bar -->
-                        <div class="mt-12 h-4 bg-slate-50 rounded-full overflow-hidden shadow-inner border border-slate-100">
-                            @php $percent = min(100, ($fund->current_value / max($fund->capital, 1)) * 100); @endphp
-                            <div class="h-full bg-gradient-to-l from-indigo-600 to-indigo-400 rounded-full transition-all duration-1000 shadow-lg shadow-indigo-500/20" style="width: {{ $percent }}%"></div>
+                            {{-- Progress Bar --}}
+                            <div class="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                                <div class="h-full bg-gradient-to-l from-indigo-600 to-indigo-400 rounded-full transition-all duration-1000"
+                                    style="width: {{ $barPercent }}%"></div>
+                            </div>
                         </div>
                     </a>
                 @endforeach
@@ -117,25 +128,44 @@
 
         </div>
 
-        <!-- Create Entity Modal -->
-        <div x-show="showModal" class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-gray-900/60 backdrop-blur-md" x-cloak x-transition>
-            <div class="bg-white rounded-[4rem] w-full max-w-lg p-12 shadow-2xl relative text-right" @click.away="showModal = false">
-                <h3 class="text-3xl font-black text-gray-900 mb-8">إنشاء كيان استثماري</h3>
-                <form action="{{ route('funds.store') }}" method="POST" class="space-y-6">
+        {{-- Create Entity Modal --}}
+        <div x-show="showModal"
+            class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-gray-900/60 backdrop-blur-md"
+            x-cloak x-transition>
+            <div class="bg-white rounded-3xl w-full max-w-lg shadow-2xl relative text-right overflow-hidden"
+                @click.away="showModal = false">
+                {{-- Modal Header --}}
+                <div class="flex items-center justify-between px-8 py-5 border-b border-slate-100">
+                    <button @click="showModal = false"
+                        class="w-8 h-8 bg-slate-100 hover:bg-slate-200 rounded-xl flex items-center justify-center transition-all text-slate-500">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                    <h3 class="text-lg font-black text-slate-900">إنشاء كيان استثماري</h3>
+                </div>
+
+                {{-- Modal Form --}}
+                <form action="{{ route('funds.store') }}" method="POST" class="p-8 space-y-5">
                     @csrf
                     <div>
-                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 mr-2">اسم الكيان</label>
-                        <input type="text" name="name" required class="w-full premium-input" placeholder="مثلاً: عمارة الياسمين، محفظة الأسهم...">
+                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">اسم الكيان</label>
+                        <input type="text" name="name" required
+                            class="w-full bg-gray-50 border-0 rounded-2xl p-4 text-slate-900 font-semibold focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all outline-none"
+                            placeholder="مثلاً: عمارة الياسمين، محفظة الأسهم...">
                     </div>
                     <div>
-                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 mr-2">رأس المال التأسيسي (اختياري)</label>
-                        <input type="number" name="capital" class="w-full premium-input text-2xl" placeholder="0.00">
-                        <p class="text-[10px] text-gray-400 mt-2 mr-2">يمكنك تركه فارغاً إذا كان المشروع قيد التأسيس، وسيتم احتسابه من "مصاريف رأس المال".</p>
+                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">رأس المال التأسيسي (اختياري)</label>
+                        <input type="number" name="capital"
+                            class="w-full bg-gray-50 border-0 rounded-2xl p-4 text-slate-900 font-semibold text-xl focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all outline-none"
+                            placeholder="0.00">
+                        <p class="text-[10px] text-slate-400 mt-2 pr-1">يمكنك تركه فارغاً إذا كان المشروع قيد التأسيس، وسيتم احتسابه من "مصاريف رأس المال".</p>
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 mr-2">تكرار توزيع الأرباح</label>
-                            <select name="distribution_frequency" class="w-full premium-input">
+                            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">تكرار توزيع الأرباح</label>
+                            <select name="distribution_frequency"
+                                class="w-full bg-gray-50 border-0 rounded-2xl p-4 text-slate-900 font-semibold focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all outline-none">
                                 <option value="1">شهري</option>
                                 <option value="3">كل 3 أشهر</option>
                                 <option value="6">كل 6 أشهر</option>
@@ -143,17 +173,22 @@
                             </select>
                         </div>
                         <div>
-                            <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 mr-2">العملة الأساسية</label>
-                            <select name="currency" class="w-full premium-input">
+                            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">العملة الأساسية</label>
+                            <select name="currency"
+                                class="w-full bg-gray-50 border-0 rounded-2xl p-4 text-slate-900 font-semibold focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all outline-none">
                                 <option value="USD">USD</option>
                                 <option value="TRY">TRY</option>
                                 <option value="SAR">SAR</option>
                             </select>
                         </div>
                     </div>
-                    <button type="submit" class="w-full bg-indigo-600 text-white py-6 rounded-[2.5rem] font-black text-xl shadow-xl shadow-indigo-500/20 hover:bg-indigo-700 transition-all">تأكيد الإنشاء</button>
+                    <button type="submit"
+                        class="w-full px-5 py-3 bg-indigo-600 text-white rounded-xl font-black text-sm shadow-lg shadow-indigo-500/20 hover:scale-105 active:scale-95 transition-all">
+                        تأكيد الإنشاء
+                    </button>
                 </form>
             </div>
         </div>
+
     </div>
 </x-app-layout>
