@@ -27,23 +27,102 @@ class DashboardController extends Controller
             $totalByCurrency[$fund->currency] = ($totalByCurrency[$fund->currency] ?? 0) + $fund->current_value;
         }
 
-        // Calculate Estimated Total in USD (simplified for API for now)
+        // Calculate Estimated Total in USD
         $sypRate = \App\Services\ExchangeRateService::getSypRate();
-        $estimatedTotalUSD = 0;
-        foreach($totalByCurrency as $curr => $val) {
-            if ($curr === 'USD') {
-                $estimatedTotalUSD += $val;
-            } elseif ($curr === 'SYP') {
-                $estimatedTotalUSD += ($sypRate > 0) ? $val / $sypRate : $val;
+        
+        $convertToUsd = function ($amount, $currency) use ($user, $sypRate) {
+            if ($currency === 'USD') {
+                return $amount;
+            } elseif ($currency === 'SYP') {
+                // Real-time exchange rate from sp-today.com!
+                return ($sypRate > 0) ? $amount / $sypRate : $amount;
             } else {
+                // Find last transaction with this currency to get rate, fallback to 1 if not found
                 $lastRate = Transaction::where('user_id', $user->id)
-                    ->where('currency', $curr)
-                    ->where('exchange_rate', '>', 1)
+                    ->where('currency', $currency)
+                    ->where('exchange_rate', '>', 1) // Only real rates
                     ->latest()
                     ->value('exchange_rate') ?? 1;
-                $estimatedTotalUSD += ($lastRate > 0) ? $val / $lastRate : $val;
+
+                return ($lastRate > 0) ? $amount / $lastRate : $amount;
+            }
+        };
+
+        $estimatedTotalUSD = 0;
+        foreach($totalByCurrency as $curr => $val) {
+            $estimatedTotalUSD += $convertToUsd($val, $curr);
+        }
+
+        // Calculate Estimated Personal Cash in USD (converted)
+        $estimatedPersonalCashUSD = 0;
+        $personalCashByCurrency = [];
+        foreach($wallets as $wallet) {
+            $estimatedPersonalCashUSD += $convertToUsd($wallet->balance, $wallet->currency);
+            $personalCashByCurrency[$wallet->currency] = ($personalCashByCurrency[$wallet->currency] ?? 0) + $wallet->balance;
+        }
+
+        // Calculate Estimated Business Value in USD (converted)
+        $estimatedBusinessValueUSD = 0;
+        $estimatedBusinessOnlyUSD = 0;
+        foreach($businesses as $business) {
+            $valUsd = $convertToUsd($business->total_value, $business->currency ?? 'USD');
+            $estimatedBusinessValueUSD += $valUsd;
+            $estimatedBusinessOnlyUSD += $valUsd;
+        }
+        $estimatedFundsOnlyUSD = 0;
+        foreach($funds as $fund) {
+            $valUsd = $convertToUsd($fund->current_value, $fund->currency ?? 'USD');
+            $estimatedBusinessValueUSD += $valUsd;
+            $estimatedFundsOnlyUSD += $valUsd;
+        }
+
+        // Fetch active ledger entries
+        $ledgerEntries = \App\Models\LedgerEntry::where('user_id', $user->id)
+            ->where('status', '!=', 'settled')
+            ->get();
+
+        $totalReceivablesUSD = 0;
+        $totalPayablesUSD = 0;
+
+        foreach ($ledgerEntries as $entry) {
+            $rem = $entry->remaining_amount; // dynamic attribute: max(0, total_amount - paid_amount)
+            $remUsd = $convertToUsd($rem, $entry->currency);
+            if ($entry->type === 'receivable') {
+                $totalReceivablesUSD += $remUsd;
+            } else {
+                // payable, installment, loan
+                $totalPayablesUSD += $remUsd;
             }
         }
+
+        $netDebtsUSD = $totalReceivablesUSD - $totalPayablesUSD;
+
+        // Fetch top 3 upcoming unpaid/outstanding debts with due dates
+        $upcomingDebts = \App\Models\LedgerEntry::where('user_id', $user->id)
+            ->where('status', '!=', 'settled')
+            ->whereNotNull('due_date')
+            ->orderBy('due_date', 'asc')
+            ->take(3)
+            ->get();
+
+        $upcomingDebtsMapped = $upcomingDebts->map(function ($entry) {
+            return [
+                'id' => $entry->id,
+                'party_name' => $entry->party_name,
+                'type' => $entry->type,
+                'type_label' => $entry->type_label,
+                'type_color' => $entry->type_color,
+                'total_amount' => (float)$entry->total_amount,
+                'paid_amount' => (float)$entry->paid_amount,
+                'remaining_amount' => (float)$entry->remaining_amount,
+                'currency' => $entry->currency,
+                'due_date' => $entry->due_date ? $entry->due_date->format('Y-m-d') : null,
+                'days_left' => $entry->due_date ? (int)now()->startOfDay()->diffInDays($entry->due_date->startOfDay(), false) : null,
+                'description' => $entry->description,
+                'status' => $entry->status,
+                'status_label' => $entry->status_label,
+            ];
+        });
 
         $recentTransactions = Transaction::where('user_id', $user->id)
             ->with(['transactionable', 'categoryRelation', 'paymentMethod'])
@@ -84,7 +163,16 @@ class DashboardController extends Controller
             'businesses' => $businesses,
             'funds' => $funds,
             'recent_transactions' => $recentTransactions,
-            'chart_data' => (object)$chartData
+            'chart_data' => (object)$chartData,
+            'estimated_personal_cash_usd' => (float)$estimatedPersonalCashUSD,
+            'personal_cash_by_currency' => (object)$personalCashByCurrency,
+            'estimated_business_value_usd' => (float)$estimatedBusinessValueUSD,
+            'estimated_business_only_usd' => (float)$estimatedBusinessOnlyUSD,
+            'estimated_funds_only_usd' => (float)$estimatedFundsOnlyUSD,
+            'total_receivables_usd' => (float)$totalReceivablesUSD,
+            'total_payables_usd' => (float)$totalPayablesUSD,
+            'net_debts_usd' => (float)$netDebtsUSD,
+            'upcoming_debts' => $upcomingDebtsMapped
         ]);
     }
 }

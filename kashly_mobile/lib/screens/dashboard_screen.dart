@@ -43,12 +43,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final currencyFormat = NumberFormat.currency(symbol: '\$', decimalDigits: 0);
 
     return Scaffold(
-      backgroundColor: Color(0xFFF0F4F8),
+      backgroundColor: Color(0xFFF8FAFC),
       body: isLoading 
         ? Center(child: CircularProgressIndicator(color: Colors.indigo)) 
         : RefreshIndicator(
             onRefresh: () async => loadData(),
             child: CustomScrollView(
+              physics: BouncingScrollPhysics(),
               slivers: [
                 _buildSliverAppBar(),
                 SliverToBoxAdapter(
@@ -57,20 +58,51 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        SizedBox(height: 25),
+                        SizedBox(height: 15),
                         _buildMainWealthCard(currencyFormat),
-                        SizedBox(height: 35),
-                        _buildSectionHeader('نظرة عامة على السيولة', color: Colors.indigo),
+                        SizedBox(height: 30),
+                        
+                        // New Ledger (Debts/Claims) Section
+                        _buildLedgerSection(currencyFormat),
+                        SizedBox(height: 30),
+                        
+                        // New Upcoming Payment Reminders Section
+                        _buildUpcomingDebtsSection(currencyFormat),
+                        SizedBox(height: 30),
+                        
+                        _buildSectionHeader('نظرة عامة على السيولة'),
                         SizedBox(height: 15),
                         _buildCashflowChart(),
-                        SizedBox(height: 40),
-                        _buildAssetSection('المحافظ الشخصية', WalletsScreen(), _buildWalletsList()),
-                        SizedBox(height: 40),
-                        _buildAssetSection('قطاع الأعمال', BusinessesScreen(), _buildBusinessesList()),
-                        SizedBox(height: 40),
-                        _buildAssetSection('الاستثمارات', FundsScreen(), _buildFundsList()),
-                        SizedBox(height: 40),
-                        _buildSectionHeader('آخر العمليات المالية', color: Colors.pink, onTap: () => Get.to(() => TransactionsScreen())),
+                        SizedBox(height: 35),
+                        
+                        _buildAssetSection(
+                          'المحافظ الشخصية', 
+                          trailingValue: '\$${NumberFormat('#,##0').format(data?['estimated_personal_cash_usd'] ?? 0)}',
+                          screen: WalletsScreen(), 
+                          list: _buildWalletsList()
+                        ),
+                        SizedBox(height: 35),
+                        
+                        _buildAssetSection(
+                          'قطاع الأعمال', 
+                          trailingValue: '\$${NumberFormat('#,##0').format(data?['estimated_business_only_usd'] ?? 0)}',
+                          screen: BusinessesScreen(), 
+                          list: _buildBusinessesList()
+                        ),
+                        SizedBox(height: 35),
+                        
+                        _buildAssetSection(
+                          'الاستثمارات', 
+                          trailingValue: '\$${NumberFormat('#,##0').format(data?['estimated_funds_only_usd'] ?? 0)}',
+                          screen: FundsScreen(), 
+                          list: _buildFundsList()
+                        ),
+                        SizedBox(height: 35),
+                        
+                        _buildSectionHeader(
+                          'آخر العمليات المالية', 
+                          onTap: () => Get.to(() => TransactionsScreen())
+                        ),
                         SizedBox(height: 15),
                         _buildRecentTransactions(),
                         SizedBox(height: 100),
@@ -88,23 +120,30 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Widget _buildSliverAppBar() {
     return SliverAppBar(
-      expandedHeight: 120,
+      expandedHeight: 100,
       floating: true,
       pinned: true,
-      backgroundColor: Color(0xFFF0F4F8),
+      backgroundColor: Color(0xFFF8FAFC),
       elevation: 0,
       centerTitle: false,
-      title: Text('كاشلي.', style: TextStyle(fontWeight: FontWeight.w900, color: Colors.indigo.shade900, fontSize: 26)),
+      title: Text('كاشلي.', style: GoogleFonts.almarai(fontWeight: FontWeight.w900, color: Colors.indigo.shade900, fontSize: 26)),
       actions: [
         IconButton(
           icon: Container(
             padding: EdgeInsets.all(8),
-            decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle, border: Border.all(color: Colors.indigo.shade50)),
-            child: Icon(Icons.person_outline, color: Colors.indigo.shade900, size: 22),
+            decoration: BoxDecoration(
+              color: Colors.white, 
+              shape: BoxShape.circle, 
+              border: Border.all(color: Colors.slate.shade100),
+              boxShadow: [
+                BoxShadow(color: Colors.slate.shade900.withOpacity(0.015), blurRadius: 10)
+              ]
+            ),
+            child: Icon(Icons.person_outline, color: Colors.indigo.shade900, size: 20),
           ),
           onPressed: () => Get.to(() => ProfileScreen()),
         ),
-        SizedBox(width: 10),
+        SizedBox(width: 15),
       ],
     );
   }
@@ -118,13 +157,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(32),
+        borderRadius: BorderRadius.circular(28),
         boxShadow: [
-          BoxShadow(color: Color(0xFF4338CA).withOpacity(0.3), blurRadius: 25, offset: Offset(0, 12)),
+          BoxShadow(color: Color(0xFF4338CA).withOpacity(0.2), blurRadius: 20, offset: Offset(0, 10)),
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(32),
+        borderRadius: BorderRadius.circular(28),
         child: Stack(
           children: [
             Positioned(
@@ -144,42 +183,42 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ),
             Padding(
-              padding: EdgeInsets.all(30),
+              padding: EdgeInsets.all(26),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('إجمالي الثروة التقديري', 
-                        style: TextStyle(color: Colors.white.withOpacity(0.7), fontWeight: FontWeight.bold, fontSize: 13, letterSpacing: 0.5)),
+                      Text('صافي الثروة المقدرة', 
+                        style: GoogleFonts.almarai(color: Colors.white.withOpacity(0.7), fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 0.5)),
                       Container(
                         padding: EdgeInsets.all(8),
                         decoration: BoxDecoration(
                           color: Colors.white.withOpacity(0.1),
                           shape: BoxShape.circle,
                         ),
-                        child: Icon(Icons.account_balance, color: Colors.amber.shade400, size: 18),
+                        child: Icon(Icons.account_balance, color: Colors.amber.shade400, size: 16),
                       ),
                     ],
                   ),
                   SizedBox(height: 10),
                   Text(format.format(data?['estimated_total_usd'] ?? 0), 
-                    style: TextStyle(color: Colors.white, fontSize: 44, fontWeight: FontWeight.w900, letterSpacing: -1.5)),
+                    style: GoogleFonts.almarai(color: Colors.white, fontSize: 40, fontWeight: FontWeight.w900, letterSpacing: -1.5)),
                   Spacer(),
                   Text('العملات الأخرى المتوفرة:', 
-                    style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 11, fontWeight: FontWeight.bold)),
+                    style: GoogleFonts.almarai(color: Colors.white.withOpacity(0.5), fontSize: 10, fontWeight: FontWeight.bold)),
                   SizedBox(height: 8),
                   Row(
                     children: (data?['total_by_currency'] is Map ? (data?['total_by_currency'] as Map) : {}).entries.where((e) => e.key != 'USD').take(3).map((e) => Container(
                       margin: EdgeInsets.only(left: 8),
-                      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                       decoration: BoxDecoration(
                         color: Colors.white.withOpacity(0.1), 
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(10),
                         border: Border.all(color: Colors.white.withOpacity(0.05)),
                       ),
-                      child: Text('${e.value} ${e.key}', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w800)),
+                      child: Text('${NumberFormat('#,##0').format(e.value)} ${e.key}', style: GoogleFonts.almarai(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w800)),
                     )).toList(),
                   )
                 ],
@@ -191,26 +230,331 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildAssetSection(String title, Widget screen, Widget list) {
+  Widget _buildLedgerSection(NumberFormat format) {
+    final double receivables = (data?['total_receivables_usd'] ?? 0).toDouble();
+    final double payables = (data?['total_payables_usd'] ?? 0).toDouble();
+    final double netDebts = (data?['net_debts_usd'] ?? 0).toDouble();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _buildSectionHeader(title, color: Colors.indigo, onTap: () => Get.to(() => screen)),
-        SizedBox(height: 20),
+        _buildSectionHeader('الديون والالتزامات (الدفتر)'),
+        SizedBox(height: 15),
+        Container(
+          height: 105,
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            physics: BouncingScrollPhysics(),
+            children: [
+              // Receivables (ديون لي)
+              _buildLedgerCard(
+                title: 'ديون لي (مستحقات)',
+                amount: receivables,
+                bgColor: Color(0xFFECFDF5),
+                textColor: Color(0xFF047857),
+                icon: Icons.arrow_downward,
+                format: format,
+              ),
+              // Payables (ديون علي)
+              _buildLedgerCard(
+                title: 'ديون عليّ (التزامات)',
+                amount: payables,
+                bgColor: Color(0xFFFFF1F2),
+                textColor: Color(0xFFBE123C),
+                icon: Icons.arrow_upward,
+                format: format,
+              ),
+              // Net Debt (صافي الديون)
+              _buildLedgerCard(
+                title: 'صافي الديون المستحقة',
+                amount: netDebts,
+                bgColor: Color(0xFFF5F3FF),
+                textColor: netDebts >= 0 ? Color(0xFF047857) : Color(0xFFBE123C),
+                icon: Icons.balance,
+                format: format,
+                isSigned: true,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLedgerCard({
+    required String title,
+    required double amount,
+    required Color bgColor,
+    required Color textColor,
+    required IconData icon,
+    required NumberFormat format,
+    bool isSigned = false,
+  }) {
+    String signedAmount = format.format(amount.abs());
+    if (isSigned) {
+      signedAmount = (amount >= 0 ? '+' : '-') + signedAmount;
+    }
+
+    return Container(
+      width: 190,
+      margin: EdgeInsets.only(left: 12, bottom: 5),
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: textColor.withOpacity(0.1), width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: textColor.withOpacity(0.015),
+            blurRadius: 10,
+            offset: Offset(0, 4),
+          )
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  title,
+                  style: GoogleFonts.almarai(
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    color: textColor.withOpacity(0.8),
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              Icon(icon, color: textColor, size: 14),
+            ],
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                signedAmount,
+                style: GoogleFonts.almarai(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w900,
+                  color: textColor,
+                ),
+              ),
+              Text(
+                'مبالغ مقدرة بالدولار',
+                style: GoogleFonts.almarai(
+                  fontSize: 8,
+                  fontWeight: FontWeight.bold,
+                  color: textColor.withOpacity(0.6),
+                ),
+              ),
+            ],
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _buildUpcomingDebtsSection(NumberFormat format) {
+    final List upcoming = data?['upcoming_debts'] as List? ?? [];
+    if (upcoming.isEmpty) return SizedBox();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _buildSectionHeader('مواعيد الاستحقاق القريبة (التنبيهات)'),
+        SizedBox(height: 15),
+        ...upcoming.map((debt) {
+          final int daysLeft = (debt['days_left'] ?? 0).toInt();
+          final double remaining = (debt['remaining_amount'] ?? 0).toDouble();
+          final String partyName = debt['party_name'] ?? 'ذمة';
+          final String type = debt['type'] ?? 'receivable';
+          final String currency = debt['currency'] ?? 'USD';
+          final String description = debt['description'] ?? 'بدون تفاصيل إضافية';
+          final String typeLabel = debt['type_label'] ?? '';
+
+          Color badgeBg;
+          Color badgeText;
+          String countdownText;
+
+          if (daysLeft < 0) {
+            badgeBg = Color(0xFFFEE2E2); // red-100
+            badgeText = Color(0xFF991B1B); // red-800
+            countdownText = 'متأخر منذ ${daysLeft.abs()} يوم';
+          } else if (daysLeft == 0) {
+            badgeBg = Color(0xFFFEF3C7); // amber-100
+            badgeText = Color(0xFF92400E); // amber-800
+            countdownText = 'اليوم هو موعد السداد';
+          } else {
+            badgeBg = Color(0xFFF1F5F9); // slate-100
+            badgeText = Color(0xFF475569); // slate-600
+            countdownText = 'متبقي $daysLeft يوم';
+          }
+
+          Color typeBg = type == 'receivable' ? Color(0xFFECFDF5) : Color(0xFFFFF1F2);
+          Color typeText = type == 'receivable' ? Color(0xFF047857) : Color(0xFFBE123C);
+
+          return Container(
+            margin: EdgeInsets.only(bottom: 12),
+            padding: EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: Colors.slate.shade100, width: 1.5),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.indigo.shade900.withOpacity(0.015),
+                  blurRadius: 15,
+                  offset: Offset(0, 6),
+                )
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: typeBg,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        typeLabel,
+                        style: GoogleFonts.almarai(
+                          color: typeText,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 9,
+                        ),
+                      ),
+                    ),
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: badgeBg,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        countdownText,
+                        style: GoogleFonts.almarai(
+                          color: badgeText,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 9,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 10),
+                Text(
+                  partyName,
+                  style: GoogleFonts.almarai(
+                    fontWeight: FontWeight.w900,
+                    fontSize: 14,
+                    color: Colors.slate.shade900,
+                  ),
+                ),
+                SizedBox(height: 3),
+                Text(
+                  description,
+                  style: GoogleFonts.almarai(
+                    color: Colors.slate.shade400,
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                SizedBox(height: 12),
+                Divider(color: Colors.slate.shade50, height: 1, thickness: 1),
+                SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'المبلغ المتبقي للسداد',
+                          style: GoogleFonts.almarai(
+                            color: Colors.slate.shade400,
+                            fontSize: 8,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 2),
+                        Text(
+                          '${NumberFormat('#,##0.00').format(remaining)} $currency',
+                          style: GoogleFonts.almarai(
+                            fontWeight: FontWeight.w900,
+                            fontSize: 13,
+                            color: Colors.slate.shade900,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Text(
+                      'سداد الحساب ←',
+                      style: GoogleFonts.almarai(
+                        color: Colors.indigo.shade500,
+                        fontWeight: FontWeight.black,
+                        fontSize: 11,
+                      ),
+                    ),
+                  ],
+                )
+              ],
+            ),
+          );
+        }).toList(),
+      ],
+    );
+  }
+
+  Widget _buildAssetSection(String title, {String? trailingValue, required Widget screen, required Widget list}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _buildSectionHeader(title, trailingValue: trailingValue, onTap: () => Get.to(() => screen)),
+        SizedBox(height: 15),
         list,
       ],
     );
   }
 
-  Widget _buildSectionHeader(String title, {Color color = Colors.indigo, VoidCallback? onTap}) {
+  Widget _buildSectionHeader(String title, {String? trailingValue, VoidCallback? onTap}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(title, style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Colors.blueGrey.shade900)),
+        Row(
+          children: [
+            Text(title, style: GoogleFonts.almarai(fontSize: 18, fontWeight: FontWeight.w900, color: Colors.blueGrey.shade900)),
+            if (trailingValue != null) ...[
+              SizedBox(width: 8),
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                decoration: BoxDecoration(
+                  color: Colors.indigo.shade50,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: Colors.indigo.shade100.withOpacity(0.5)),
+                ),
+                child: Text(
+                  trailingValue,
+                  style: GoogleFonts.almarai(color: Colors.indigo.shade700, fontWeight: FontWeight.w900, fontSize: 11),
+                ),
+              ),
+            ],
+          ],
+        ),
         if (onTap != null)
           TextButton(
             onPressed: onTap,
-            child: Text('مشاهدة الكل', style: TextStyle(color: Colors.indigo.shade400, fontWeight: FontWeight.bold, fontSize: 14)),
+            child: Text('مشاهدة الكل', style: GoogleFonts.almarai(color: Colors.indigo.shade400, fontWeight: FontWeight.bold, fontSize: 13)),
           ),
       ],
     );
@@ -223,6 +567,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       height: 170,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
+        physics: BouncingScrollPhysics(),
         itemCount: wallets.length,
         itemBuilder: (context, i) {
           final w = wallets[i];
@@ -233,14 +578,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
               margin: EdgeInsets.only(left: 15, bottom: 10),
               padding: EdgeInsets.all(22),
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Colors.white, Color(0xFFF8FAFC)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(28), 
-                border: Border.all(color: Colors.grey.shade100, width: 1.5),
-                boxShadow: [BoxShadow(color: Colors.indigo.shade900.withOpacity(0.03), blurRadius: 20, offset: Offset(0, 10))],
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(24), 
+                border: Border.all(color: Colors.slate.shade100, width: 1.5),
+                boxShadow: [BoxShadow(color: Colors.indigo.shade900.withOpacity(0.015), blurRadius: 20, offset: Offset(0, 10))],
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -252,27 +593,27 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         padding: EdgeInsets.all(10),
                         decoration: BoxDecoration(
                           color: Colors.indigo.shade50,
-                          borderRadius: BorderRadius.circular(16),
+                          borderRadius: BorderRadius.circular(14),
                         ),
-                        child: Icon(Icons.account_balance_wallet, color: Colors.indigo.shade600, size: 22),
+                        child: Icon(Icons.account_balance_wallet, color: Colors.indigo.shade600, size: 20),
                       ),
                       Container(
                         padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
                           color: Colors.green.shade50,
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
                           w['currency'] ?? 'USD',
-                          style: TextStyle(color: Colors.green.shade700, fontWeight: FontWeight.bold, fontSize: 10),
+                          style: GoogleFonts.almarai(color: Colors.green.shade700, fontWeight: FontWeight.bold, fontSize: 10),
                         ),
                       )
                     ],
                   ),
                   Spacer(),
-                  Text(w['name'], style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, color: Colors.blueGrey.shade900)),
+                  Text(w['name'], style: GoogleFonts.almarai(fontWeight: FontWeight.w900, fontSize: 14, color: Colors.blueGrey.shade900)),
                   SizedBox(height: 6),
-                  Text('${w['balance']} ${w['currency']}', style: TextStyle(color: Colors.indigo.shade700, fontWeight: FontWeight.w900, fontSize: 20)),
+                  Text('${NumberFormat('#,##0').format(w['balance'])} ${w['currency']}', style: GoogleFonts.almarai(color: Colors.indigo.shade700, fontWeight: FontWeight.w900, fontSize: 18)),
                 ],
               ),
             ),
@@ -289,6 +630,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       height: 170,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
+        physics: BouncingScrollPhysics(),
         itemCount: businesses.length,
         itemBuilder: (context, i) {
           final b = businesses[i];
@@ -299,14 +641,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
               margin: EdgeInsets.only(left: 15, bottom: 10),
               padding: EdgeInsets.all(22),
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Colors.amber.shade50, Colors.amber.shade100.withOpacity(0.5)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(28), 
-                border: Border.all(color: Colors.amber.shade100, width: 1.5),
-                boxShadow: [BoxShadow(color: Colors.amber.shade900.withOpacity(0.02), blurRadius: 20, offset: Offset(0, 10))],
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(24), 
+                border: Border.all(color: Colors.slate.shade100, width: 1.5),
+                boxShadow: [BoxShadow(color: Colors.amber.shade900.withOpacity(0.015), blurRadius: 20, offset: Offset(0, 10))],
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -317,28 +655,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       Container(
                         padding: EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
+                          color: Colors.amber.shade50,
+                          borderRadius: BorderRadius.circular(14),
                         ),
-                        child: Icon(Icons.storefront, color: Colors.amber.shade800, size: 22),
+                        child: Icon(Icons.storefront, color: Colors.amber.shade800, size: 20),
                       ),
                       Container(
                         padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
                           color: Colors.amber.shade800,
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
                           b['currency'] ?? 'USD',
-                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 10),
+                          style: GoogleFonts.almarai(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 10),
                         ),
                       )
                     ],
                   ),
                   Spacer(),
-                  Text(b['name'], style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, color: Colors.amber.shade900)),
+                  Text(b['name'], style: GoogleFonts.almarai(fontWeight: FontWeight.w900, fontSize: 14, color: Colors.amber.shade900)),
                   SizedBox(height: 6),
-                  Text('${b['total_value']} ${b['currency'] ?? 'USD'}', style: TextStyle(color: Colors.amber.shade900, fontWeight: FontWeight.w900, fontSize: 20)),
+                  Text('${NumberFormat('#,##0').format(b['total_value'])} ${b['currency'] ?? 'USD'}', style: GoogleFonts.almarai(color: Colors.amber.shade900, fontWeight: FontWeight.w900, fontSize: 18)),
                 ],
               ),
             ),
@@ -355,6 +693,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       height: 170,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
+        physics: BouncingScrollPhysics(),
         itemCount: fundsList.length,
         itemBuilder: (context, i) {
           final f = fundsList[i];
@@ -365,14 +704,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
               margin: EdgeInsets.only(left: 15, bottom: 10),
               padding: EdgeInsets.all(22),
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Colors.green.shade50, Colors.green.shade100.withOpacity(0.5)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(28), 
-                border: Border.all(color: Colors.green.shade100, width: 1.5),
-                boxShadow: [BoxShadow(color: Colors.green.shade900.withOpacity(0.02), blurRadius: 20, offset: Offset(0, 10))],
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(24), 
+                border: Border.all(color: Colors.slate.shade100, width: 1.5),
+                boxShadow: [BoxShadow(color: Colors.green.shade900.withOpacity(0.015), blurRadius: 20, offset: Offset(0, 10))],
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -383,28 +718,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       Container(
                         padding: EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
+                          color: Colors.green.shade50,
+                          borderRadius: BorderRadius.circular(14),
                         ),
-                        child: Text(f['icon'] ?? '📈', style: TextStyle(fontSize: 22)),
+                        child: Text(f['icon'] ?? '📈', style: GoogleFonts.almarai(fontSize: 18)),
                       ),
                       Container(
                         padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
                           color: Colors.green.shade700,
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
                           f['currency'] ?? 'USD',
-                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 10),
+                          style: GoogleFonts.almarai(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 10),
                         ),
                       )
                     ],
                   ),
                   Spacer(),
-                  Text(f['name'], style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14, color: Colors.green.shade900)),
+                  Text(f['name'], style: GoogleFonts.almarai(fontWeight: FontWeight.w900, fontSize: 14, color: Colors.green.shade900)),
                   SizedBox(height: 6),
-                  Text('${f['current_value']} ${f['currency']}', style: TextStyle(color: Colors.green.shade800, fontWeight: FontWeight.w900, fontSize: 20)),
+                  Text('${NumberFormat('#,##0').format(f['current_value'])} ${f['currency']}', style: GoogleFonts.almarai(color: Colors.green.shade800, fontWeight: FontWeight.w900, fontSize: 18)),
                 ],
               ),
             ),
@@ -416,14 +751,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Widget _buildEmptyAsset(String text) {
     return Container(
-      padding: EdgeInsets.all(30),
+      padding: EdgeInsets.all(25),
       decoration: BoxDecoration(
         color: Colors.white, 
-        borderRadius: BorderRadius.circular(28), 
-        border: Border.all(color: Colors.grey.shade100, width: 1.5),
+        borderRadius: BorderRadius.circular(24), 
+        border: Border.all(color: Colors.slate.shade100, width: 1.5),
         boxShadow: [BoxShadow(color: Colors.indigo.shade900.withOpacity(0.01), blurRadius: 15, offset: Offset(0, 5))],
       ),
-      child: Center(child: Text(text, style: TextStyle(color: Colors.blueGrey.shade200, fontWeight: FontWeight.bold))),
+      child: Center(child: Text(text, style: GoogleFonts.almarai(color: Colors.blueGrey.shade200, fontWeight: FontWeight.bold))),
     );
   }
 
@@ -453,48 +788,48 @@ class _DashboardScreenState extends State<DashboardScreen> {
             : (t['currency']?.toString() ?? '');
 
         Color iconColor = Color(int.parse(categoryColor.replaceFirst('#', '0xFF')));
-        Color typeColor = type == 'income' ? Colors.green.shade600 : (type == 'capital' ? Colors.amber.shade700 : Colors.red.shade600);
+        Color typeColor = type == 'income' ? Colors.green.shade600 : (type == 'capital' ? Colors.indigo.shade600 : Colors.red.shade600);
 
         return Container(
-          margin: EdgeInsets.only(bottom: 14),
+          margin: EdgeInsets.only(bottom: 12),
           padding: EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: Colors.white, 
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: Colors.grey.shade50, width: 1.5),
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(color: Colors.slate.shade100, width: 1.5),
             boxShadow: [BoxShadow(color: Colors.indigo.shade900.withOpacity(0.01), blurRadius: 15, offset: Offset(0, 5))]
           ),
           child: Row(
             children: [
               Container(
-                width: 52, height: 52,
+                width: 48, height: 48,
                 decoration: BoxDecoration(
                   color: iconColor.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(14),
                 ),
-                child: Center(child: Text(categoryIcon, style: TextStyle(fontSize: 22))),
+                child: Center(child: Text(categoryIcon, style: GoogleFonts.almarai(fontSize: 20))),
               ),
               SizedBox(width: 15),
               Expanded(child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(description, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15, color: Colors.blueGrey.shade900)),
+                  Text(description, style: GoogleFonts.almarai(fontWeight: FontWeight.w900, fontSize: 14, color: Colors.slate.shade900)),
                   SizedBox(height: 3),
-                  Text(categoryName, style: TextStyle(color: Colors.blueGrey.shade300, fontSize: 11, fontWeight: FontWeight.bold)),
+                  Text(categoryName, style: GoogleFonts.almarai(color: Colors.slate.shade400, fontSize: 11, fontWeight: FontWeight.bold)),
                 ],
               )),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text('${type == 'income' ? '+' : '-'}$amount', 
-                    style: TextStyle(
+                  Text('${type == 'income' ? '+' : '-'}${NumberFormat('#,##0').format(double.parse(amount))}', 
+                    style: GoogleFonts.almarai(
                       fontWeight: FontWeight.w900, 
-                      fontSize: 17, 
+                      fontSize: 16, 
                       color: typeColor,
                     )
                   ),
                   SizedBox(height: 3),
-                  Text(currency, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: Colors.blueGrey.shade300)),
+                  Text(currency, style: GoogleFonts.almarai(fontSize: 10, fontWeight: FontWeight.w800, color: Colors.slate.shade400)),
                 ],
               ),
             ],
@@ -524,8 +859,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
       padding: EdgeInsets.fromLTRB(10, 25, 25, 10),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(40),
-        border: Border.all(color: Colors.grey.shade50, width: 1.5),
+        borderRadius: BorderRadius.circular(30),
+        border: Border.all(color: Colors.slate.shade100, width: 1.5),
         boxShadow: [BoxShadow(color: Colors.indigo.shade900.withOpacity(0.01), blurRadius: 30, offset: Offset(0, 10))],
       ),
       child: LineChart(
@@ -543,7 +878,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 getTitlesWidget: (value, meta) {
                   int index = value.toInt();
                   if (index >= 0 && index < days.length) {
-                    return Text(days[index], style: TextStyle(color: Colors.indigo.shade200, fontWeight: FontWeight.bold, fontSize: 10));
+                    return Text(days[index], style: GoogleFonts.almarai(color: Colors.indigo.shade200, fontWeight: FontWeight.bold, fontSize: 10));
                   }
                   return Text('');
                 },
@@ -554,8 +889,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 showTitles: true,
                 interval: 5000,
                 getTitlesWidget: (value, meta) {
-                  if (value == 0) return Text('0', style: TextStyle(color: Colors.indigo.shade100, fontSize: 10));
-                  return Text('${(value / 1000).toStringAsFixed(0)}k', style: TextStyle(color: Colors.indigo.shade200, fontWeight: FontWeight.bold, fontSize: 10));
+                  if (value == 0) return Text('0', style: GoogleFonts.almarai(color: Colors.indigo.shade100, fontSize: 10));
+                  return Text('${(value / 1000).toStringAsFixed(0)}k', style: GoogleFonts.almarai(color: Colors.indigo.shade200, fontWeight: FontWeight.bold, fontSize: 10));
                 },
                 reservedSize: 35,
               ),
@@ -594,28 +929,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
         if (refresh == true) loadData();
       },
       child: Container(
-        width: 200,
-        height: 60,
+        width: 190,
+        height: 56,
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [Color(0xFF4338CA), Color(0xFF6366F1)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
-          borderRadius: BorderRadius.circular(30),
+          borderRadius: BorderRadius.circular(28),
           boxShadow: [BoxShadow(color: Color(0xFF6366F1).withOpacity(0.35), blurRadius: 20, offset: Offset(0, 10))],
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.add, color: Colors.white, size: 24),
+            Icon(Icons.add, color: Colors.white, size: 22),
             SizedBox(width: 8),
-            Text('تسجيل حركة جديدة', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 16)),
+            Text('تسجيل حركة جديدة', style: GoogleFonts.almarai(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 15)),
           ],
         ),
       ),
     );
   }
 }
-
-
