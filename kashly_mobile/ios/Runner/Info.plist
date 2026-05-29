@@ -66,5 +66,14 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>ar</string>
+		<string>en</string>
+	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>نحتاج صلاحية الكاميرا لتصوير الفواتير والإيصالات وإرفاقها بالمعاملات المالية.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>نحتاج صلاحية الوصول لمعرض الصور لاختيار صور الفواتير والإيصالات وإرفاقها بالمعاملات المالية.</string>
 </dict>
 </plist>
