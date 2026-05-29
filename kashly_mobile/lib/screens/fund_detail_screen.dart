@@ -326,7 +326,7 @@ class _FundDetailScreenState extends State<FundDetailScreen> {
 
   Widget _buildHeaderHeroCard(dynamic fund, NumberFormat format) {
     final String currency = fund?['currency'] ?? 'USD';
-    final double currentValue = (data?['current_value'] ?? fund?['current_value'] ?? 0).toDouble();
+    final double currentValue = double.tryParse((data?['current_value'] ?? fund?['current_value'] ?? '0').toString()) ?? 0.0;
 
     return Container(
       padding: EdgeInsets.all(28),
@@ -493,11 +493,11 @@ class _FundDetailScreenState extends State<FundDetailScreen> {
 
   Widget _buildStatsGrid(NumberFormat format) {
     final String currency = data?['fund']?['currency'] ?? 'USD';
-    final double investedCapital = (data?['total_invested_capital'] ?? 0).toDouble();
-    final double currentValue = (data?['current_value'] ?? 0).toDouble();
-    final double assetValue = (data?['total_asset_value'] ?? 0).toDouble();
-    final double capitalMovements = (data?['capital_movements'] ?? 0).toDouble();
-    final double netProfit = (data?['net_profit'] ?? 0).toDouble();
+    final double investedCapital = double.tryParse((data?['total_invested_capital'] ?? '0').toString()) ?? 0.0;
+    final double currentValue = double.tryParse((data?['current_value'] ?? '0').toString()) ?? 0.0;
+    final double assetValue = double.tryParse((data?['total_asset_value'] ?? '0').toString()) ?? 0.0;
+    final double capitalMovements = double.tryParse((data?['capital_movements'] ?? '0').toString()) ?? 0.0;
+    final double netProfit = double.tryParse((data?['net_profit'] ?? '0').toString()) ?? 0.0;
 
     return Column(
       children: [
@@ -737,7 +737,7 @@ class _FundDetailScreenState extends State<FundDetailScreen> {
 
     return Column(
       children: assets.map((asset) {
-        final double val = (asset['value'] ?? 0).toDouble();
+        final double val = double.tryParse((asset['value'] ?? '0').toString()) ?? 0.0;
         final String currency = data?['fund']?['currency'] ?? 'USD';
 
         return Container(
@@ -805,7 +805,7 @@ class _FundDetailScreenState extends State<FundDetailScreen> {
 
     return Column(
       children: equities.map((e) {
-        final double percentage = (e['percentage'] ?? 0).toDouble();
+        final double percentage = double.tryParse((e['percentage'] ?? '0').toString()) ?? 0.0;
         final String partnerName = e['partner']?['name'] ?? 'شريك';
         final String equityType = e['equity_type'] ?? 'fixed';
 
@@ -879,7 +879,7 @@ class _FundDetailScreenState extends State<FundDetailScreen> {
 
     return Column(
       children: distributions.map((dist) {
-        final double amount = (dist['amount'] ?? 0).toDouble();
+        final double amount = double.tryParse((dist['amount'] ?? '0').toString()) ?? 0.0;
         final String currency = data?['fund']?['currency'] ?? 'USD';
         final String dateStr = dist['created_at'] != null
             ? DateFormat('yyyy-MM-dd').format(DateTime.parse(dist['created_at']))
