@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\InvestmentFund;
+use App\Models\Integration;
 use App\Models\Partner;
 use App\Models\Equity;
 use App\Models\Transaction;
@@ -17,7 +18,14 @@ class InvestmentFundController extends Controller
     public function index()
     {
         $funds = InvestmentFund::where('user_id', auth()->id())->get();
-        return view('funds.index', compact('funds'));
+        
+        // Get all active integrations targeting InvestmentFund, keyed by target_id
+        $linkedFundIds = Integration::where('user_id', auth()->id())
+            ->where('target_type', 'App\Models\InvestmentFund')
+            ->where('is_active', true)
+            ->pluck('provider', 'target_id');
+
+        return view('funds.index', compact('funds', 'linkedFundIds'));
     }
 
     public function store(Request $request)

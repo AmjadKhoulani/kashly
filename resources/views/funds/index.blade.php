@@ -80,8 +80,12 @@
                         $fundProfitPct = $fund->capital > 0 ? (($fund->current_value - $fund->capital) / $fund->capital) * 100 : 0;
                         $barPercent = min(100, ($fund->current_value / max($fund->capital, 1)) * 100);
                     @endphp
+                    @php
+                        $isLinked = isset($linkedFundIds[$fund->id]);
+                        $linkedProvider = $isLinked ? strtoupper($linkedFundIds[$fund->id]) : null;
+                    @endphp
                     <a href="{{ route('funds.show', $fund->id) }}"
-                        class="bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md hover:border-indigo-200 transition-all duration-300 block overflow-hidden group">
+                        class="bg-white rounded-2xl border {{ $isLinked ? 'border-orange-200' : 'border-slate-100' }} shadow-sm hover:shadow-md {{ $isLinked ? 'hover:border-orange-300' : 'hover:border-indigo-200' }} transition-all duration-300 block overflow-hidden group relative">
                         <div class="p-5">
                             {{-- Top row: icon + name + badge --}}
                             <div class="flex items-start justify-between mb-4">
@@ -94,9 +98,17 @@
                                         <p class="text-xs text-slate-400 font-semibold mt-0.5">{{ $fund->currency ?? 'USD' }}</p>
                                     </div>
                                 </div>
-                                <span class="px-3 py-1 {{ $fund->status == 'active' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-slate-50 text-slate-400 border-slate-100' }} text-[10px] font-black uppercase rounded-lg tracking-widest border shadow-sm">
-                                    {{ $fund->status == 'active' ? '● نشط' : 'مغلق' }}
-                                </span>
+                                <div class="flex flex-col items-end gap-1.5">
+                                    <span class="px-3 py-1 {{ $fund->status == 'active' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-slate-50 text-slate-400 border-slate-100' }} text-[10px] font-black uppercase rounded-lg tracking-widest border shadow-sm">
+                                        {{ $fund->status == 'active' ? '● نشط' : 'مغلق' }}
+                                    </span>
+                                    @if($isLinked)
+                                        <span class="flex items-center gap-1 px-2.5 py-1 bg-orange-50 text-orange-600 border border-orange-200 text-[9px] font-black uppercase rounded-lg tracking-widest shadow-sm">
+                                            <span class="w-1.5 h-1.5 bg-orange-500 rounded-full animate-pulse"></span>
+                                            {{ $linkedProvider }} API
+                                        </span>
+                                    @endif
+                                </div>
                             </div>
 
                             {{-- Capital vs Current Value --}}
