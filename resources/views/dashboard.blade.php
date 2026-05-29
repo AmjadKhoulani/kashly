@@ -51,12 +51,12 @@
                     <div class="flex justify-between items-start mb-4">
                         <div>
                             <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">النقد المتوفر (المحافظ الشخصية)</p>
-                            <h3 class="text-3xl font-black text-emerald-600 tracking-tighter mt-1">${{ number_format($wallets->where('currency', 'USD')->sum('balance'), 0) }}</h3>
+                            <h3 class="text-3xl font-black text-emerald-600 tracking-tighter mt-1">${{ number_format($estimatedPersonalCashUSD, 0) }}</h3>
                         </div>
                         <div class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-xl border border-emerald-100 group-hover:scale-110 transition-transform">💵</div>
                     </div>
                     <div class="flex flex-wrap gap-1.5 mt-2 pt-2 border-t border-slate-50">
-                        @foreach(collect($totalByCurrency)->forget('USD')->take(3) as $curr => $val)
+                        @foreach(collect($personalCashByCurrency)->forget('USD') as $curr => $val)
                             <span class="text-[10px] font-black text-slate-600 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100">{{ number_format($val, 0) }} {{ $curr }}</span>
                         @endforeach
                     </div>
@@ -67,16 +67,16 @@
                     <div class="flex justify-between items-start mb-4">
                         <div>
                             <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">المشاريع والاستثمارات</p>
-                            <h3 class="text-3xl font-black text-amber-600 tracking-tighter mt-1">${{ number_format($totalBusinessValue, 0) }}</h3>
+                            <h3 class="text-3xl font-black text-amber-600 tracking-tighter mt-1">${{ number_format($estimatedBusinessValueUSD, 0) }}</h3>
                         </div>
                         <div class="w-10 h-10 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center text-xl border border-amber-100 group-hover:scale-110 transition-transform">💼</div>
                     </div>
                     <div class="flex flex-wrap gap-1.5 mt-2 pt-2 border-t border-slate-50">
                         <span class="text-[10px] font-black text-slate-600 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100">
-                            المشاريع: ${{ number_format($businesses->sum('total_value'), 0) }}
+                            المشاريع: ${{ number_format($estimatedBusinessOnlyUSD, 0) }}
                         </span>
                         <span class="text-[10px] font-black text-slate-600 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100">
-                            الصناديق: ${{ number_format($funds->sum('current_value'), 0) }}
+                            الصناديق: ${{ number_format($estimatedFundsOnlyUSD, 0) }}
                         </span>
                     </div>
                 </div>

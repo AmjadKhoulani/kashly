@@ -57,8 +57,31 @@ class DashboardController extends Controller
             $estimatedTotalUSD += $convertToUsd($val, $curr);
         }
 
-        $totalPersonalCash = $wallets->sum('balance'); // Keep for legacy if needed, but we'll use breakdown
-        $totalBusinessValue = $businesses->sum('total_value') + $funds->sum('current_value');
+        // Calculate Estimated Personal Cash in USD (converted)
+        $estimatedPersonalCashUSD = 0;
+        $personalCashByCurrency = [];
+        foreach($wallets as $wallet) {
+            $estimatedPersonalCashUSD += $convertToUsd($wallet->balance, $wallet->currency);
+            $personalCashByCurrency[$wallet->currency] = ($personalCashByCurrency[$wallet->currency] ?? 0) + $wallet->balance;
+        }
+
+        // Calculate Estimated Business Value in USD (converted)
+        $estimatedBusinessValueUSD = 0;
+        $estimatedBusinessOnlyUSD = 0;
+        foreach($businesses as $business) {
+            $valUsd = $convertToUsd($business->total_value, $business->currency ?? 'USD');
+            $estimatedBusinessValueUSD += $valUsd;
+            $estimatedBusinessOnlyUSD += $valUsd;
+        }
+        $estimatedFundsOnlyUSD = 0;
+        foreach($funds as $fund) {
+            $valUsd = $convertToUsd($fund->current_value, $fund->currency ?? 'USD');
+            $estimatedBusinessValueUSD += $valUsd;
+            $estimatedFundsOnlyUSD += $valUsd;
+        }
+
+        $totalPersonalCash = $wallets->sum('balance'); // Keep for legacy
+        $totalBusinessValue = $businesses->sum('total_value') + $funds->sum('current_value'); // Keep for legacy
 
         // Fetch active ledger entries
         $ledgerEntries = \App\Models\LedgerEntry::where('user_id', $user->id)
@@ -137,7 +160,12 @@ class DashboardController extends Controller
             'totalReceivablesUSD',
             'totalPayablesUSD',
             'netDebtsUSD',
-            'upcomingDebts'
+            'upcomingDebts',
+            'estimatedPersonalCashUSD',
+            'estimatedBusinessValueUSD',
+            'personalCashByCurrency',
+            'estimatedBusinessOnlyUSD',
+            'estimatedFundsOnlyUSD'
         ));
     }
 }
