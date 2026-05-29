@@ -134,9 +134,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
             decoration: BoxDecoration(
               color: Colors.white, 
               shape: BoxShape.circle, 
-              border: Border.all(color: Colors.slate.shade100),
+              border: Border.all(color: Color(0xFFF1F5F9)),
               boxShadow: [
-                BoxShadow(color: Colors.slate.shade900.withOpacity(0.015), blurRadius: 10)
+                BoxShadow(color: Color(0xFF0F172A).withOpacity(0.015), blurRadius: 10)
               ]
             ),
             child: Icon(Icons.person_outline, color: Colors.indigo.shade900, size: 20),
@@ -403,7 +403,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: Colors.slate.shade100, width: 1.5),
+              border: Border.all(color: Color(0xFFF1F5F9), width: 1.5),
               boxShadow: [
                 BoxShadow(
                   color: Colors.indigo.shade900.withOpacity(0.015),
@@ -456,14 +456,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   style: GoogleFonts.almarai(
                     fontWeight: FontWeight.w900,
                     fontSize: 14,
-                    color: Colors.slate.shade900,
+                    color: Color(0xFF0F172A),
                   ),
                 ),
                 SizedBox(height: 3),
                 Text(
                   description,
                   style: GoogleFonts.almarai(
-                    color: Colors.slate.shade400,
+                    color: Color(0xFF94A3B8),
                     fontSize: 11,
                     fontWeight: FontWeight.bold,
                   ),
@@ -471,7 +471,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   overflow: TextOverflow.ellipsis,
                 ),
                 SizedBox(height: 12),
-                Divider(color: Colors.slate.shade50, height: 1, thickness: 1),
+                Divider(color: Color(0xFFF8FAFC), height: 1, thickness: 1),
                 SizedBox(height: 10),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -482,7 +482,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         Text(
                           'المبلغ المتبقي للسداد',
                           style: GoogleFonts.almarai(
-                            color: Colors.slate.shade400,
+                            color: Color(0xFF94A3B8),
                             fontSize: 8,
                             fontWeight: FontWeight.bold,
                           ),
@@ -493,7 +493,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           style: GoogleFonts.almarai(
                             fontWeight: FontWeight.w900,
                             fontSize: 13,
-                            color: Colors.slate.shade900,
+                            color: Color(0xFF0F172A),
                           ),
                         ),
                       ],
@@ -502,7 +502,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       'سداد الحساب ←',
                       style: GoogleFonts.almarai(
                         color: Colors.indigo.shade500,
-                        fontWeight: FontWeight.black,
+                        fontWeight: FontWeight.w900,
                         fontSize: 11,
                       ),
                     ),
@@ -580,7 +580,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(24), 
-                border: Border.all(color: Colors.slate.shade100, width: 1.5),
+                border: Border.all(color: Color(0xFFF1F5F9), width: 1.5),
                 boxShadow: [BoxShadow(color: Colors.indigo.shade900.withOpacity(0.015), blurRadius: 20, offset: Offset(0, 10))],
               ),
               child: Column(
@@ -643,7 +643,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(24), 
-                border: Border.all(color: Colors.slate.shade100, width: 1.5),
+                border: Border.all(color: Color(0xFFF1F5F9), width: 1.5),
                 boxShadow: [BoxShadow(color: Colors.amber.shade900.withOpacity(0.015), blurRadius: 20, offset: Offset(0, 10))],
               ),
               child: Column(
@@ -706,7 +706,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(24), 
-                border: Border.all(color: Colors.slate.shade100, width: 1.5),
+                border: Border.all(color: Color(0xFFF1F5F9), width: 1.5),
                 boxShadow: [BoxShadow(color: Colors.green.shade900.withOpacity(0.015), blurRadius: 20, offset: Offset(0, 10))],
               ),
               child: Column(
@@ -755,7 +755,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       decoration: BoxDecoration(
         color: Colors.white, 
         borderRadius: BorderRadius.circular(24), 
-        border: Border.all(color: Colors.slate.shade100, width: 1.5),
+        border: Border.all(color: Color(0xFFF1F5F9), width: 1.5),
         boxShadow: [BoxShadow(color: Colors.indigo.shade900.withOpacity(0.01), blurRadius: 15, offset: Offset(0, 5))],
       ),
       child: Center(child: Text(text, style: GoogleFonts.almarai(color: Colors.blueGrey.shade200, fontWeight: FontWeight.bold))),
@@ -796,7 +796,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           decoration: BoxDecoration(
             color: Colors.white, 
             borderRadius: BorderRadius.circular(22),
-            border: Border.all(color: Colors.slate.shade100, width: 1.5),
+            border: Border.all(color: Color(0xFFF1F5F9), width: 1.5),
             boxShadow: [BoxShadow(color: Colors.indigo.shade900.withOpacity(0.01), blurRadius: 15, offset: Offset(0, 5))]
           ),
           child: Row(
@@ -813,9 +813,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
               Expanded(child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(description, style: GoogleFonts.almarai(fontWeight: FontWeight.w900, fontSize: 14, color: Colors.slate.shade900)),
+                  Text(description, style: GoogleFonts.almarai(fontWeight: FontWeight.w900, fontSize: 14, color: Color(0xFF0F172A))),
                   SizedBox(height: 3),
-                  Text(categoryName, style: GoogleFonts.almarai(color: Colors.slate.shade400, fontSize: 11, fontWeight: FontWeight.bold)),
+                  Text(categoryName, style: GoogleFonts.almarai(color: Color(0xFF94A3B8), fontSize: 11, fontWeight: FontWeight.bold)),
                 ],
               )),
               Column(
@@ -829,7 +829,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     )
                   ),
                   SizedBox(height: 3),
-                  Text(currency, style: GoogleFonts.almarai(fontSize: 10, fontWeight: FontWeight.w800, color: Colors.slate.shade400)),
+                  Text(currency, style: GoogleFonts.almarai(fontSize: 10, fontWeight: FontWeight.w800, color: Color(0xFF94A3B8))),
                 ],
               ),
             ],
@@ -860,7 +860,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(30),
-        border: Border.all(color: Colors.slate.shade100, width: 1.5),
+        border: Border.all(color: Color(0xFFF1F5F9), width: 1.5),
         boxShadow: [BoxShadow(color: Colors.indigo.shade900.withOpacity(0.01), blurRadius: 30, offset: Offset(0, 10))],
       ),
       child: LineChart(
