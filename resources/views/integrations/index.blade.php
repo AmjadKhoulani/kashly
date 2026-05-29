@@ -186,6 +186,11 @@
                                         </div>
 
                                         <div>
+                                            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 mr-1">الرمز السري المولد من MadaaQ (Secret Code)</label>
+                                            <input type="text" name="webhook_secret" placeholder="أدخل الرمز السري المولد من لوحة تحكم MadaaQ..." class="w-full bg-gray-50 border-0 rounded-2xl p-4 font-bold text-sm focus:ring-2 focus:ring-indigo-500 outline-none" required>
+                                        </div>
+
+                                        <div>
                                             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 mr-1">الصندوق المالي المستهدف</label>
                                             <select name="target_id" class="w-full bg-gray-50 border-0 rounded-2xl p-4 font-bold text-sm focus:ring-2 focus:ring-indigo-500 outline-none" required>
                                                 <option value="">اختر الصندوق...</option>

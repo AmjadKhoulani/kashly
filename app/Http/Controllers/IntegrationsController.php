@@ -28,6 +28,7 @@ class IntegrationsController extends Controller
             'name' => 'required|string|max:255',
             'target_type' => 'required|string',
             'target_id' => 'required|integer',
+            'webhook_secret' => 'nullable|string|max:255',
         ]);
 
         $integration = new Integration();
@@ -36,7 +37,7 @@ class IntegrationsController extends Controller
         $integration->name = $validated['name'];
         $integration->target_type = $validated['target_type'];
         $integration->target_id = $validated['target_id'];
-        $integration->webhook_secret = bin2hex(random_bytes(16));
+        $integration->webhook_secret = $validated['webhook_secret'] ?? bin2hex(random_bytes(16));
         $integration->is_active = true;
         $integration->save();
 
