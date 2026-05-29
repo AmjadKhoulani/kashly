@@ -1,6 +1,6 @@
 <x-app-layout>
 <div class="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/20"
-     x-data="{ showPayment: false, showEdit: false, showCharge: false }">
+     x-data="{ showPayment: false, showEdit: false, showCharge: false, payAlt: false, chargeAlt: false }">
 
     {{-- ===================== HEADER ===================== --}}
     <div class="bg-white border-b border-slate-100 sticky top-0 z-40 backdrop-blur-xl bg-white/90">
@@ -265,6 +265,13 @@
                                 </div>
                                 <div>
                                     <p class="font-black text-slate-900 text-sm">دفعة بتاريخ {{ $payment->payment_date->format('d/m/Y') }}</p>
+                                    @if($payment->original_amount && $payment->original_currency)
+                                        <p class="text-[10px] font-bold text-indigo-500 mt-0.5">
+                                            {{ number_format($payment->original_amount, 2) }} {{ $payment->original_currency }}
+                                            <span class="text-slate-300 mx-1">×</span>
+                                            <span class="text-slate-400">{{ $payment->exchange_rate }}</span>
+                                        </p>
+                                    @endif
                                     @if($payment->notes)
                                         <p class="text-xs font-bold text-slate-400">{{ $payment->notes }}</p>
                                     @endif
@@ -294,6 +301,9 @@
             </div>
             <form action="{{ route('ledger.payment', $entry->id) }}" method="POST" class="p-8 space-y-5">
                 @csrf
+                <input type="hidden" name="pay_in_alt" :value="payAlt ? '1' : '0'">
+
+                {{-- Remaining context --}}
                 <div class="bg-slate-50 rounded-2xl px-5 py-4 flex justify-between items-center">
                     <div>
                         <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">المتبقي</p>
@@ -305,13 +315,64 @@
                     <div class="text-3xl">{{ $entry->type_icon }}</div>
                 </div>
 
-                <div>
+                {{-- Alt currency toggle --}}
+                <div class="bg-indigo-50 rounded-2xl p-4 border border-indigo-100">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-xs font-black text-indigo-700">دفع بعملة مختلفة</p>
+                            <p class="text-[9px] font-bold text-indigo-400 mt-0.5">يتم التحويل تلقائياً بسعر الصرف الذي تحدده</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" x-model="payAlt" class="sr-only peer">
+                            <div class="w-10 h-5 bg-gray-200 rounded-full peer peer-checked:after:translate-x-5 peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600"></div>
+                        </label>
+                    </div>
+
+                    {{-- Alt fields --}}
+                    <div x-show="payAlt" x-cloak class="mt-4 space-y-3">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-[9px] font-black text-indigo-600 uppercase mb-1.5">العملة المدفوعة بها</label>
+                                <select name="original_currency" class="w-full bg-white border border-indigo-100 rounded-xl p-3 font-bold text-sm focus:ring-2 focus:ring-indigo-400 outline-none">
+                                    <option value="SYP">SYP - ليرة سورية</option>
+                                    <option value="TRY">TRY - ليرة تركية</option>
+                                    <option value="SAR">SAR - ريال</option>
+                                    <option value="EUR">EUR - يورو</option>
+                                    <option value="USD">USD - دولار</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[9px] font-black text-indigo-600 uppercase mb-1.5">سعر الصرف</label>
+                                <input type="number" name="exchange_rate" step="0.0001" placeholder="مثال: 13900"
+                                       class="w-full bg-white border border-indigo-100 rounded-xl p-3 font-bold text-sm focus:ring-2 focus:ring-indigo-400 outline-none">
+                                <p class="text-[9px] font-bold text-indigo-400 mt-1">1 {{ $entry->currency }} = X من العملة</p>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-[9px] font-black text-indigo-600 uppercase mb-1.5">المبلغ بالعملة البديلة</label>
+                            <input type="number" name="original_amount" step="0.01" placeholder="0.00"
+                                   class="w-full bg-white border border-indigo-100 rounded-xl p-3 font-black text-lg focus:ring-2 focus:ring-indigo-400 outline-none text-center">
+                        </div>
+                    </div>
+                </div>
+
+                {{-- amount in base currency (hidden when alt) --}}
+                <div x-show="!payAlt">
                     <label class="block text-[10px] font-black text-gray-400 uppercase mb-2 tracking-widest">مبلغ الدفعة ({{ $entry->currency }})</label>
-                    <input type="number" name="amount" step="0.01" required
+                    <input type="number" name="amount" step="0.01"
                            value="{{ $entry->installment_amount ?? '' }}"
                            class="w-full bg-gray-50 border-0 rounded-2xl p-4 font-black text-2xl focus:ring-2 focus:ring-emerald-500 outline-none text-center"
                            placeholder="0.00">
                 </div>
+                {{-- hidden 0 when alt (controller ignores it) --}}
+                <div x-show="payAlt" x-cloak>
+                    <input type="hidden" name="amount" value="0">
+                    <div class="bg-emerald-50 border border-emerald-100 rounded-2xl p-3 text-center">
+                        <p class="text-xs font-black text-emerald-700">يتم حساب المبلغ المعادل تلقائياً</p>
+                        <p class="text-[9px] font-bold text-emerald-500 mt-0.5">المبلغ البديل ÷ سعر الصرف = القيمة بالدولار</p>
+                    </div>
+                </div>
+
                 <div>
                     <label class="block text-[10px] font-black text-gray-400 uppercase mb-2 tracking-widest">التاريخ</label>
                     <input type="date" name="payment_date" value="{{ date('Y-m-d') }}" required
@@ -427,7 +488,7 @@
                         @if($entry->type === 'receivable') أقرضت {{ $entry->party_name }} مبلغاً إضافياً
                         @elseif($entry->type === 'payable') اقترضت مبلغاً إضافياً من {{ $entry->party_name }}
                         @elseif($entry->type === 'installment') أضفت قسطاً أو تكلفة إضافية
-                        @else أضفت التزاماً إضافياً على القرض
+                        @else أضفت التزاماً إضافياً
                         @endif
                     </p>
                 </div>
@@ -437,37 +498,77 @@
             </div>
             <form action="{{ route('ledger.charge', $entry->id) }}" method="POST" class="p-8 space-y-5">
                 @csrf
+                <input type="hidden" name="pay_in_alt" :value="chargeAlt ? '1' : '0'">
 
                 {{-- Current total context --}}
-                <div class="bg-amber-50 border border-amber-100 rounded-2xl px-5 py-4">
+                <div class="bg-amber-50 border border-amber-100 rounded-2xl px-5 py-4 flex justify-between items-center">
+                    <div>
+                        <p class="text-[10px] font-black text-amber-600 uppercase tracking-widest">الذمة الحالية</p>
+                        <p class="text-2xl font-black text-amber-800 tracking-tighter">
+                            {{ number_format($entry->total_amount, 2) }}
+                            <span class="text-sm opacity-60">{{ $entry->currency }}</span>
+                        </p>
+                    </div>
+                    <div class="text-3xl">📋</div>
+                </div>
+
+                {{-- Alt currency toggle --}}
+                <div class="bg-amber-50/50 rounded-2xl p-4 border border-amber-100">
                     <div class="flex justify-between items-center">
                         <div>
-                            <p class="text-[10px] font-black text-amber-600 uppercase tracking-widest">الذمة الحالية (الإجمالي)</p>
-                            <p class="text-2xl font-black text-amber-800 tracking-tighter">
-                                {{ number_format($entry->total_amount, 2) }}
-                                <span class="text-sm opacity-60">{{ $entry->currency }}</span>
-                            </p>
+                            <p class="text-xs font-black text-amber-700">إضافة بعملة مختلفة</p>
+                            <p class="text-[9px] font-bold text-amber-500 mt-0.5">يتم التحويل وإضافته بالعملة الأساسية</p>
                         </div>
-                        <div class="text-3xl">📋</div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" x-model="chargeAlt" class="sr-only peer">
+                            <div class="w-10 h-5 bg-gray-200 rounded-full peer peer-checked:after:translate-x-5 peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-500"></div>
+                        </label>
                     </div>
-                    <div class="flex items-center gap-2 mt-3 text-xs font-bold text-amber-600">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
-                        سيُضاف المبلغ الجديد على الإجمالي
+
+                    <div x-show="chargeAlt" x-cloak class="mt-4 space-y-3">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-[9px] font-black text-amber-700 uppercase mb-1.5">العملة</label>
+                                <select name="original_currency" class="w-full bg-white border border-amber-100 rounded-xl p-3 font-bold text-sm focus:ring-2 focus:ring-amber-400 outline-none">
+                                    <option value="SYP">SYP - ليرة سورية</option>
+                                    <option value="TRY">TRY - ليرة تركية</option>
+                                    <option value="SAR">SAR - ريال</option>
+                                    <option value="EUR">EUR - يورو</option>
+                                    <option value="USD">USD - دولار</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[9px] font-black text-amber-700 uppercase mb-1.5">سعر الصرف (1 {{ $entry->currency }} = ?)</label>
+                                <input type="number" name="exchange_rate" step="0.0001" placeholder="مثال: 13900"
+                                       class="w-full bg-white border border-amber-100 rounded-xl p-3 font-bold text-sm focus:ring-2 focus:ring-amber-400 outline-none">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-[9px] font-black text-amber-700 uppercase mb-1.5">المبلغ بالعملة البديلة</label>
+                            <input type="number" name="original_amount" step="0.01" placeholder="0.00"
+                                   class="w-full bg-white border border-amber-100 rounded-xl p-3 font-black text-lg focus:ring-2 focus:ring-amber-400 outline-none text-center">
+                        </div>
                     </div>
                 </div>
 
-                <div>
+                <div x-show="!chargeAlt">
                     <label class="block text-[10px] font-black text-gray-400 uppercase mb-2 tracking-widest">المبلغ المضاف ({{ $entry->currency }})</label>
-                    <input type="number" name="amount" step="0.01" required
+                    <input type="number" name="amount" step="0.01"
                            class="w-full bg-gray-50 border-0 rounded-2xl p-4 font-black text-2xl focus:ring-2 focus:ring-amber-500 outline-none text-center"
                            placeholder="0.00">
+                </div>
+                <div x-show="chargeAlt" x-cloak>
+                    <input type="hidden" name="amount" value="0">
+                    <div class="bg-amber-50 border border-amber-200 rounded-2xl p-3 text-center">
+                        <p class="text-xs font-black text-amber-700">يتم حساب المبلغ المعادل تلقائياً</p>
+                    </div>
                 </div>
 
                 <div>
                     <label class="block text-[10px] font-black text-gray-400 uppercase mb-2 tracking-widest">سبب الإضافة (اختياري)</label>
                     <input type="text" name="notes"
                            class="w-full bg-gray-50 border-0 rounded-2xl p-4 font-bold text-sm focus:ring-2 focus:ring-amber-500 outline-none"
-                           placeholder="@if($entry->type === 'receivable')مثلاً: أقرضته مزيداً لشراء سيارة...@elseif($entry->type === 'payable')مثلاً: اقترضت للإيجار...@else مثلاً: فائدة إضافية، قسط مؤجل...@endif">
+                           placeholder="@if($entry->type === 'receivable')مثلاً: أقرضته مزيداً...@else مثلاً: فائدة إضافية...@endif">
                 </div>
 
                 <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-white py-4 rounded-2xl font-black text-base shadow-lg shadow-amber-500/20 transition-all">

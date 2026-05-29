@@ -102,18 +102,39 @@ class LedgerController extends Controller
         $entry = LedgerEntry::where('user_id', auth()->id())->findOrFail($id);
 
         $request->validate([
-            'amount'       => 'required|numeric|min:0.01',
-            'payment_date' => 'required|date',
-            'notes'        => 'nullable|string',
+            'amount'            => 'required|numeric|min:0.01',
+            'payment_date'      => 'required|date',
+            'notes'             => 'nullable|string',
+            'pay_in_alt'        => 'nullable|boolean',
+            'original_amount'   => 'nullable|numeric|min:0.01',
+            'original_currency' => 'nullable|string|size:3',
+            'exchange_rate'     => 'nullable|numeric|min:0.0001',
         ]);
 
+        // حساب المبلغ بعملة القيد
+        $amount           = (float) $request->amount;
+        $originalAmount   = null;
+        $originalCurrency = null;
+        $exchangeRate     = null;
+
+        if ($request->boolean('pay_in_alt') && $request->filled('original_amount') && $request->filled('exchange_rate')) {
+            $originalAmount   = (float) $request->original_amount;
+            $originalCurrency = $request->original_currency;
+            $exchangeRate     = (float) $request->exchange_rate;
+            // المبلغ المحوّل = المبلغ الأصلي ÷ سعر الصرف
+            $amount = round($originalAmount / $exchangeRate, 2);
+        }
+
         LedgerPayment::create([
-            'ledger_entry_id' => $entry->id,
-            'user_id'         => auth()->id(),
-            'amount'          => $request->amount,
-            'currency'        => $entry->currency,
-            'payment_date'    => $request->payment_date,
-            'notes'           => $request->notes,
+            'ledger_entry_id'   => $entry->id,
+            'user_id'           => auth()->id(),
+            'amount'            => $amount,
+            'currency'          => $entry->currency,
+            'original_amount'   => $originalAmount,
+            'original_currency' => $originalCurrency,
+            'exchange_rate'     => $exchangeRate,
+            'payment_date'      => $request->payment_date,
+            'notes'             => $request->notes,
         ]);
 
         // تحديث المبلغ المدفوع
@@ -129,14 +150,28 @@ class LedgerController extends Controller
         $entry = LedgerEntry::where('user_id', auth()->id())->findOrFail($id);
 
         $request->validate([
-            'amount' => 'required|numeric|min:0.01',
-            'notes'  => 'nullable|string',
+            'amount'            => 'required|numeric|min:0.01',
+            'notes'             => 'nullable|string',
+            'pay_in_alt'        => 'nullable|boolean',
+            'original_amount'   => 'nullable|numeric|min:0.01',
+            'original_currency' => 'nullable|string|size:3',
+            'exchange_rate'     => 'nullable|numeric|min:0.0001',
         ]);
 
-        $entry->total_amount += $request->amount;
+        $amount = (float) $request->amount;
+        $noteExtra = '';
 
-        // سجّل ملاحظة في آخر الملاحظات
-        $note = now()->format('d/m/Y') . ': أضيف ' . number_format($request->amount, 2) . ' ' . $entry->currency;
+        if ($request->boolean('pay_in_alt') && $request->filled('original_amount') && $request->filled('exchange_rate')) {
+            $origAmt  = (float) $request->original_amount;
+            $origCur  = $request->original_currency;
+            $rate     = (float) $request->exchange_rate;
+            $amount   = round($origAmt / $rate, 2);
+            $noteExtra = " ({$origAmt} {$origCur} بسعر {$rate})";
+        }
+
+        $entry->total_amount += $amount;
+
+        $note = now()->format('d/m/Y') . ': أضيف ' . number_format($amount, 2) . ' ' . $entry->currency . $noteExtra;
         if ($request->notes) $note .= ' — ' . $request->notes;
         $entry->notes = $entry->notes ? $entry->notes . "\n" . $note : $note;
 
