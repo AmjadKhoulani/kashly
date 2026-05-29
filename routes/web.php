@@ -35,7 +35,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/partners', [PartnerController::class, 'index'])->name('partners.index');
     Route::delete('/partners/{partner}', [PartnerController::class, 'destroy'])->name('partners.destroy');
     Route::post('/partners/{partner}/link', [PartnerController::class, 'linkAccount'])->name('partners.link');
-    Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions.index');
+    Route::redirect('/transactions', '/dashboard')->name('transactions.index');
     Route::post('/transactions', [TransactionController::class, 'store'])->name('transactions.store');
     Route::post('/transactions/transfer', [TransactionController::class, 'transfer'])->name('transactions.transfer');
     Route::put('/transactions/{transaction}', [TransactionController::class, 'update'])->name('transactions.update');

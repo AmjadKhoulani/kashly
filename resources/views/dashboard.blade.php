@@ -261,11 +261,6 @@
                                     <h4 class="text-base font-black text-slate-950 tracking-tight">آخر العمليات المضافة</h4>
                                     <p class="text-[10px] text-slate-400 font-semibold mt-0.5">سجل الحركات المالية المباشرة</p>
                                 </div>
-                                <a href="{{ route('transactions.index') }}" class="w-8 h-8 bg-slate-50 hover:bg-slate-100 rounded-xl flex items-center justify-center text-slate-600 border border-slate-100 transition-all shadow-sm">
-                                    <svg class="w-3.5 h-3.5 transform rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
-                                    </svg>
-                                </a>
                             </div>
                             <div class="space-y-4">
                                 @forelse($recentTransactions as $transaction)

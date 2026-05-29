@@ -29,6 +29,7 @@ class _DebtsScreenState extends State<DebtsScreen> {
   }
 
   void loadLedger() async {
+    setState(() => isLoading = true);
     final result = await apiService.getLedger();
     setState(() {
       if (result != null) {
@@ -49,8 +50,8 @@ class _DebtsScreenState extends State<DebtsScreen> {
   }
 
   // ── Open detail screen per person ──
-  void _openEntry(Map entry) async {
-    final refreshed = await Get.to(() => DebtDetailScreen(entry: entry), transition: Transition.rightToLeft);
+  void _openPerson(String partyName) async {
+    final refreshed = await Get.to(() => DebtDetailScreen(partyName: partyName), transition: Transition.rightToLeft);
     if (refreshed == true) loadLedger();
   }
 
@@ -71,11 +72,69 @@ class _DebtsScreenState extends State<DebtsScreen> {
   Widget build(BuildContext context) {
     final fmt = NumberFormat('#,##0.00');
 
-    // Group entries by status
-    final overdue = entries.where((e) => e['status'] == 'overdue').toList();
-    final active = entries.where((e) => e['status'] == 'active').toList();
-    final partial = entries.where((e) => e['status'] == 'partial').toList();
-    final settled = entries.where((e) => e['status'] == 'settled').toList();
+    // Group entries by party_name (People)
+    final Map<String, List<Map<String, dynamic>>> peopleMap = {};
+    for (var e in entries) {
+      final name = e['party_name'] ?? 'بدون اسم';
+      if (!peopleMap.containsKey(name)) {
+        peopleMap[name] = [];
+      }
+      peopleMap[name]!.add(Map<String, dynamic>.from(e));
+    }
+
+    final List<Map<String, dynamic>> peopleList = [];
+    peopleMap.forEach((name, personEntries) {
+      double rec = 0;
+      double pay = 0;
+      double paid = 0;
+      double total = 0;
+      String phone = '';
+      String status = 'settled';
+
+      for (var e in personEntries) {
+        final rem = double.tryParse(e['remaining_amount']?.toString() ?? '0') ?? 0;
+        final t = double.tryParse(e['total_amount']?.toString() ?? '0') ?? 0;
+        final p = double.tryParse(e['paid_amount']?.toString() ?? '0') ?? 0;
+        
+        total += t;
+        paid += p;
+        
+        if (e['type'] == 'receivable' || e['type'] == 'installment' || e['type'] == 'loan') {
+          rec += rem;
+        } else {
+          pay += rem;
+        }
+
+        if (phone.isEmpty && (e['party_phone'] ?? '').toString().isNotEmpty) {
+          phone = e['party_phone'].toString();
+        }
+
+        if (e['status'] == 'overdue') {
+          status = 'overdue';
+        } else if (e['status'] == 'partial' && status != 'overdue') {
+          status = 'partial';
+        } else if (e['status'] == 'active' && status != 'overdue' && status != 'partial') {
+          status = 'active';
+        }
+      }
+
+      peopleList.add({
+        'party_name': name,
+        'party_phone': phone,
+        'entries': personEntries,
+        'receivables': rec,
+        'payables': pay,
+        'net_balance': rec - pay,
+        'total_amount': total,
+        'paid_amount': paid,
+        'status': status,
+      });
+    });
+
+    final overduePeople = peopleList.where((p) => p['status'] == 'overdue').toList();
+    final activePeople = peopleList.where((p) => p['status'] == 'active').toList();
+    final partialPeople = peopleList.where((p) => p['status'] == 'partial').toList();
+    final settledPeople = peopleList.where((p) => p['status'] == 'settled').toList();
 
     return Scaffold(
       backgroundColor: Color(0xFFF8FAFC),
@@ -101,7 +160,7 @@ class _DebtsScreenState extends State<DebtsScreen> {
                                 fontWeight: FontWeight.w900,
                                 color: Color(0xFF0F172A),
                                 fontSize: 18)),
-                        Text('تتبع ديونك ومدائنك وأقساطك',
+                        Text('تتبع ديونك ومدائنك وأقساطك حسب الأشخاص',
                             style: GoogleFonts.almarai(
                                 color: Color(0xFF94A3B8), fontSize: 10, fontWeight: FontWeight.w700)),
                       ],
@@ -145,14 +204,14 @@ class _DebtsScreenState extends State<DebtsScreen> {
                         _buildNetCard(fmt),
                         SizedBox(height: 24),
 
-                        // ── Entries ──
-                        if (entries.isEmpty)
+                        // ── Entries (People) ──
+                        if (peopleList.isEmpty)
                           _buildEmptyState()
                         else ...[
-                          _sectionGroup('متأخرة ⚠️', overdue, Color(0xFFFEE2E2), Color(0xFFDC2626), fmt),
-                          _sectionGroup('نشطة', active, Color(0xFFF8FAFC), Color(0xFF4F46E5), fmt),
-                          _sectionGroup('مدفوعة جزئياً', partial, Color(0xFFFFFBEB), Color(0xFFD97706), fmt),
-                          _sectionGroup('مسدّدة ✅', settled, Color(0xFFF1F5F9), Color(0xFF64748B), fmt),
+                          _sectionGroup('متأخرة ⚠️', overduePeople, Color(0xFFFEE2E2), Color(0xFFDC2626), fmt),
+                          _sectionGroup('نشطة', activePeople, Color(0xFFF8FAFC), Color(0xFF4F46E5), fmt),
+                          _sectionGroup('مدفوعة جزئياً', partialPeople, Color(0xFFFFFBEB), Color(0xFFD97706), fmt),
+                          _sectionGroup('مسدّدة بالكامل ✅', settledPeople, Color(0xFFF1F5F9), Color(0xFF64748B), fmt),
                         ],
                         SizedBox(height: 100),
                       ]),
@@ -165,7 +224,7 @@ class _DebtsScreenState extends State<DebtsScreen> {
         onPressed: _showAddDebtSheet,
         backgroundColor: Color(0xFF4F46E5),
         icon: Icon(Icons.add_rounded, color: Colors.white),
-        label: Text('إضافة قيد',
+        label: Text('إضافة ذمة جديدة',
             style: GoogleFonts.almarai(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 13)),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         elevation: 6,
@@ -225,7 +284,7 @@ class _DebtsScreenState extends State<DebtsScreen> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('صافي الرصيد المستحق',
+              Text('صافي رصيد جميع الحسابات',
                   style: GoogleFonts.almarai(
                       color: Colors.white.withOpacity(0.55), fontSize: 10, fontWeight: FontWeight.bold)),
               SizedBox(height: 6),
@@ -264,35 +323,25 @@ class _DebtsScreenState extends State<DebtsScreen> {
               style: GoogleFonts.almarai(fontSize: 10, color: Color(0xFF94A3B8), fontWeight: FontWeight.bold)),
         ]),
         SizedBox(height: 10),
-        ...items.map((e) => _entryCard(e, fmt)).toList(),
+        ...items.map((p) => _personCard(p, fmt)).toList(),
         SizedBox(height: 20),
       ],
     );
   }
 
-  Widget _entryCard(Map e, NumberFormat fmt) {
-    final remaining = double.tryParse(e['remaining_amount']?.toString() ?? '0') ?? 0;
-    final total = double.tryParse(e['total_amount']?.toString() ?? '0') ?? 0;
-    final paid = double.tryParse(e['paid_amount']?.toString() ?? '0') ?? 0;
+  Widget _personCard(Map person, NumberFormat fmt) {
+    final net = person['net_balance'] as double;
+    final total = person['total_amount'] as double;
+    final paid = person['paid_amount'] as double;
     final progress = total > 0 ? (paid / total).clamp(0.0, 1.0) : 0.0;
-    final currency = e['currency'] ?? 'USD';
-    final isSettled = e['status'] == 'settled';
+    final isSettled = person['status'] == 'settled';
+    final entriesCount = (person['entries'] as List).length;
 
-    Color typeColor, typeBg;
-    String typeEmoji;
-    switch (e['type']) {
-      case 'receivable':
-        typeColor = Color(0xFF059669); typeBg = Color(0xFFECFDF5); typeEmoji = '💸'; break;
-      case 'payable':
-        typeColor = Color(0xFFDC2626); typeBg = Color(0xFFFEF2F2); typeEmoji = '🏦'; break;
-      case 'installment':
-        typeColor = Color(0xFFD97706); typeBg = Color(0xFFFFFBEB); typeEmoji = '🛒'; break;
-      default:
-        typeColor = Color(0xFF7C3AED); typeBg = Color(0xFFF5F3FF); typeEmoji = '📋';
-    }
+    Color balanceColor = net > 0 ? Color(0xFF059669) : net < 0 ? Color(0xFFDC2626) : Color(0xFF64748B);
+    String balanceText = net > 0 ? 'لي عنده: \$${fmt.format(net)}' : net < 0 ? 'عليّ له: \$${fmt.format(net.abs())}' : 'مسدد بالكامل';
 
     return GestureDetector(
-      onTap: () => _openEntry(Map<String, dynamic>.from(e)),
+      onTap: () => _openPerson(person['party_name']),
       child: Container(
         margin: EdgeInsets.only(bottom: 12),
         padding: EdgeInsets.all(16),
@@ -306,35 +355,32 @@ class _DebtsScreenState extends State<DebtsScreen> {
           children: [
             Row(
               children: [
-                // Emoji avatar
+                // User avatar
                 Container(
                   width: 44, height: 44,
-                  decoration: BoxDecoration(color: typeBg, borderRadius: BorderRadius.circular(14)),
-                  child: Center(child: Text(typeEmoji, style: TextStyle(fontSize: 20))),
+                  decoration: BoxDecoration(color: Color(0xFFEEF2FF), borderRadius: BorderRadius.circular(14)),
+                  child: Center(child: Text('👤', style: TextStyle(fontSize: 20))),
                 ),
                 SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(e['party_name'] ?? 'بدون اسم',
+                      Text(person['party_name'],
                           style: GoogleFonts.almarai(fontSize: 14, fontWeight: FontWeight.w900, color: Color(0xFF0F172A))),
-                      if ((e['description'] ?? '').toString().isNotEmpty)
-                        Text(e['description'].toString(),
-                            style: GoogleFonts.almarai(fontSize: 10, color: Color(0xFF94A3B8), fontWeight: FontWeight.bold),
-                            maxLines: 1, overflow: TextOverflow.ellipsis),
+                      Text('$entriesCount ذمم مسجلة',
+                          style: GoogleFonts.almarai(fontSize: 10, color: Color(0xFF94A3B8), fontWeight: FontWeight.bold)),
                     ],
                   ),
                 ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text('${fmt.format(remaining)} $currency',
+                    Text(balanceText,
                         style: GoogleFonts.almarai(
-                            fontSize: 14, fontWeight: FontWeight.w900,
-                            color: isSettled ? Color(0xFF94A3B8) : typeColor,
-                            decoration: isSettled ? TextDecoration.lineThrough : null)),
-                    _statusPill(e),
+                            fontSize: 13, fontWeight: FontWeight.w900,
+                            color: isSettled ? Color(0xFF94A3B8) : balanceColor)),
+                    _statusPill(person),
                   ],
                 ),
               ],
@@ -346,7 +392,7 @@ class _DebtsScreenState extends State<DebtsScreen> {
               child: LinearProgressIndicator(
                 value: progress,
                 backgroundColor: Color(0xFFF1F5F9),
-                color: typeColor,
+                color: Color(0xFF4F46E5),
                 minHeight: 5,
               ),
             ),
@@ -354,11 +400,11 @@ class _DebtsScreenState extends State<DebtsScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('تم: ${fmt.format(paid)} $currency',
+                Text('تم تحصيل وسداد: ${fmt.format(paid)} USD',
                     style: GoogleFonts.almarai(fontSize: 9, color: Color(0xFF94A3B8), fontWeight: FontWeight.bold)),
                 Row(children: [
                   Text('${(progress * 100).toStringAsFixed(0)}%',
-                      style: GoogleFonts.almarai(fontSize: 9, color: typeColor, fontWeight: FontWeight.w900)),
+                      style: GoogleFonts.almarai(fontSize: 9, color: Color(0xFF4F46E5), fontWeight: FontWeight.w900)),
                   SizedBox(width: 6),
                   Icon(Icons.arrow_forward_ios_rounded, size: 9, color: Color(0xFFCBD5E1)),
                 ]),
@@ -370,15 +416,17 @@ class _DebtsScreenState extends State<DebtsScreen> {
     );
   }
 
-  Widget _statusPill(Map e) {
-    if (e['status'] == 'settled') {
-      return _pill('مسدّد ✓', Color(0xFFF1F5F9), Color(0xFF64748B));
+  Widget _statusPill(Map person) {
+    if (person['status'] == 'settled') {
+      return _pill('خالص ✓', Color(0xFFF1F5F9), Color(0xFF64748B));
     }
-    final days = e['days_left'];
-    if (days == null) return SizedBox.shrink();
-    if (days < 0) return _pill('متأخر ${days.abs()}ي', Color(0xFFFEE2E2), Color(0xFFDC2626));
-    if (days == 0) return _pill('اليوم ⚠️', Color(0xFFFEF3C7), Color(0xFFD97706));
-    return _pill('$days يوم', Color(0xFFF1F5F9), Color(0xFF64748B));
+    if (person['status'] == 'overdue') {
+      return _pill('متأخر ⚠️', Color(0xFFFEE2E2), Color(0xFFDC2626));
+    }
+    if (person['status'] == 'partial') {
+      return _pill('نشط جزئياً', Color(0xFFFFFBEB), Color(0xFFD97706));
+    }
+    return _pill('نشط', Color(0xFFEEF2FF), Color(0xFF4F46E5));
   }
 
   Widget _pill(String text, Color bg, Color color) {
@@ -424,8 +472,8 @@ class _DebtsScreenState extends State<DebtsScreen> {
 //  DEBT DETAIL SCREEN (per-person page)
 // ════════════════════════════════════════════════════════════
 class DebtDetailScreen extends StatefulWidget {
-  final Map entry;
-  DebtDetailScreen({required this.entry});
+  final String partyName;
+  DebtDetailScreen({required this.partyName});
 
   @override
   _DebtDetailScreenState createState() => _DebtDetailScreenState();
@@ -433,73 +481,159 @@ class DebtDetailScreen extends StatefulWidget {
 
 class _DebtDetailScreenState extends State<DebtDetailScreen> {
   final apiService = ApiService();
-  late Map entry;
-  bool isLoading = false;
+  bool isLoading = true;
   bool _needsRefresh = false;
+
+  List entries = [];
+  double totalReceivables = 0;
+  double totalPayables = 0;
+  double netBalance = 0;
+  double totalAmount = 0;
+  double paidAmount = 0;
+  String partyPhone = '';
+  String personStatus = 'settled';
+  List allPayments = [];
 
   @override
   void initState() {
     super.initState();
-    entry = Map<String, dynamic>.from(widget.entry);
+    reloadLedger();
   }
 
-  Color get typeColor {
-    switch (entry['type']) {
-      case 'receivable': return Color(0xFF059669);
-      case 'payable': return Color(0xFFDC2626);
-      case 'installment': return Color(0xFFD97706);
-      default: return Color(0xFF7C3AED);
+  void reloadLedger() async {
+    setState(() => isLoading = true);
+    final result = await apiService.getLedger();
+    if (result != null) {
+      final allRaw = result['entries'] ?? [];
+      final personEntries = allRaw.where((e) => e['party_name'] == widget.partyName).toList();
+      
+      double rec = 0;
+      double pay = 0;
+      double paid = 0;
+      double tot = 0;
+      String phone = '';
+      String status = 'settled';
+
+      // To fetch payments, we get full details for each entry in parallel
+      final List<Map<String, dynamic>> enrichedEntries = [];
+      final List paymentsList = [];
+
+      try {
+        final futures = personEntries.map((e) => apiService.getLedgerDetail(e['id'] as int)).toList();
+        final details = await Future.wait(futures);
+
+        for (var res in details) {
+          if (res != null && res['entry'] != null) {
+            final Map<String, dynamic> entryMap = Map<String, dynamic>.from(res['entry']);
+            enrichedEntries.add(entryMap);
+            
+            final payList = res['payments'] as List? ?? [];
+            for (var p in payList) {
+              paymentsList.add({
+                ...Map<String, dynamic>.from(p),
+                'ledger_title': entryMap['description']?.toString().isNotEmpty == true
+                    ? entryMap['description']
+                    : entryMap['type_label'],
+              });
+            }
+          }
+        }
+      } catch (e) {
+        // Fallback if details fetch fails
+        for (var e in personEntries) {
+          enrichedEntries.add(Map<String, dynamic>.from(e));
+        }
+      }
+
+      for (var e in enrichedEntries) {
+        final rem = double.tryParse(e['remaining_amount']?.toString() ?? '0') ?? 0;
+        final t = double.tryParse(e['total_amount']?.toString() ?? '0') ?? 0;
+        final p = double.tryParse(e['paid_amount']?.toString() ?? '0') ?? 0;
+        
+        tot += t;
+        paid += p;
+        
+        if (e['type'] == 'receivable' || e['type'] == 'installment' || e['type'] == 'loan') {
+          rec += rem;
+        } else {
+          pay += rem;
+        }
+
+        if (phone.isEmpty && (e['party_phone'] ?? '').toString().isNotEmpty) {
+          phone = e['party_phone'].toString();
+        }
+
+        if (e['status'] == 'overdue') {
+          status = 'overdue';
+        } else if (e['status'] == 'partial' && status != 'overdue') {
+          status = 'partial';
+        } else if (e['status'] == 'active' && status != 'overdue' && status != 'partial') {
+          status = 'active';
+        }
+      }
+
+      // Sort payments by date descending
+      paymentsList.sort((a, b) {
+        final da = a['payment_date']?.toString() ?? '';
+        final db = b['payment_date']?.toString() ?? '';
+        return db.compareTo(da);
+      });
+
+      setState(() {
+        entries = enrichedEntries;
+        receivables = rec;
+        payables = pay;
+        netBalance = rec - pay;
+        totalAmount = tot;
+        paidAmount = paid;
+        partyPhone = phone;
+        personStatus = status;
+        allPayments = paymentsList;
+      });
     }
+    setState(() => isLoading = false);
   }
 
-  Color get typeBg {
-    switch (entry['type']) {
-      case 'receivable': return Color(0xFFECFDF5);
-      case 'payable': return Color(0xFFFEF2F2);
-      case 'installment': return Color(0xFFFFFBEB);
-      default: return Color(0xFFF5F3FF);
-    }
+  void _showAddDebtSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => AddDebtSheet(
+        prefilledPartyName: widget.partyName,
+        onSaved: () {
+          Navigator.pop(context);
+          reloadLedger();
+          setState(() => _needsRefresh = true);
+        },
+      ),
+    );
   }
 
-  String get typeEmoji {
-    switch (entry['type']) {
-      case 'receivable': return '💸';
-      case 'payable': return '🏦';
-      case 'installment': return '🛒';
-      default: return '📋';
-    }
-  }
-
-  void _showPaymentSheet() {
+  void _showPaymentSheet(Map entry) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) => AddPaymentSheet(
         entry: entry,
-        onSaved: () async {
+        onSaved: () {
           Navigator.pop(context);
-          setState(() => isLoading = true);
-          final result = await apiService.getLedger();
-          if (result != null) {
-            final updated = (result['entries'] as List?)
-                ?.firstWhere((e) => e['id'] == entry['id'], orElse: () => null);
-            if (updated != null) setState(() { entry = Map<String, dynamic>.from(updated); });
-          }
-          setState(() { isLoading = false; _needsRefresh = true; });
+          reloadLedger();
+          setState(() => _needsRefresh = true);
         },
       ),
     );
   }
 
-  void _deleteEntry() async {
+  void _deleteEntry(Map entry) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: Text('حذف القيد', textAlign: TextAlign.center,
+        title: Text('حذف الذمة', textAlign: TextAlign.center,
             style: GoogleFonts.almarai(fontWeight: FontWeight.w900)),
-        content: Text('هل أنت متأكد من حذف قيد "${entry['party_name']}" نهائياً؟',
+        content: Text('هل أنت متأكد من حذف هذه الذمة بقيمة "${entry['total_amount']}" نهائياً؟',
             textAlign: TextAlign.center,
             style: GoogleFonts.almarai(fontSize: 13, height: 1.6, color: Color(0xFF64748B))),
         actions: [
@@ -512,11 +646,15 @@ class _DebtDetailScreenState extends State<DebtDetailScreen> {
       ),
     );
     if (confirmed == true) {
+      setState(() => isLoading = true);
       final ok = await apiService.deleteLedger(entry['id']);
       if (ok) {
-        Get.back(result: true);
-        Get.snackbar('تم الحذف', 'تم حذف القيد بنجاح',
+        reloadLedger();
+        setState(() => _needsRefresh = true);
+        Get.snackbar('تم الحذف', 'تم حذف الذمة بنجاح',
             backgroundColor: Colors.red.shade50, colorText: Colors.red.shade800);
+      } else {
+        setState(() => isLoading = false);
       }
     }
   }
@@ -524,20 +662,21 @@ class _DebtDetailScreenState extends State<DebtDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final fmt = NumberFormat('#,##0.00');
-    final total = double.tryParse(entry['total_amount']?.toString() ?? '0') ?? 0;
-    final paid = double.tryParse(entry['paid_amount']?.toString() ?? '0') ?? 0;
-    final remaining = double.tryParse(entry['remaining_amount']?.toString() ?? '0') ?? 0;
-    final progress = total > 0 ? (paid / total).clamp(0.0, 1.0) : 0.0;
-    final currency = entry['currency'] ?? 'USD';
-    final isSettled = entry['status'] == 'settled';
-    final payments = entry['payments'] as List? ?? [];
+    final progress = totalAmount > 0 ? (paidAmount / totalAmount).clamp(0.0, 1.0) : 0.0;
+    final isSettled = personStatus == 'settled';
 
-    return WillPopScope(
-      onWillPop: () async { Get.back(result: _needsRefresh); return false; },
+    Color themeColor = netBalance > 0 ? Color(0xFF059669) : netBalance < 0 ? Color(0xFFDC2626) : Color(0xFF4F46E5);
+
+    return PopScope(
+      canPop: true,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        Get.back(result: _needsRefresh);
+      },
       child: Scaffold(
         backgroundColor: Color(0xFFF8FAFC),
         body: isLoading
-            ? Center(child: CircularProgressIndicator(color: typeColor))
+            ? Center(child: CircularProgressIndicator(color: themeColor))
             : CustomScrollView(
                 physics: BouncingScrollPhysics(),
                 slivers: [
@@ -550,11 +689,20 @@ class _DebtDetailScreenState extends State<DebtDetailScreen> {
                       icon: Icon(Icons.arrow_back_ios_rounded, color: Colors.white, size: 20),
                       onPressed: () => Get.back(result: _needsRefresh),
                     ),
+                    actions: [
+                      TextButton.icon(
+                        onPressed: _showAddDebtSheet,
+                        icon: Icon(Icons.add_circle_outline_rounded, color: Colors.white, size: 18),
+                        label: Text('إضافة ذمة',
+                            style: GoogleFonts.almarai(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 12)),
+                      ),
+                      SizedBox(width: 8),
+                    ],
                     flexibleSpace: FlexibleSpaceBar(
                       background: Container(
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
-                            colors: [Color(0xFF0F172A), typeColor.withOpacity(0.85)],
+                            colors: [Color(0xFF0F172A), themeColor.withOpacity(0.85)],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
@@ -569,47 +717,30 @@ class _DebtDetailScreenState extends State<DebtDetailScreen> {
                                   Container(
                                     width: 50, height: 50,
                                     decoration: BoxDecoration(color: Colors.white.withOpacity(0.12), borderRadius: BorderRadius.circular(16)),
-                                    child: Center(child: Text(typeEmoji, style: TextStyle(fontSize: 24))),
+                                    child: Center(child: Text('👤', style: TextStyle(fontSize: 24))),
                                   ),
                                   SizedBox(width: 14),
                                   Expanded(
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Text(entry['party_name'] ?? '',
+                                        Text(widget.partyName,
                                             style: GoogleFonts.almarai(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w900)),
-                                        Text(entry['type_label'] ?? '',
-                                            style: GoogleFonts.almarai(color: Colors.white.withOpacity(0.6), fontSize: 11, fontWeight: FontWeight.bold)),
+                                        if (partyPhone.isNotEmpty)
+                                          Text(partyPhone,
+                                              style: GoogleFonts.almarai(color: Colors.white.withOpacity(0.6), fontSize: 11, fontWeight: FontWeight.bold)),
                                       ],
                                     ),
                                   ),
-                                  if (!isSettled)
-                                    Container(
-                                      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white.withOpacity(0.12),
-                                        borderRadius: BorderRadius.circular(10),
-                                        border: Border.all(color: Colors.white.withOpacity(0.2)),
-                                      ),
-                                      child: Text(
-                                        (entry['days_left'] ?? 0) < 0
-                                            ? 'متأخر ⚠️'
-                                            : '${entry['days_left']} يوم',
-                                        style: GoogleFonts.almarai(
-                                            color: (entry['days_left'] ?? 0) < 0 ? Color(0xFFFCA5A5) : Colors.white,
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.w900),
-                                      ),
-                                    ),
                                 ]),
                                 SizedBox(height: 20),
                                 Row(
                                   children: [
-                                    _heroStat('المتبقي', '${fmt.format(remaining)} $currency', Colors.white),
+                                    _heroStat('لي عنده', '${fmt.format(receivables)} USD', Color(0xFF34D399)),
                                     Container(width: 1, height: 36, color: Colors.white.withOpacity(0.15), margin: EdgeInsets.symmetric(horizontal: 16)),
-                                    _heroStat('المدفوع', '${fmt.format(paid)} $currency', Color(0xFF34D399)),
+                                    _heroStat('له عليّ', '${fmt.format(payables)} USD', Color(0xFFFCA5A5)),
                                     Container(width: 1, height: 36, color: Colors.white.withOpacity(0.15), margin: EdgeInsets.symmetric(horizontal: 16)),
-                                    _heroStat('الإجمالي', '${fmt.format(total)} $currency', Colors.white.withOpacity(0.6)),
+                                    _heroStat('الرصيد الصافي', '${netBalance >= 0 ? '+' : ''}${fmt.format(netBalance)} USD', Colors.white),
                                   ],
                                 ),
                               ],
@@ -635,110 +766,88 @@ class _DebtDetailScreenState extends State<DebtDetailScreen> {
                           child: Column(
                             children: [
                               Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                                Text('نسبة السداد',
+                                Text('نسبة التحصيل والسداد الإجمالية',
                                     style: GoogleFonts.almarai(fontSize: 11, fontWeight: FontWeight.w900, color: Color(0xFF64748B))),
                                 Text('${(progress * 100).toStringAsFixed(1)}%',
-                                    style: GoogleFonts.almarai(fontSize: 14, fontWeight: FontWeight.w900, color: typeColor)),
+                                    style: GoogleFonts.almarai(fontSize: 14, fontWeight: FontWeight.w900, color: themeColor)),
                               ]),
                               SizedBox(height: 10),
                               ClipRRect(
                                 borderRadius: BorderRadius.circular(8),
                                 child: LinearProgressIndicator(
-                                    value: progress, backgroundColor: Color(0xFFF1F5F9), color: typeColor, minHeight: 10),
+                                    value: progress, backgroundColor: Color(0xFFF1F5F9), color: themeColor, minHeight: 10),
                               ),
                               if (isSettled) ...[
                                 SizedBox(height: 10),
                                 Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                                   Icon(Icons.check_circle_rounded, color: Color(0xFF10B981), size: 16),
                                   SizedBox(width: 6),
-                                  Text('تم السداد بالكامل ✓',
+                                  Text('جميع المعاملات مسددة ✓',
                                       style: GoogleFonts.almarai(color: Color(0xFF10B981), fontWeight: FontWeight.w900, fontSize: 12)),
                                 ]),
                               ],
                             ],
                           ),
                         ),
-                        SizedBox(height: 16),
+                        SizedBox(height: 24),
 
-                        // Info Card
-                        Container(
-                          padding: EdgeInsets.all(18),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(22),
-                            border: Border.all(color: Color(0xFFE2E8F0)),
+                        // ── SECTION: الذمم (Debts list) ──
+                        Row(children: [
+                          Container(width: 3, height: 14, decoration: BoxDecoration(color: themeColor, borderRadius: BorderRadius.circular(2))),
+                          SizedBox(width: 8),
+                          Text('سجل الذمم والالتزامات',
+                              style: GoogleFonts.almarai(fontSize: 13, fontWeight: FontWeight.w900, color: Color(0xFF0F172A))),
+                          SizedBox(width: 6),
+                          Text('(${entries.length})',
+                              style: GoogleFonts.almarai(fontSize: 11, color: Color(0xFF94A3B8), fontWeight: FontWeight.bold)),
+                          Spacer(),
+                          TextButton(
+                            onPressed: _showAddDebtSheet,
+                            child: Text('+ إضافة ذمة',
+                                style: GoogleFonts.almarai(fontSize: 11, fontWeight: FontWeight.w900, color: themeColor)),
                           ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('التفاصيل',
-                                  style: GoogleFonts.almarai(fontSize: 11, fontWeight: FontWeight.w900, color: Color(0xFF64748B))),
-                              SizedBox(height: 12),
-                              if ((entry['description'] ?? '').toString().isNotEmpty)
-                                _infoRow(Icons.notes_rounded, 'الوصف', entry['description'].toString()),
-                              if ((entry['party_phone'] ?? '').toString().isNotEmpty)
-                                _infoRow(Icons.phone_outlined, 'الهاتف', entry['party_phone'].toString()),
-                              if (entry['due_date'] != null)
-                                _infoRow(Icons.calendar_month_outlined, 'الاستحقاق', entry['due_date'].toString()),
-                              if (entry['start_date'] != null)
-                                _infoRow(Icons.play_circle_outline_rounded, 'تاريخ البدء', entry['start_date'].toString()),
-                              if (entry['installment_count'] != null)
-                                _infoRow(Icons.format_list_numbered_rounded, 'عدد الأقساط', '${entry['installment_count']} قسط × ${fmt.format(double.tryParse(entry['installment_amount']?.toString() ?? '0') ?? 0)} $currency'),
-                            ],
-                          ),
-                        ),
-                        SizedBox(height: 16),
+                        ]),
+                        SizedBox(height: 10),
+                        ...entries.map((e) => _buildSpecificDebtCard(e, fmt)).toList(),
+                        SizedBox(height: 24),
 
-                        // Payment History
-                        if (payments.isNotEmpty) ...[
+                        // ── SECTION: الحركات (Payments history) ──
+                        Row(children: [
+                          Container(width: 3, height: 14, decoration: BoxDecoration(color: Color(0xFF10B981), borderRadius: BorderRadius.circular(2))),
+                          SizedBox(width: 8),
+                          Text('حركات السداد والدفعات',
+                              style: GoogleFonts.almarai(fontSize: 13, fontWeight: FontWeight.w900, color: Color(0xFF0F172A))),
+                          SizedBox(width: 6),
+                          Text('(${allPayments.length})',
+                              style: GoogleFonts.almarai(fontSize: 11, color: Color(0xFF94A3B8), fontWeight: FontWeight.bold)),
+                        ]),
+                        SizedBox(height: 12),
+                        if (allPayments.isEmpty)
                           Container(
-                            padding: EdgeInsets.all(18),
+                            padding: EdgeInsets.symmetric(vertical: 30),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(22),
+                              border: Border.all(color: Color(0xFFE2E8F0)),
+                            ),
+                            child: Center(
+                              child: Text('لا توجد حركات سداد مسجلة بعد',
+                                  style: GoogleFonts.almarai(fontSize: 11, color: Color(0xFF94A3B8), fontWeight: FontWeight.bold)),
+                            ),
+                          )
+                        else
+                          Container(
+                            padding: EdgeInsets.all(16),
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(22),
                               border: Border.all(color: Color(0xFFE2E8F0)),
                             ),
                             child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text('سجل الدفعات (${payments.length})',
-                                    style: GoogleFonts.almarai(fontSize: 11, fontWeight: FontWeight.w900, color: Color(0xFF64748B))),
-                                SizedBox(height: 12),
-                                ...payments.map((p) => _paymentRow(p, fmt, currency)).toList(),
-                              ],
+                              children: allPayments.map((p) => _paymentRow(p, fmt)).toList(),
                             ),
                           ),
-                          SizedBox(height: 16),
-                        ],
 
-                        // Action Buttons
-                        if (!isSettled)
-                          ElevatedButton.icon(
-                            onPressed: _showPaymentSheet,
-                            icon: Icon(Icons.payment_rounded, size: 18),
-                            label: Text('تسجيل دفعة سداد',
-                                style: GoogleFonts.almarai(fontWeight: FontWeight.w900, fontSize: 14)),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: typeColor,
-                              foregroundColor: Colors.white,
-                              minimumSize: Size(double.infinity, 54),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-                              elevation: 3,
-                              shadowColor: typeColor.withOpacity(0.3),
-                            ),
-                          ),
-                        SizedBox(height: 10),
-                        OutlinedButton.icon(
-                          onPressed: _deleteEntry,
-                          icon: Icon(Icons.delete_outline_rounded, size: 16, color: Colors.red),
-                          label: Text('حذف هذا القيد',
-                              style: GoogleFonts.almarai(color: Colors.red, fontWeight: FontWeight.w900, fontSize: 13)),
-                          style: OutlinedButton.styleFrom(
-                            minimumSize: Size(double.infinity, 46),
-                            side: BorderSide(color: Colors.red.shade200),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                          ),
-                        ),
                         SizedBox(height: 40),
                       ]),
                     ),
@@ -762,47 +871,186 @@ class _DebtDetailScreenState extends State<DebtDetailScreen> {
     );
   }
 
-  Widget _infoRow(IconData icon, String label, String value) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: 10),
-      child: Row(
+  Widget _buildSpecificDebtCard(Map e, NumberFormat fmt) {
+    final remaining = double.tryParse(e['remaining_amount']?.toString() ?? '0') ?? 0;
+    final total = double.tryParse(e['total_amount']?.toString() ?? '0') ?? 0;
+    final paid = double.tryParse(e['paid_amount']?.toString() ?? '0') ?? 0;
+    final progress = total > 0 ? (paid / total).clamp(0.0, 1.0) : 0.0;
+    final currency = e['currency'] ?? 'USD';
+    final isS = e['status'] == 'settled';
+
+    Color typeColor, typeBg;
+    String typeEmoji;
+    switch (e['type']) {
+      case 'receivable':
+        typeColor = Color(0xFF059669); typeBg = Color(0xFFECFDF5); typeEmoji = '💸'; break;
+      case 'payable':
+        typeColor = Color(0xFFDC2626); typeBg = Color(0xFFFEF2F2); typeEmoji = '🏦'; break;
+      case 'installment':
+        typeColor = Color(0xFFD97706); typeBg = Color(0xFFFFFBEB); typeEmoji = '🛒'; break;
+      default:
+        typeColor = Color(0xFF7C3AED); typeBg = Color(0xFFF5F3FF); typeEmoji = '📋';
+    }
+
+    return Container(
+      margin: EdgeInsets.only(bottom: 12),
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: Color(0xFFE2E8F0)),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.01), blurRadius: 6, offset: Offset(0, 2))],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 16, color: Color(0xFF94A3B8)),
-          SizedBox(width: 10),
-          Text('$label: ', style: GoogleFonts.almarai(fontSize: 11, color: Color(0xFF94A3B8), fontWeight: FontWeight.bold)),
-          Expanded(child: Text(value, style: GoogleFonts.almarai(fontSize: 12, color: Color(0xFF0F172A), fontWeight: FontWeight.w800))),
+          Row(
+            children: [
+              Container(
+                width: 38, height: 38,
+                decoration: BoxDecoration(color: typeBg, borderRadius: BorderRadius.circular(12)),
+                child: Center(child: Text(typeEmoji, style: TextStyle(fontSize: 16))),
+              ),
+              SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      e['description']?.toString().isNotEmpty == true
+                          ? e['description'].toString()
+                          : e['type_label'] ?? '',
+                      style: GoogleFonts.almarai(fontSize: 13, fontWeight: FontWeight.w900, color: Color(0xFF0F172A)),
+                      maxLines: 1, overflow: TextOverflow.ellipsis,
+                    ),
+                    Row(
+                      children: [
+                        Text('البدء: ${e['start_date'] ?? '—'}',
+                            style: GoogleFonts.almarai(fontSize: 9, color: Color(0xFF94A3B8), fontWeight: FontWeight.bold)),
+                        if (e['due_date'] != null) ...[
+                          SizedBox(width: 8),
+                          Text('الاستحقاق: ${e['due_date']}',
+                              style: GoogleFonts.almarai(fontSize: 9, color: Color(0xFF94A3B8), fontWeight: FontWeight.bold)),
+                        ],
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text('${fmt.format(remaining)} $currency',
+                      style: GoogleFonts.almarai(
+                          fontSize: 13, fontWeight: FontWeight.w900,
+                          color: isS ? Color(0xFF94A3B8) : typeColor,
+                          decoration: isS ? TextDecoration.lineThrough : null)),
+                  _specificStatusPill(e),
+                ],
+              ),
+            ],
+          ),
+          SizedBox(height: 12),
+          // Progress bar
+          ClipRRect(
+            borderRadius: BorderRadius.circular(6),
+            child: LinearProgressIndicator(
+              value: progress,
+              backgroundColor: Color(0xFFF1F5F9),
+              color: typeColor,
+              minHeight: 4,
+            ),
+          ),
+          SizedBox(height: 8),
+          Row(
+            children: [
+              Text('المجموع: ${fmt.format(total)} $currency • مسدد: ${fmt.format(paid)}',
+                  style: GoogleFonts.almarai(fontSize: 9, color: Color(0xFF94A3B8), fontWeight: FontWeight.bold)),
+              Spacer(),
+              if (!isS)
+                TextButton.icon(
+                  onPressed: () => _showPaymentSheet(e),
+                  style: TextButton.styleFrom(
+                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  icon: Icon(Icons.payment_rounded, size: 10, color: typeColor),
+                  label: Text('سداد دفعة',
+                      style: GoogleFonts.almarai(fontSize: 9, fontWeight: FontWeight.w900, color: typeColor)),
+                ),
+              IconButton(
+                onPressed: () => _deleteEntry(e),
+                icon: Icon(Icons.delete_outline_rounded, size: 14, color: Colors.red.shade400),
+                constraints: BoxConstraints(),
+                padding: EdgeInsets.symmetric(horizontal: 6),
+              ),
+            ],
+          ),
         ],
       ),
     );
   }
 
-  Widget _paymentRow(Map p, NumberFormat fmt, String currency) {
-    final amt = double.tryParse(p['amount']?.toString() ?? '0') ?? 0;
+  Widget _specificStatusPill(Map e) {
+    if (e['status'] == 'settled') {
+      return _pill('خالص ✓', Color(0xFFF1F5F9), Color(0xFF64748B));
+    }
+    final days = e['days_left'];
+    if (days == null) return SizedBox.shrink();
+    if (days < 0) return _pill('متأخر ${days.abs()}ي ⚠️', Color(0xFFFEE2E2), Color(0xFFDC2626));
+    if (days == 0) return _pill('اليوم ⚠️', Color(0xFFFEF3C7), Color(0xFFD97706));
+    return _pill('$days يوم متبقي', Color(0xFFF1F5F9), Color(0xFF64748B));
+  }
+
+  Widget _pill(String text, Color bg, Color color) {
     return Container(
-      margin: EdgeInsets.only(bottom: 8),
-      padding: EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-      decoration: BoxDecoration(color: Color(0xFFF8FAFC), borderRadius: BorderRadius.circular(14)),
+      margin: EdgeInsets.only(top: 3),
+      padding: EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+      decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(6)),
+      child: Text(text, style: GoogleFonts.almarai(fontSize: 8, fontWeight: FontWeight.w900, color: color)),
+    );
+  }
+
+  Widget _paymentRow(Map p, NumberFormat fmt) {
+    final amt = double.tryParse(p['amount']?.toString() ?? '0') ?? 0;
+    final currency = p['currency'] ?? 'USD';
+    final notes = p['notes']?.toString() ?? '';
+
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 10),
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: Color(0xFFF1F5F9), width: 1)),
+      ),
       child: Row(
         children: [
           Container(
-            width: 8, height: 8,
-            decoration: BoxDecoration(color: Color(0xFF10B981), shape: BoxShape.circle),
+            padding: EdgeInsets.all(6),
+            decoration: BoxDecoration(color: Color(0xFFECFDF5), shape: BoxShape.circle),
+            child: Icon(Icons.check_rounded, color: Color(0xFF10B981), size: 14),
           ),
-          SizedBox(width: 10),
+          SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('${fmt.format(amt)} $currency',
-                    style: GoogleFonts.almarai(fontSize: 13, fontWeight: FontWeight.w900, color: Color(0xFF10B981))),
-                if ((p['notes'] ?? '').toString().isNotEmpty)
-                  Text(p['notes'].toString(),
+                Text(p['ledger_title'] ?? 'دفعة سداد',
+                    style: GoogleFonts.almarai(fontSize: 12, fontWeight: FontWeight.w900, color: Color(0xFF0F172A))),
+                if (notes.isNotEmpty)
+                  Text(notes,
                       style: GoogleFonts.almarai(fontSize: 10, color: Color(0xFF94A3B8), fontWeight: FontWeight.bold)),
               ],
             ),
           ),
-          Text(p['payment_date']?.toString() ?? '',
-              style: GoogleFonts.almarai(fontSize: 10, color: Color(0xFF94A3B8), fontWeight: FontWeight.bold)),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text('${fmt.format(amt)} $currency',
+                  style: GoogleFonts.almarai(fontSize: 12, fontWeight: FontWeight.w900, color: Color(0xFF10B981))),
+              Text(p['payment_date'] ?? '',
+                  style: GoogleFonts.almarai(fontSize: 9, color: Color(0xFF94A3B8), fontWeight: FontWeight.bold)),
+            ],
+          ),
         ],
       ),
     );
@@ -814,7 +1062,8 @@ class _DebtDetailScreenState extends State<DebtDetailScreen> {
 // ════════════════════════════════════════════════════════════
 class AddDebtSheet extends StatefulWidget {
   final VoidCallback onSaved;
-  AddDebtSheet({required this.onSaved});
+  final String? prefilledPartyName;
+  AddDebtSheet({required this.onSaved, this.prefilledPartyName});
 
   @override
   _AddDebtSheetState createState() => _AddDebtSheetState();
@@ -822,7 +1071,7 @@ class AddDebtSheet extends StatefulWidget {
 
 class _AddDebtSheetState extends State<AddDebtSheet> {
   final apiService = ApiService();
-  final partyNameCtrl = TextEditingController();
+  late TextEditingController partyNameCtrl;
   final phoneCtrl = TextEditingController();
   final amountCtrl = TextEditingController();
   final descCtrl = TextEditingController();
@@ -844,6 +1093,12 @@ class _AddDebtSheetState extends State<AddDebtSheet> {
   ];
 
   Map get currentType => types.firstWhere((t) => t['value'] == type);
+
+  @override
+  void initState() {
+    super.initState();
+    partyNameCtrl = TextEditingController(text: widget.prefilledPartyName ?? '');
+  }
 
   Future<void> _pickDate(bool isDue) async {
     final picked = await showDatePicker(
@@ -918,7 +1173,7 @@ class _AddDebtSheetState extends State<AddDebtSheet> {
                 decoration: BoxDecoration(color: Color(0xFFE2E8F0), borderRadius: BorderRadius.circular(10)),
               ),
             ),
-            Text('إضافة قيد جديد',
+            Text('إضافة ذمة جديدة',
                 textAlign: TextAlign.center,
                 style: GoogleFonts.almarai(fontSize: 18, fontWeight: FontWeight.w900, color: Color(0xFF0F172A))),
             SizedBox(height: 20),
@@ -978,6 +1233,7 @@ class _AddDebtSheetState extends State<AddDebtSheet> {
             _field(partyNameCtrl, 'اسم الطرف الآخر *',
                 icon: Icons.person_outline_rounded,
                 hint: type == 'receivable' ? 'اسم المدين...' : type == 'payable' ? 'اسم الدائن...' : 'الجهة / الشركة...',
+                enabled: widget.prefilledPartyName == null, // lock field if prefilled
                 accent: accent),
             SizedBox(height: 12),
             Row(children: [
@@ -1049,11 +1305,16 @@ class _AddDebtSheetState extends State<AddDebtSheet> {
   }
 
   Widget _field(TextEditingController ctrl, String label,
-      {IconData? icon, String? hint, required Color accent, TextInputType keyboard = TextInputType.text}) {
+      {IconData? icon, String? hint, bool enabled = true, required Color accent, TextInputType keyboard = TextInputType.text}) {
     return TextField(
       controller: ctrl,
+      enabled: enabled,
       keyboardType: keyboard,
-      style: GoogleFonts.almarai(color: Color(0xFF0F172A), fontSize: 13, fontWeight: FontWeight.w800),
+      style: GoogleFonts.almarai(
+        color: enabled ? Color(0xFF0F172A) : Color(0xFF64748B),
+        fontSize: 13,
+        fontWeight: FontWeight.w800,
+      ),
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
@@ -1061,8 +1322,10 @@ class _AddDebtSheetState extends State<AddDebtSheet> {
         hintStyle: GoogleFonts.almarai(color: Color(0xFFCBD5E1), fontSize: 12),
         prefixIcon: icon != null ? Icon(icon, color: accent, size: 18) : null,
         filled: true,
-        fillColor: Color(0xFFF8FAFC),
+        fillColor: enabled ? Color(0xFFF8FAFC) : Color(0xFFF1F5F9),
         enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: Color(0xFFE2E8F0))),
+        disabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: Color(0xFFE2E8F0))),
         focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: accent, width: 1.5)),
