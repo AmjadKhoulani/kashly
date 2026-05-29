@@ -577,12 +577,12 @@ class _WalletDetailScreenState extends State<WalletDetailScreen> {
                   Container(
                     padding: EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: Colors.slate.shade50,
+                      color: Color(0xFFF1F5F9),
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: Icon(
                       type == 'cash' ? Icons.money_rounded : Icons.credit_card_rounded,
-                      color: Colors.slate.shade700,
+                      color: Color(0xFF475569),
                       size: 20,
                     ),
                   ),
