@@ -193,19 +193,19 @@
 
         <div x-show="search === '' || {{ json_encode($group->map(fn($t) => strtolower(($t->description ?? '') . ' ' . ($t->category ?? '') . ' ' . ($t->transactionable?->name ?? '')))->toArray()) }}.some(item => item.includes(search.toLowerCase()))">
             {{-- Date Header --}}
-            <div class="flex items-center justify-between mb-2 px-1">
+            <div class="flex items-center justify-between mb-2.5 px-3 py-2 bg-slate-50 border border-slate-100/70 rounded-xl shadow-sm">
                 <div class="flex items-center gap-2">
-                    <div class="w-1.5 h-1.5 rounded-full bg-slate-300"></div>
-                    <span class="text-[10px] font-black text-slate-500 uppercase tracking-wider">
+                    <div class="w-1.5 h-1.5 rounded-full bg-slate-400"></div>
+                    <span class="text-xs font-black text-slate-700 tracking-tight">
                         {{ $dateObj->isToday() ? 'اليوم' : ($dateObj->isYesterday() ? 'أمس' : $dateObj->translatedFormat('l، d M Y')) }}
                     </span>
                 </div>
-                <div class="flex items-center gap-3 text-[9px] font-black ltr" dir="ltr">
+                <div class="flex items-center gap-2 text-[10px] font-black">
                     @if($dayIncome > 0)
-                        <span class="text-emerald-500">+{{ number_format($dayIncome, 0) }}</span>
+                        <span class="px-2.5 py-0.5 bg-emerald-50 text-emerald-600 rounded-lg border border-emerald-100/60 ltr" dir="ltr">+{{ number_format($dayIncome, 0) }} USD</span>
                     @endif
                     @if($dayExpense > 0)
-                        <span class="text-rose-500">-{{ number_format($dayExpense, 0) }}</span>
+                        <span class="px-2.5 py-0.5 bg-rose-50 text-rose-600 rounded-lg border border-rose-100/60 ltr" dir="ltr">-{{ number_format($dayExpense, 0) }} USD</span>
                     @endif
                 </div>
             </div>
