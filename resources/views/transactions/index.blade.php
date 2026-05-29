@@ -189,10 +189,9 @@
             $dateObj   = \Carbon\Carbon::parse($date);
             $dayIncome  = $group->where('type','income')->sum('amount');
             $dayExpense = $group->where('type','expense')->sum('amount');
-            $dayNet     = $dayIncome - $dayExpense;
         @endphp
 
-        <div>
+        <div x-show="search === '' || {{ json_encode($group->map(fn($t) => strtolower(($t->description ?? '') . ' ' . ($t->category ?? '') . ' ' . ($t->transactionable?->name ?? '')))->toArray()) }}.some(item => item.includes(search.toLowerCase()))">
             {{-- Date Header --}}
             <div class="flex items-center justify-between mb-2 px-1">
                 <div class="flex items-center gap-2">
@@ -212,7 +211,7 @@
             </div>
 
             {{-- Transactions in this day --}}
-            <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden divide-y divide-slate-50">
+            <div class="bg-white rounded-2xl border border-slate-100 shadow-sm divide-y divide-slate-50">
                 @foreach($group as $tx)
                 <div class="group flex items-center gap-3 sm:gap-4 px-4 py-3.5 hover:bg-slate-50/70 transition-all"
                      x-data="{ openMenu: false }"
@@ -237,7 +236,7 @@
                                    class="inline-flex items-center justify-center w-4 h-4 bg-indigo-50 text-indigo-500 rounded text-[8px] hover:bg-indigo-500 hover:text-white transition-all flex-shrink-0" title="فاتورة">📄</a>
                             @endif
                         </div>
-                        <div class="flex items-center gap-2 mt-1 flex-wrap">
+                        <div class="flex items-center gap-1.5 mt-1.5 flex-wrap">
                             {{-- Type badge --}}
                             <span class="text-[9px] font-black px-1.5 py-0.5 rounded-md
                                 @if($tx->type === 'income') bg-emerald-50 text-emerald-600
@@ -247,17 +246,17 @@
                             </span>
 
                             @if($tx->categoryRelation && $tx->description)
-                                <span class="text-[9px] font-bold text-slate-400 hidden sm:inline">{{ $tx->categoryRelation->name }}</span>
+                                <span class="text-[9px] font-bold text-slate-400 bg-slate-50 border border-slate-100 px-1.5 py-0.5 rounded-md">{{ $tx->categoryRelation->name }}</span>
                             @endif
 
                             @if($tx->transactionable)
-                                <span class="text-[9px] font-bold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded-md truncate max-w-[100px] hidden sm:inline">
+                                <span class="text-[9px] font-bold text-slate-400 bg-slate-100/65 px-1.5 py-0.5 rounded-md truncate max-w-[100px]">
                                     {{ $tx->transactionable->name }}
                                 </span>
                             @endif
 
                             @if($tx->paymentMethod)
-                                <span class="text-[9px] font-bold text-indigo-400 bg-indigo-50 px-1.5 py-0.5 rounded-md hidden sm:inline">
+                                <span class="text-[9px] font-bold text-indigo-500 bg-indigo-50/50 border border-indigo-100/30 px-1.5 py-0.5 rounded-md">
                                     🏦 {{ $tx->paymentMethod->name }}
                                 </span>
                             @endif
@@ -283,7 +282,7 @@
                     {{-- Actions --}}
                     <div class="relative flex-shrink-0">
                         <button @click="openMenu = !openMenu"
-                            class="w-7 h-7 text-slate-300 rounded-lg flex items-center justify-center hover:bg-slate-100 hover:text-slate-600 transition-all opacity-0 group-hover:opacity-100">
+                            class="w-7 h-7 text-slate-400 rounded-lg flex items-center justify-center hover:bg-slate-100 hover:text-slate-600 transition-all opacity-100 sm:opacity-0 group-hover:opacity-100">
                             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                                 <circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/>
                             </svg>
