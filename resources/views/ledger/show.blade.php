@@ -374,12 +374,11 @@
                     <label class="block text-[10px] font-black text-gray-400 uppercase mb-2 tracking-widest">مبلغ الدفعة ({{ $entry->currency }})</label>
                     <input type="number" name="amount" step="0.01"
                            value="{{ $entry->installment_amount ?? '' }}"
+                           :disabled="payAlt"
                            class="w-full bg-gray-50 border-0 rounded-2xl p-4 font-black text-2xl focus:ring-2 focus:ring-emerald-500 outline-none text-center"
                            placeholder="0.00">
                 </div>
-                {{-- hidden 0 when alt (controller ignores it) --}}
                 <div x-show="payAlt" x-cloak>
-                    <input type="hidden" name="amount" value="0">
                     <div class="bg-emerald-50 border border-emerald-100 rounded-2xl p-3 text-center">
                         <p class="text-xs font-black text-emerald-700">يتم حساب المبلغ المعادل تلقائياً</p>
                         <p class="text-[9px] font-bold text-emerald-500 mt-0.5">المبلغ البديل ÷ سعر الصرف = القيمة بالدولار</p>
@@ -567,11 +566,11 @@
                 <div x-show="!chargeAlt">
                     <label class="block text-[10px] font-black text-gray-400 uppercase mb-2 tracking-widest">المبلغ المضاف ({{ $entry->currency }})</label>
                     <input type="number" name="amount" step="0.01"
+                           :disabled="chargeAlt"
                            class="w-full bg-gray-50 border-0 rounded-2xl p-4 font-black text-2xl focus:ring-2 focus:ring-amber-500 outline-none text-center"
                            placeholder="0.00">
                 </div>
                 <div x-show="chargeAlt" x-cloak>
-                    <input type="hidden" name="amount" value="0">
                     <div class="bg-amber-50 border border-amber-200 rounded-2xl p-3 text-center">
                         <p class="text-xs font-black text-amber-700">يتم حساب المبلغ المعادل تلقائياً</p>
                     </div>
