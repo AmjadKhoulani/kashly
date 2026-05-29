@@ -21,6 +21,8 @@ class PaymentMethodController extends Controller
         return view('payment_methods.index', compact('methods', 'funds', 'wallets'));
     }
 
+    public function store(Request $request)
+    {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'custodian_name' => 'nullable|string|max:255',
