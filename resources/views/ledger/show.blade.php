@@ -251,49 +251,74 @@
             @endif
         </div>
 
-        {{-- ===================== PAYMENTS HISTORY ===================== --}}
+        {{-- ===================== MOVEMENTS HISTORY ===================== --}}
         <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
             <div class="px-6 py-4 border-b border-slate-50 flex items-center justify-between">
-                <h3 class="font-black text-slate-900 text-sm">سجل الدفعات</h3>
-                <span class="text-[10px] font-black text-slate-400 bg-slate-100 px-3 py-1 rounded-full">{{ $entry->payments->count() }} دفعة</span>
+                <h3 class="font-black text-slate-900 text-sm">سجل الحركات (الدفعات والإضافات)</h3>
+                <span class="text-[10px] font-black text-slate-400 bg-slate-100 px-3 py-1 rounded-full">{{ $entry->movements->count() }} حركة</span>
             </div>
 
-            @if($entry->payments->isEmpty())
+            @if($entry->movements->isEmpty())
                 <div class="py-16 text-center">
-                    <div class="text-4xl mb-3 opacity-20">💳</div>
-                    <p class="text-slate-400 font-black text-sm">لا توجد دفعات مسجلة بعد</p>
+                    <div class="text-4xl mb-3 opacity-20">📊</div>
+                    <p class="text-slate-400 font-black text-sm">لا توجد حركات مسجلة بعد</p>
                     @if($entry->status !== 'settled')
-                        <button @click="showPayment = true" class="mt-4 text-sm font-black text-indigo-600 hover:underline">
-                            + سجّل أول دفعة
-                        </button>
+                        <div class="flex justify-center gap-4 mt-4">
+                            <button @click="showPayment = true" class="text-xs font-black text-emerald-600 hover:underline">
+                                + سجّل دفعة
+                            </button>
+                            <button @click="showCharge = true" class="text-xs font-black text-amber-600 hover:underline">
+                                + إضافة للذمة
+                            </button>
+                        </div>
                     @endif
                 </div>
             @else
                 <div class="divide-y divide-slate-50">
-                    @foreach($entry->payments->sortByDesc('payment_date') as $payment)
+                    @foreach($entry->movements->sortByDesc(function($m) { return $m->payment_date->format('Y-m-d') . '_' . $m->id; }) as $movement)
                         <div class="px-6 py-4 flex items-center justify-between hover:bg-slate-50/50 transition-all">
                             <div class="flex items-center gap-4">
-                                <div class="w-9 h-9 bg-emerald-100 rounded-xl flex items-center justify-center text-base flex-shrink-0">
-                                    💳
-                                </div>
+                                @if($movement->type === 'charge')
+                                    <div class="w-9 h-9 bg-amber-50 border border-amber-100 rounded-xl flex items-center justify-center text-base flex-shrink-0 text-amber-600 font-black">
+                                        ➕
+                                    </div>
+                                @else
+                                    <div class="w-9 h-9 bg-emerald-50 border border-emerald-100 rounded-xl flex items-center justify-center text-base flex-shrink-0 text-emerald-600">
+                                        💳
+                                    </div>
+                                @endif
                                 <div>
-                                    <p class="font-black text-slate-900 text-sm">دفعة بتاريخ {{ $payment->payment_date->format('d/m/Y') }}</p>
-                                    @if($payment->original_amount && $payment->original_currency)
+                                    <div class="flex items-center gap-2">
+                                        <p class="font-black text-slate-900 text-sm">
+                                            @if($movement->type === 'charge')
+                                                إضافة للذمة بتاريخ {{ $movement->payment_date->format('d/m/Y') }}
+                                            @else
+                                                دفعة بتاريخ {{ $movement->payment_date->format('d/m/Y') }}
+                                            @endif
+                                        </p>
+                                        <span class="text-[9px] font-black px-2 py-0.5 rounded-full 
+                                            @if($movement->type === 'charge') bg-amber-50 text-amber-700 border border-amber-100
+                                            @else bg-emerald-50 text-emerald-700 border border-emerald-100 @endif">
+                                            @if($movement->type === 'charge') زيادة دين @else سداد @endif
+                                        </span>
+                                    </div>
+                                    @if($movement->original_amount && $movement->original_currency)
                                         <p class="text-[10px] font-bold text-indigo-500 mt-0.5">
-                                            {{ number_format($payment->original_amount, 2) }} {{ $payment->original_currency }}
+                                            {{ number_format($movement->original_amount, 2) }} {{ $movement->original_currency }}
                                             <span class="text-slate-300 mx-1">×</span>
-                                            <span class="text-slate-400">{{ $payment->exchange_rate }}</span>
+                                            <span class="text-slate-400">{{ $movement->exchange_rate }}</span>
                                         </p>
                                     @endif
-                                    @if($payment->notes)
-                                        <p class="text-xs font-bold text-slate-400">{{ $payment->notes }}</p>
+                                    @if($movement->notes)
+                                        <p class="text-xs font-bold text-slate-500 mt-1 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100 inline-block">{{ $movement->notes }}</p>
                                     @endif
                                 </div>
                             </div>
                             <div class="text-left">
-                                <p class="font-black text-emerald-600 text-base tracking-tighter">
-                                    +{{ number_format($payment->amount, 2) }}
-                                    <span class="text-xs opacity-60">{{ $payment->currency }}</span>
+                                <p class="font-black text-base tracking-tighter 
+                                    @if($movement->type === 'charge') text-amber-600 @else text-emerald-600 @endif">
+                                    @if($movement->type === 'charge') + @else - @endif{{ number_format($movement->amount, 2) }}
+                                    <span class="text-xs opacity-60">{{ $movement->currency }}</span>
                                 </p>
                             </div>
                         </div>

@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class LedgerPayment extends Model
 {
     protected $fillable = [
-        'ledger_entry_id', 'user_id',
+        'ledger_entry_id', 'type', 'user_id',
         'amount', 'currency',
         'original_amount', 'original_currency', 'exchange_rate',
         'payment_date', 'notes',

@@ -173,24 +173,34 @@ class LedgerController extends Controller
 
         $request->validate($rules);
 
-        $amount = (float) $request->amount;
-        $noteExtra = '';
+        $amount           = (float) $request->amount;
+        $originalAmount   = null;
+        $originalCurrency = null;
+        $exchangeRate     = null;
 
         if ($request->boolean('pay_in_alt') && $request->filled('original_amount') && $request->filled('exchange_rate')) {
-            $origAmt  = (float) $request->original_amount;
-            $origCur  = $request->original_currency;
-            $rate     = (float) $request->exchange_rate;
-            $amount   = round($origAmt / $rate, 2);
-            $noteExtra = " ({$origAmt} {$origCur} بسعر {$rate})";
+            $originalAmount   = (float) $request->original_amount;
+            $originalCurrency = $request->original_currency;
+            $exchangeRate     = (float) $request->exchange_rate;
+            $amount = round($originalAmount / $exchangeRate, 2);
         }
 
+        $chargeDate = $request->filled('charge_date') ? \Carbon\Carbon::parse($request->charge_date)->format('Y-m-d') : now()->format('Y-m-d');
+
+        LedgerPayment::create([
+            'ledger_entry_id'   => $entry->id,
+            'type'              => 'charge',
+            'user_id'           => auth()->id(),
+            'amount'            => $amount,
+            'currency'          => $entry->currency,
+            'original_amount'   => $originalAmount,
+            'original_currency' => $originalCurrency,
+            'exchange_rate'     => $exchangeRate,
+            'payment_date'      => $chargeDate,
+            'notes'             => $request->notes,
+        ]);
+
         $entry->total_amount += $amount;
-
-        $chargeDate = $request->filled('charge_date') ? \Carbon\Carbon::parse($request->charge_date)->format('d/m/Y') : now()->format('d/m/Y');
-        $note = $chargeDate . ': أضيف ' . number_format($amount, 2) . ' ' . $entry->currency . $noteExtra;
-        if ($request->notes) $note .= ' — ' . $request->notes;
-        $entry->notes = $entry->notes ? $entry->notes . "\n" . $note : $note;
-
         $entry->syncStatus();
 
         return back()->with('success', 'تم إضافة المبلغ للذمة ✅');

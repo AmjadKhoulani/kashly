@@ -30,6 +30,11 @@ class LedgerEntry extends Model
 
     public function payments(): HasMany
     {
+        return $this->hasMany(LedgerPayment::class)->where('type', 'payment');
+    }
+
+    public function movements(): HasMany
+    {
         return $this->hasMany(LedgerPayment::class);
     }
 
