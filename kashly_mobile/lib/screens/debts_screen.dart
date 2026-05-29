@@ -485,8 +485,8 @@ class _DebtDetailScreenState extends State<DebtDetailScreen> {
   bool _needsRefresh = false;
 
   List entries = [];
-  double totalReceivables = 0;
-  double totalPayables = 0;
+  double receivables = 0;
+  double payables = 0;
   double netBalance = 0;
   double totalAmount = 0;
   double paidAmount = 0;
