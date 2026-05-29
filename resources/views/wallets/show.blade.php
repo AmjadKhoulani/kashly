@@ -228,7 +228,7 @@
                             <h4 class="text-xs font-black text-slate-400 uppercase tracking-wider">🏛️ الحسابات البنكية والبطاقات المرتبطة</h4>
                             <div class="grid grid-cols-1 gap-4">
                                 @foreach($bankAccounts as $bank)
-                                    <div class="bg-slate-50/50 rounded-2xl border border-slate-100 p-4 space-y-3">
+                                    <a href="{{ route('payment-methods.show', $bank->id) }}" class="bg-slate-50/50 rounded-2xl border border-slate-100 p-4 space-y-3 block hover:shadow-md transition-all">
                                         <div class="flex items-center justify-between">
                                             <div class="flex items-center gap-3">
                                                 <div class="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center text-lg">🏛️</div>
@@ -251,7 +251,7 @@
                                             <div class="pr-6 border-r-2 border-indigo-100 space-y-2 mt-2">
                                                 <p class="text-[10px] font-black text-indigo-500 mb-1">💳 البطاقات المرتبطة بالحساب:</p>
                                                 @foreach($linkedCards as $card)
-                                                    <div class="bg-white p-3 rounded-xl border border-slate-100 flex items-center justify-between shadow-sm">
+                                                    <a href="{{ route('payment-methods.show', $card->id) }}" class="bg-white p-3 rounded-xl border border-slate-100 flex items-center justify-between shadow-sm hover:shadow-md transition-all block">
                                                         <div class="flex items-center gap-2">
                                                             <span class="text-sm">💳</span>
                                                             <div>
@@ -267,7 +267,7 @@
                                                 @endforeach
                                             </div>
                                         @endif
-                                    </div>
+                                    </a>
                                 @endforeach
                             </div>
                         </div>
@@ -279,7 +279,7 @@
                             <h4 class="text-xs font-black text-slate-400 uppercase tracking-wider">💳 الحسابات والبطاقات المستقلة</h4>
                             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                                 @foreach($otherAccounts as $pm)
-                                    <div class="bg-white p-4 rounded-2xl border border-slate-150 flex items-center justify-between hover:shadow-md transition-all">
+                                    <a href="{{ route('payment-methods.show', $pm->id) }}" class="bg-white p-4 rounded-2xl border border-slate-150 flex items-center justify-between hover:shadow-md transition-all block">
                                         <div class="flex items-center gap-3">
                                             <div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-lg">
                                                 @switch($pm->type)
@@ -305,7 +305,7 @@
                                             <p class="font-black text-slate-800 text-sm">{{ number_format($pm->balance, 2) }}</p>
                                             <p class="text-[10px] font-black text-slate-400 uppercase">{{ $pm->currency }}</p>
                                         </div>
-                                    </div>
+                                    </a>
                                 @endforeach
                             </div>
                         </div>

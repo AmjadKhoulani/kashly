@@ -50,6 +50,27 @@ class PaymentMethodController extends Controller
         return back()->with('success', 'تمت إضافة وسيلة الدفع بنجاح');
     }
 
+    public function show($id)
+    {
+        $method = PaymentMethod::where('user_id', auth()->id())
+            ->with(['wallet', 'fund', 'parent', 'children'])
+            ->findOrFail($id);
+
+        $transactions = \App\Models\Transaction::where('payment_method_id', $method->id)
+            ->with(['categoryRelation'])
+            ->latest('transaction_date')
+            ->paginate(20);
+
+        $totalIncome = \App\Models\Transaction::where('payment_method_id', $method->id)->where('type', 'income')->sum('amount');
+        $totalExpense = \App\Models\Transaction::where('payment_method_id', $method->id)->where('type', 'expense')->sum('amount');
+
+        $categories = \App\Models\Category::where(function($q) {
+            $q->where('user_id', auth()->id())->orWhere('is_default', true);
+        })->get();
+
+        return view('payment_methods.show', compact('method', 'transactions', 'totalIncome', 'totalExpense', 'categories'));
+    }
+
     public function destroy(PaymentMethod $paymentMethod)
     {
         if ($paymentMethod->user_id !== auth()->id()) {
