@@ -228,7 +228,7 @@
                     {{-- Info --}}
                     <div class="flex-1 min-w-0">
                         <div class="flex items-center gap-2 flex-wrap">
-                            <p class="font-black text-slate-900 text-sm leading-none group-hover:text-indigo-700 transition-colors truncate">
+                            <p class="font-black text-slate-900 text-sm leading-normal group-hover:text-indigo-700 transition-colors truncate">
                                 {{ $tx->description ?: ($tx->categoryRelation?->name ?? $tx->category) }}
                             </p>
                             @if($tx->invoice_path)
@@ -236,7 +236,7 @@
                                    class="inline-flex items-center justify-center w-4 h-4 bg-indigo-50 text-indigo-500 rounded text-[8px] hover:bg-indigo-500 hover:text-white transition-all flex-shrink-0" title="فاتورة">📄</a>
                             @endif
                         </div>
-                        <div class="flex items-center gap-1.5 mt-1.5 flex-wrap">
+                        <div class="flex items-center gap-1.5 mt-2.5 flex-wrap">
                             {{-- Type badge --}}
                             <span class="text-[9px] font-black px-1.5 py-0.5 rounded-md
                                 @if($tx->type === 'income') bg-emerald-50 text-emerald-600
