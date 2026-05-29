@@ -399,7 +399,7 @@ class _FundDetailScreenState extends State<FundDetailScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    _buildHeroMiniStat('رأس مال الصندوق', '${format.format(fund?['capital'] ?? 0)} $currency'),
+                    _buildHeroMiniStat('رأس مال الصندوق', '${format.format(double.tryParse(fund?['capital']?.toString() ?? '0') ?? 0.0)} $currency'),
                     _buildHeroMiniStat('توزيع الأرباح', fund?['distribution_frequency'] ?? 'غير محدد'),
                     _buildHeroMiniStat('الحالة', fund?['status'] == 'active' ? 'نشط' : 'مكتمل'),
                   ],
@@ -715,7 +715,7 @@ class _FundDetailScreenState extends State<FundDetailScreen> {
                         ],
                       ),
                       Text(
-                        '${format.format(child['balance'] ?? 0)} ${child['currency']}',
+                        '${format.format(double.tryParse(child['balance']?.toString() ?? '0') ?? 0.0)} ${child['currency']}',
                         style: GoogleFonts.almarai(fontWeight: FontWeight.w900, color: Color(0xFF0F172A), fontSize: 13),
                       ),
                     ],
