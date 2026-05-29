@@ -1,14 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../api/api_service.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import '../api/api_service.dart';
 
 class TransferScreen extends StatefulWidget {
   final int sourceId;
   final String sourceType;
   final List paymentMethods;
 
-  TransferScreen({required this.sourceId, required this.sourceType, required this.paymentMethods});
+  TransferScreen({
+    required this.sourceId,
+    required this.sourceType,
+    required this.paymentMethods,
+  });
 
   @override
   _TransferScreenState createState() => _TransferScreenState();
@@ -24,6 +29,15 @@ class _TransferScreenState extends State<TransferScreen> {
   DateTime selectedDate = DateTime.now();
   bool isSaving = false;
 
+  @override
+  void initState() {
+    super.initState();
+    // Default fromAccountId to sourceId if it matches
+    if (widget.paymentMethods.any((pm) => pm['id'] == widget.sourceId)) {
+      fromAccountId = widget.sourceId;
+    }
+  }
+
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -33,7 +47,12 @@ class _TransferScreenState extends State<TransferScreen> {
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.light(primary: Colors.indigo, onPrimary: Colors.white, onSurface: Colors.indigo),
+            colorScheme: ColorScheme.light(
+              primary: Color(0xFF4F46E5),
+              onPrimary: Colors.white,
+              onSurface: Color(0xFF1E1B4B),
+            ),
+            textTheme: GoogleFonts.almaraiTextTheme(Theme.of(context).textTheme),
           ),
           child: child!,
         );
@@ -46,12 +65,26 @@ class _TransferScreenState extends State<TransferScreen> {
 
   void save() async {
     if (amountController.text.isEmpty || fromAccountId == null || toAccountId == null) {
-      Get.snackbar('خطأ', 'يرجى إكمال كافة الحقول');
+      Get.snackbar(
+        'خطأ في التحويل',
+        'يرجى ملء كافة الحقول وتحديد الحسابات',
+        backgroundColor: Colors.redAccent.withOpacity(0.9),
+        colorText: Colors.white,
+        borderRadius: 15,
+        margin: EdgeInsets.all(15),
+      );
       return;
     }
 
     if (fromAccountId == toAccountId) {
-      Get.snackbar('خطأ', 'لا يمكن التحويل لنفس الحساب');
+      Get.snackbar(
+        'خطأ في الحسابات',
+        'لا يمكن التحويل لنفس الحساب. يرجى اختيار حسابين مختلفين',
+        backgroundColor: Colors.amber.shade800.withOpacity(0.9),
+        colorText: Colors.white,
+        borderRadius: 15,
+        margin: EdgeInsets.all(15),
+      );
       return;
     }
 
@@ -72,59 +105,209 @@ class _TransferScreenState extends State<TransferScreen> {
 
     if (success) {
       Get.back(result: true);
-      Get.snackbar('تم', 'تم التحويل بنجاح');
+      Get.snackbar(
+        'تم بنجاح',
+        'تمت عملية التحويل المالي وتحديث الأرصدة بنجاح',
+        backgroundColor: Color(0xFF10B981).withOpacity(0.9),
+        colorText: Colors.white,
+        borderRadius: 15,
+        margin: EdgeInsets.all(15),
+      );
     } else {
-      Get.snackbar('خطأ', 'فشل في عملية التحويل');
+      Get.snackbar(
+        'فشل التحويل',
+        'حدث خطأ أثناء إجراء العملية، يرجى التحقق من الرصيد المتوفر',
+        backgroundColor: Colors.redAccent.withOpacity(0.9),
+        colorText: Colors.white,
+        borderRadius: 15,
+        margin: EdgeInsets.all(15),
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
+      backgroundColor: Color(0xFFF8FAFC),
       appBar: AppBar(
-        title: Text('تحويل بين الحسابات', style: TextStyle(fontWeight: FontWeight.w900, color: Colors.indigo.shade900)),
+        title: Text(
+          'تحويل بين الحسابات',
+          style: GoogleFonts.almarai(fontWeight: FontWeight.w900, color: Color(0xFF0F172A), fontSize: 18),
+        ),
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: Color(0xFF0F172A), size: 20),
+          onPressed: () => Get.back(),
+        ),
       ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(25),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _buildAccountDropdown('من حساب', fromAccountId, (val) => setState(() => fromAccountId = val)),
-            SizedBox(height: 15),
-            Center(
-              child: Container(
-                padding: EdgeInsets.all(10),
-                decoration: BoxDecoration(color: Colors.indigo.withOpacity(0.1), shape: BoxShape.circle),
-                child: Icon(Icons.arrow_downward, color: Colors.indigo),
+      body: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: SingleChildScrollView(
+          physics: BouncingScrollPhysics(),
+          padding: EdgeInsets.symmetric(horizontal: 24, vertical: 15),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Header Card Info
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Color(0xFF4F46E5), Color(0xFF6366F1)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Color(0xFF4F46E5).withOpacity(0.2),
+                      blurRadius: 15,
+                      offset: Offset(0, 8),
+                    )
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.15),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(Icons.swap_horiz_rounded, color: Colors.white, size: 28),
+                    ),
+                    SizedBox(width: 15),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'تسوية الأرصدة الذكية',
+                            style: GoogleFonts.almarai(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 14),
+                          ),
+                          SizedBox(height: 3),
+                          Text(
+                            'حول الأموال بين محافظك وحساباتك بنقرة واحدة مع توثيق فوري.',
+                            style: GoogleFonts.almarai(color: Colors.white.withOpacity(0.8), fontSize: 10),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            SizedBox(height: 15),
-            _buildAccountDropdown('إلى حساب', toAccountId, (val) => setState(() => toAccountId = val)),
-            SizedBox(height: 25),
-            _buildTextField(amountController, 'المبلغ المراد تحويله', Icons.attach_money, TextInputType.number),
-            SizedBox(height: 20),
-            _buildDatePicker(),
-            SizedBox(height: 20),
-            _buildTextField(descController, 'ملاحظات التحويل (اختياري)', Icons.note, TextInputType.text),
-            SizedBox(height: 40),
-            ElevatedButton(
-              onPressed: isSaving ? null : save,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.amber.shade600,
-                padding: EdgeInsets.symmetric(vertical: 20),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                elevation: 5,
-                shadowColor: Colors.amber.withOpacity(0.4),
+              SizedBox(height: 25),
+
+              // Flow Selection Area
+              Container(
+                padding: EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(30),
+                  border: Border.all(color: Color(0xFFE2E8F0)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.015),
+                      blurRadius: 15,
+                      offset: Offset(0, 10),
+                    )
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    _buildAccountDropdown('من حساب (مصدر التحويل)', fromAccountId, (val) => setState(() => fromAccountId = val), true),
+                    
+                    // Arrow transfer indicator
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      child: Row(
+                        children: [
+                          Expanded(child: Divider(color: Color(0xFFE2E8F0), thickness: 1)),
+                          Container(
+                            padding: EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Color(0xFFEEF2FF),
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Color(0xFFE0E7FF), width: 1),
+                            ),
+                            child: Icon(Icons.arrow_downward_rounded, color: Color(0xFF4F46E5), size: 18),
+                          ),
+                          Expanded(child: Divider(color: Color(0xFFE2E8F0), thickness: 1)),
+                        ],
+                      ),
+                    ),
+
+                    _buildAccountDropdown('إلى حساب (جهة التحويل)', toAccountId, (val) => setState(() => toAccountId = val), false),
+                  ],
+                ),
               ),
-              child: isSaving 
-                ? CircularProgressIndicator(color: Colors.white)
-                : Text('تأكيد عملية التحويل', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
-            )
-          ],
+              SizedBox(height: 20),
+
+              // Inputs Area
+              Container(
+                padding: EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(30),
+                  border: Border.all(color: Color(0xFFE2E8F0)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.015),
+                      blurRadius: 15,
+                      offset: Offset(0, 10),
+                    )
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    _buildTextField(
+                      amountController,
+                      'المبلغ المراد تحويله',
+                      Icons.attach_money_rounded,
+                      TextInputType.numberWithOptions(decimal: true),
+                      isAmount: true,
+                    ),
+                    SizedBox(height: 18),
+                    _buildDatePicker(),
+                    SizedBox(height: 18),
+                    _buildTextField(
+                      descController,
+                      'ملاحظات عملية التحويل (اختياري)',
+                      Icons.description_outlined,
+                      TextInputType.text,
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 35),
+
+              // Action Button
+              ElevatedButton(
+                onPressed: isSaving ? null : save,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xFF4F46E5),
+                  foregroundColor: Colors.white,
+                  disabledBackgroundColor: Color(0xFF4F46E5).withOpacity(0.6),
+                  padding: EdgeInsets.symmetric(vertical: 20),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+                  elevation: 4,
+                  shadowColor: Color(0xFF4F46E5).withOpacity(0.2),
+                ),
+                child: isSaving
+                    ? SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
+                      )
+                    : Text(
+                        'تأكيد عملية التحويل',
+                        style: GoogleFonts.almarai(fontWeight: FontWeight.w900, fontSize: 15),
+                      ),
+              )
+            ],
+          ),
         ),
       ),
     );
@@ -134,46 +317,106 @@ class _TransferScreenState extends State<TransferScreen> {
     return GestureDetector(
       onTap: () => _selectDate(context),
       child: Container(
-        padding: EdgeInsets.all(20),
+        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         decoration: BoxDecoration(
-          color: Colors.white, 
+          color: Color(0xFFF8FAFC),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.grey.shade200)
+          border: Border.all(color: Color(0xFFE2E8F0)),
         ),
         child: Row(
           children: [
-            Icon(Icons.calendar_today, color: Colors.indigo, size: 20),
+            Icon(Icons.calendar_today_rounded, color: Color(0xFF4F46E5), size: 18),
             SizedBox(width: 15),
-            Text('التاريخ: ${DateFormat('yyyy-MM-dd').format(selectedDate)}', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.indigo.shade900)),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'تاريخ العملية',
+                  style: GoogleFonts.almarai(fontSize: 10, color: Color(0xFF64748B), fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 3),
+                Text(
+                  DateFormat('yyyy-MM-dd').format(selectedDate),
+                  style: GoogleFonts.almarai(fontWeight: FontWeight.w900, color: Color(0xFF1E293B), fontSize: 13),
+                ),
+              ],
+            ),
             Spacer(),
-            Icon(Icons.edit, color: Colors.grey, size: 16),
+            Icon(Icons.edit_calendar_rounded, color: Color(0xFF64748B), size: 16),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildAccountDropdown(String label, int? value, Function(int?) onChanged) {
+  Widget _buildAccountDropdown(String label, int? value, Function(int?) onChanged, bool isSource) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.white, 
+        color: Color(0xFFF8FAFC),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.grey.shade200)
+        border: Border.all(color: Color(0xFFE2E8F0)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey)),
+          Row(
+            children: [
+              Container(
+                width: 6,
+                height: 6,
+                decoration: BoxDecoration(
+                  color: isSource ? Color(0xFF4F46E5) : Color(0xFFF59E0B),
+                  shape: BoxShape.circle,
+                ),
+              ),
+              SizedBox(width: 8),
+              Text(
+                label,
+                style: GoogleFonts.almarai(fontSize: 11, fontWeight: FontWeight.w900, color: Color(0xFF64748B)),
+              ),
+            ],
+          ),
+          SizedBox(height: 4),
           DropdownButtonHideUnderline(
             child: DropdownButton<int>(
-              hint: Text('اختر الحساب'),
+              hint: Text(
+                'اختر الحساب المصرفي',
+                style: GoogleFonts.almarai(color: Color(0xFF94A3B8), fontSize: 13, fontWeight: FontWeight.bold),
+              ),
               value: value,
               isExpanded: true,
+              icon: Icon(Icons.keyboard_arrow_down_rounded, color: Color(0xFF64748B)),
+              style: GoogleFonts.almarai(color: Color(0xFF0F172A), fontSize: 13, fontWeight: FontWeight.w800),
+              dropdownColor: Colors.white,
+              borderRadius: BorderRadius.circular(20),
               items: widget.paymentMethods.map<DropdownMenuItem<int>>((pm) {
+                final balanceText = NumberFormat('#,##0').format(pm['balance']);
+                final currencySymbol = pm['currency'] ?? 'SYP';
                 return DropdownMenuItem<int>(
                   value: pm['id'],
-                  child: Text('${pm['name']} (${pm['balance']} ${pm['currency']})'),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(pm['name'], style: GoogleFonts.almarai(fontWeight: FontWeight.w800)),
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: isSource ? Color(0xFFEEF2FF) : Color(0xFFFEF3C7),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          '$balanceText $currencySymbol',
+                          style: GoogleFonts.almarai(
+                            color: isSource ? Color(0xFF4F46E5) : Color(0xFFD97706),
+                            fontSize: 10,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 );
               }).toList(),
               onChanged: onChanged,
@@ -184,19 +427,33 @@ class _TransferScreenState extends State<TransferScreen> {
     );
   }
 
-  Widget _buildTextField(TextEditingController ctrl, String label, IconData icon, TextInputType ktype) {
+  Widget _buildTextField(
+    TextEditingController ctrl,
+    String label,
+    IconData icon,
+    TextInputType ktype, {
+    bool isAmount = false,
+  }) {
     return TextField(
       controller: ctrl,
       keyboardType: ktype,
+      style: GoogleFonts.almarai(color: Color(0xFF0F172A), fontSize: 13, fontWeight: FontWeight.w800),
       decoration: InputDecoration(
-        prefixIcon: Icon(icon, color: Colors.indigo),
+        prefixIcon: Icon(icon, color: Color(0xFF4F46E5), size: 20),
         labelText: label,
+        labelStyle: GoogleFonts.almarai(color: Color(0xFF64748B), fontSize: 12, fontWeight: FontWeight.bold),
         filled: true,
-        fillColor: Colors.white,
-        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(20), borderSide: BorderSide(color: Colors.grey.shade200)),
-        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(20), borderSide: BorderSide(color: Colors.indigo)),
+        fillColor: Color(0xFFF8FAFC),
+        contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(20),
+          borderSide: BorderSide(color: Color(0xFFE2E8F0)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(20),
+          borderSide: BorderSide(color: Color(0xFF4F46E5), width: 1.5),
+        ),
       ),
     );
   }
 }
-

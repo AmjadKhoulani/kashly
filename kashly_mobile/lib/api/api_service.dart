@@ -108,6 +108,11 @@ class ApiService {
     return response.statusCode == 200;
   }
 
+  Future<bool> deleteWallet(int id) async {
+    final response = await http.delete(Uri.parse('$baseUrl/wallets/$id'), headers: await _getHeaders());
+    return response.statusCode == 200;
+  }
+
   Future<bool> addBusiness(Map<String, dynamic> data) async {
     final response = await http.post(Uri.parse('$baseUrl/businesses'), headers: await _getHeaders(), body: jsonEncode(data));
     return response.statusCode == 200 || response.statusCode == 201;
@@ -115,6 +120,36 @@ class ApiService {
 
   Future<bool> updateBusiness(int id, Map<String, dynamic> data) async {
     final response = await http.put(Uri.parse('$baseUrl/businesses/$id'), headers: await _getHeaders(), body: jsonEncode(data));
+    return response.statusCode == 200;
+  }
+
+  Future<bool> deleteBusiness(int id) async {
+    final response = await http.delete(Uri.parse('$baseUrl/businesses/$id'), headers: await _getHeaders());
+    return response.statusCode == 200;
+  }
+
+  Future<bool> addFund(Map<String, dynamic> data) async {
+    final response = await http.post(Uri.parse('$baseUrl/funds'), headers: await _getHeaders(), body: jsonEncode(data));
+    return response.statusCode == 200 || response.statusCode == 201;
+  }
+
+  Future<bool> updateFund(int id, Map<String, dynamic> data) async {
+    final response = await http.put(Uri.parse('$baseUrl/funds/$id'), headers: await _getHeaders(), body: jsonEncode(data));
+    return response.statusCode == 200;
+  }
+
+  Future<bool> deleteFund(int id) async {
+    final response = await http.delete(Uri.parse('$baseUrl/funds/$id'), headers: await _getHeaders());
+    return response.statusCode == 200;
+  }
+
+  Future<bool> updateTransaction(int id, Map<String, dynamic> data) async {
+    final response = await http.put(Uri.parse('$baseUrl/transactions/$id'), headers: await _getHeaders(), body: jsonEncode(data));
+    return response.statusCode == 200;
+  }
+
+  Future<bool> deleteTransaction(int id) async {
+    final response = await http.delete(Uri.parse('$baseUrl/transactions/$id'), headers: await _getHeaders());
     return response.statusCode == 200;
   }
 
@@ -136,6 +171,38 @@ class ApiService {
   Future<bool> deleteCategory(int id) async {
     final response = await http.delete(Uri.parse('$baseUrl/categories/$id'), headers: await _getHeaders());
     return response.statusCode == 200;
+  }
+
+  Future<Map<String, dynamic>?> getLedger() async {
+    final response = await http.get(Uri.parse('$baseUrl/ledger'), headers: await _getHeaders());
+    if (response.statusCode == 200) return jsonDecode(response.body);
+    return null;
+  }
+
+  Future<Map<String, dynamic>?> getLedgerDetail(int id) async {
+    final response = await http.get(Uri.parse('$baseUrl/ledger/$id'), headers: await _getHeaders());
+    if (response.statusCode == 200) return jsonDecode(response.body);
+    return null;
+  }
+
+  Future<bool> addLedger(Map<String, dynamic> data) async {
+    final response = await http.post(Uri.parse('$baseUrl/ledger'), headers: await _getHeaders(), body: jsonEncode(data));
+    return response.statusCode == 200 || response.statusCode == 201;
+  }
+
+  Future<bool> updateLedger(int id, Map<String, dynamic> data) async {
+    final response = await http.put(Uri.parse('$baseUrl/ledger/$id'), headers: await _getHeaders(), body: jsonEncode(data));
+    return response.statusCode == 200;
+  }
+
+  Future<bool> deleteLedger(int id) async {
+    final response = await http.delete(Uri.parse('$baseUrl/ledger/$id'), headers: await _getHeaders());
+    return response.statusCode == 200;
+  }
+
+  Future<bool> addLedgerPayment(int id, Map<String, dynamic> data) async {
+    final response = await http.post(Uri.parse('$baseUrl/ledger/$id/payment'), headers: await _getHeaders(), body: jsonEncode(data));
+    return response.statusCode == 200 || response.statusCode == 201;
   }
 
   Future<void> logout() async {

@@ -16,11 +16,23 @@ class BusinessController extends Controller
 
     public function show(Request $request, $id)
     {
-        $business = Business::where('user_id', $request->user()->id)
-            ->with(['transactions' => function($q) {
-                $q->latest('transaction_date')->take(20);
-            }])
-            ->findOrFail($id);
+        $business = Business::where('user_id', $request->user()->id)->findOrFail($id);
+
+        $transactions = $business->transactions()
+            ->with(['categoryRelation', 'paymentMethod'])
+            ->latest('transaction_date')
+            ->take(50)
+            ->get();
+
+        $totalIncome = $business->transactions()->where('type', 'income')->sum('amount');
+        $totalExpense = $business->transactions()->where('type', 'expense')->sum('amount');
+        $transactionsCount = $business->transactions()->count();
+
+        // Set dynamic properties on the business object so they serialize at the root level of JSON
+        $business->setAttribute('transactions', $transactions);
+        $business->setAttribute('total_income', $totalIncome);
+        $business->setAttribute('total_expense', $totalExpense);
+        $business->setAttribute('transactions_count', $transactionsCount);
             
         return response()->json($business);
     }
@@ -55,5 +67,13 @@ class BusinessController extends Controller
         $business->update($request->only(['name', 'total_value', 'currency']));
 
         return response()->json($business);
+    }
+
+    public function destroy(Request $request, $id)
+    {
+        $business = Business::where('user_id', $request->user()->id)->findOrFail($id);
+        $business->delete();
+
+        return response()->json(['status' => 'success']);
     }
 }

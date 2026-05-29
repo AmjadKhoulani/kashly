@@ -17,10 +17,32 @@ class WalletController extends Controller
     public function show(Request $request, $id)
     {
         $wallet = Wallet::where('user_id', $request->user()->id)
-            ->with(['transactions' => function($q) {
-                $q->latest('transaction_date')->take(20);
-            }, 'paymentMethods'])
+            ->with(['paymentMethods'])
             ->findOrFail($id);
+
+        $transactions = $wallet->transactions()
+            ->with(['categoryRelation', 'paymentMethod'])
+            ->latest('transaction_date')
+            ->take(50)
+            ->get();
+
+        $totalIncome = $wallet->transactions()->where('type', 'income')->sum('amount');
+        $totalExpense = $wallet->transactions()->where('type', 'expense')->sum('amount');
+        $transactionsCount = $wallet->transactions()->count();
+
+        // Get the current SYP exchange rate from settings
+        $sypRate = 0;
+        $setting = \DB::table('settings')->where('key', 'syp_exchange_rate')->first();
+        if ($setting) {
+            $sypRate = floatval($setting->value);
+        }
+
+        // Set dynamic properties on the wallet object so they serialize at the root level of JSON
+        $wallet->setAttribute('transactions', $transactions);
+        $wallet->setAttribute('total_income', $totalIncome);
+        $wallet->setAttribute('total_expense', $totalExpense);
+        $wallet->setAttribute('transactions_count', $transactionsCount);
+        $wallet->setAttribute('syp_rate', $sypRate);
             
         return response()->json($wallet);
     }
@@ -58,5 +80,13 @@ class WalletController extends Controller
         $wallet->update($request->only(['name', 'balance', 'currency', 'custodian_name']));
 
         return response()->json($wallet);
+    }
+
+    public function destroy(Request $request, $id)
+    {
+        $wallet = Wallet::where('user_id', $request->user()->id)->findOrFail($id);
+        $wallet->delete();
+
+        return response()->json(['status' => 'success']);
     }
 }

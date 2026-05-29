@@ -4,7 +4,7 @@ import 'package:fl_chart/fl_chart.dart';
 import '../api/api_service.dart';
 import 'package:intl/intl.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'businesses_screen.dart';
+
 import 'wallets_screen.dart';
 import 'business_detail_screen.dart';
 import 'wallet_detail_screen.dart';
@@ -59,11 +59,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         SizedBox(height: 15),
-                        _buildMainWealthCard(currencyFormat),
-                        SizedBox(height: 30),
                         
-                        // Ledger (Debts/Claims) Section
-                        _buildLedgerSection(currencyFormat),
+                        // Unified 6-Card Stats Grid (Estimated Net Worth, Cash, Business, Receivables, Payables, Net Debt)
+                        _buildStatsGrid(currencyFormat),
                         SizedBox(height: 30),
                         
                         // Upcoming Payment Reminders Section
@@ -77,23 +75,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         
                         _buildAssetSection(
                           'المحافظ الشخصية', 
-                          trailingValue: '\$${NumberFormat('#,##0').format(data?['estimated_personal_cash_usd'] ?? 0)}',
+                          trailingValue: '\$${NumberFormat('#,##0').format(double.tryParse(data?['estimated_personal_cash_usd']?.toString() ?? '0') ?? 0.0)}',
                           screen: WalletsScreen(), 
                           list: _buildWalletsList()
                         ),
                         SizedBox(height: 35),
                         
                         _buildAssetSection(
-                          'قطاع الأعمال', 
-                          trailingValue: '\$${NumberFormat('#,##0').format(data?['estimated_business_only_usd'] ?? 0)}',
-                          screen: BusinessesScreen(), 
-                          list: _buildBusinessesList()
-                        ),
-                        SizedBox(height: 35),
-                        
-                        _buildAssetSection(
                           'الاستثمارات', 
-                          trailingValue: '\$${NumberFormat('#,##0').format(data?['estimated_funds_only_usd'] ?? 0)}',
+                          trailingValue: '\$${NumberFormat('#,##0').format((double.tryParse(data?['estimated_business_only_usd']?.toString() ?? '0') ?? 0.0) + (double.tryParse(data?['estimated_funds_only_usd']?.toString() ?? '0') ?? 0.0))}',
                           screen: FundsScreen(), 
                           list: _buildFundsList()
                         ),
@@ -113,8 +103,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ],
             ),
           ),
-      floatingActionButton: _buildPremiumFAB(),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: null,
     );
   }
 
@@ -148,22 +137,118 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildMainWealthCard(NumberFormat format) {
+  Widget _buildStatsGrid(NumberFormat format) {
+    final double estimatedTotalUSD = double.tryParse(data?['estimated_total_usd']?.toString() ?? '0') ?? 0.0;
+    final double estimatedPersonalCashUSD = double.tryParse(data?['estimated_personal_cash_usd']?.toString() ?? '0') ?? 0.0;
+    final double estimatedBusinessValueUSD = double.tryParse(data?['estimated_business_value_usd']?.toString() ?? '0') ?? 0.0;
+    final double estimatedBusinessOnlyUSD = double.tryParse(data?['estimated_business_only_usd']?.toString() ?? '0') ?? 0.0;
+    final double estimatedFundsOnlyUSD = double.tryParse(data?['estimated_funds_only_usd']?.toString() ?? '0') ?? 0.0;
+    final double receivables = double.tryParse(data?['total_receivables_usd']?.toString() ?? '0') ?? 0.0;
+    final double payables = double.tryParse(data?['total_payables_usd']?.toString() ?? '0') ?? 0.0;
+    final double netDebts = double.tryParse(data?['net_debts_usd']?.toString() ?? '0') ?? 0.0;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // 1. Wealth Card (Full Width)
+        _buildWealthCard(estimatedTotalUSD, format),
+        SizedBox(height: 12),
+        
+        // 2-Column Grid for the 4 core KPI cards
+        Row(
+          children: [
+            Expanded(
+              child: _buildGradientKPI(
+                title: 'النقد الشخصي المتوفر',
+                amount: estimatedPersonalCashUSD,
+                format: format,
+                colors: [Color(0xFFF0F9FF), Color(0xFFE0F2FE)],
+                borderColor: Color(0xFFBAE6FD),
+                textColor: Color(0xFF0369A1),
+                subtext: 'محافظك الشخصية المجمعة',
+                icon: Icons.account_balance_wallet,
+              ),
+            ),
+            SizedBox(width: 12),
+            Expanded(
+              child: _buildGradientKPI(
+                title: 'المشاريع والاستثمارات',
+                amount: estimatedBusinessValueUSD,
+                format: format,
+                colors: [Color(0xFFFEF3C7), Color(0xFFFDE68A)],
+                borderColor: Color(0xFFFCD34D),
+                textColor: Color(0xFFB45309),
+                subtext: 'مشاريع: \$${NumberFormat('#,##0').format(estimatedBusinessOnlyUSD)} | صناديق: \$${NumberFormat('#,##0').format(estimatedFundsOnlyUSD)}',
+                icon: Icons.storefront,
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: _buildGradientKPI(
+                title: 'ديون لي (مستحقات)',
+                amount: receivables,
+                format: format,
+                colors: [Color(0xFFECFDF5), Color(0xFFD1FAE5)],
+                borderColor: Color(0xFFA7F3D0),
+                textColor: Color(0xFF047857),
+                subtext: 'مستحقاتك بذمة الآخرين',
+                icon: Icons.arrow_downward,
+              ),
+            ),
+            SizedBox(width: 12),
+            Expanded(
+              child: _buildGradientKPI(
+                title: 'ديون عليّ (التزامات)',
+                amount: payables,
+                format: format,
+                colors: [Color(0xFFFFF1F2), Color(0xFFFFE4E6)],
+                borderColor: Color(0xFFFECDD3),
+                textColor: Color(0xFFBE123C),
+                subtext: 'قروض وأقساط مستحقة سداد',
+                icon: Icons.arrow_upward,
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 12),
+        
+        // 6. Net Debts Card (Full Width)
+        _buildGradientKPI(
+          title: 'صافي الديون المستحقة',
+          amount: netDebts,
+          format: format,
+          colors: [Color(0xFFF5F3FF), Color(0xFFEDE9FE)],
+          borderColor: Color(0xFFDDD6FE),
+          textColor: netDebts >= 0 ? Color(0xFF047857) : Color(0xFFBE123C),
+          subtext: 'الفارق المالي بين ما لك وما عليك من ذمم',
+          icon: Icons.balance,
+          isSigned: true,
+          isFullWidth: true,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildWealthCard(double amount, NumberFormat format) {
     return Container(
-      height: 220,
+      height: 200,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [Color(0xFF1E1B4B), Color(0xFF312E81), Color(0xFF4338CA)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(color: Color(0xFF4338CA).withOpacity(0.2), blurRadius: 20, offset: Offset(0, 10)),
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: BorderRadius.circular(24),
         child: Stack(
           children: [
             Positioned(
@@ -174,16 +259,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 backgroundColor: Colors.white.withOpacity(0.03),
               ),
             ),
-            Positioned(
-              left: -30,
-              top: -30,
-              child: CircleAvatar(
-                radius: 80,
-                backgroundColor: Colors.white.withOpacity(0.02),
-              ),
-            ),
             Padding(
-              padding: EdgeInsets.all(26),
+              padding: EdgeInsets.all(24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -191,9 +268,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text('صافي الثروة المقدرة', 
-                        style: GoogleFonts.almarai(color: Colors.white.withOpacity(0.7), fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 0.5)),
+                        style: GoogleFonts.almarai(color: Colors.white.withOpacity(0.7), fontWeight: FontWeight.bold, fontSize: 11, letterSpacing: 0.5)),
                       Container(
-                        padding: EdgeInsets.all(8),
+                        padding: EdgeInsets.all(6),
                         decoration: BoxDecoration(
                           color: Colors.white.withOpacity(0.1),
                           shape: BoxShape.circle,
@@ -202,12 +279,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 10),
-                  Text(format.format(data?['estimated_total_usd'] ?? 0), 
-                    style: GoogleFonts.almarai(color: Colors.white, fontSize: 40, fontWeight: FontWeight.w900, letterSpacing: -1.5)),
+                  SizedBox(height: 8),
+                  Text(format.format(amount), 
+                    style: GoogleFonts.almarai(color: Colors.white, fontSize: 36, fontWeight: FontWeight.w900, letterSpacing: -1.5)),
                   Spacer(),
-                  Text('العملات الأخرى المتوفرة:', 
-                    style: GoogleFonts.almarai(color: Colors.white.withOpacity(0.5), fontSize: 10, fontWeight: FontWeight.bold)),
+                  Text('العملات الأخرى المتوفرة في حساباتك:', 
+                    style: GoogleFonts.almarai(color: Colors.white.withOpacity(0.5), fontSize: 9, fontWeight: FontWeight.bold)),
                   SizedBox(height: 8),
                   Row(
                     children: (data?['total_by_currency'] is Map ? (data?['total_by_currency'] as Map) : {}).entries.where((e) => e.key != 'USD').take(3).map((e) => Container(
@@ -218,7 +295,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(color: Colors.white.withOpacity(0.05)),
                       ),
-                      child: Text('${NumberFormat('#,##0').format(e.value)} ${e.key}', style: GoogleFonts.almarai(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w800)),
+                      child: Text('${NumberFormat('#,##0').format(e.value)} ${e.key}', style: GoogleFonts.almarai(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w800)),
                     )).toList(),
                   )
                 ],
@@ -230,65 +307,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildLedgerSection(NumberFormat format) {
-    final double receivables = (data?['total_receivables_usd'] ?? 0).toDouble();
-    final double payables = (data?['total_payables_usd'] ?? 0).toDouble();
-    final double netDebts = (data?['net_debts_usd'] ?? 0).toDouble();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        _buildSectionHeader('الديون والالتزامات (الدفتر)'),
-        SizedBox(height: 15),
-        Container(
-          height: 105,
-          child: ListView(
-            scrollDirection: Axis.horizontal,
-            physics: BouncingScrollPhysics(),
-            children: [
-              // Receivables (ديون لي)
-              _buildLedgerCard(
-                title: 'ديون لي (مستحقات)',
-                amount: receivables,
-                bgColor: Color(0xFFECFDF5),
-                textColor: Color(0xFF047857),
-                icon: Icons.arrow_downward,
-                format: format,
-              ),
-              // Payables (ديون علي)
-              _buildLedgerCard(
-                title: 'ديون عليّ (التزامات)',
-                amount: payables,
-                bgColor: Color(0xFFFFF1F2),
-                textColor: Color(0xFFBE123C),
-                icon: Icons.arrow_upward,
-                format: format,
-              ),
-              // Net Debt (صافي الديون)
-              _buildLedgerCard(
-                title: 'صافي الديون المستحقة',
-                amount: netDebts,
-                bgColor: Color(0xFFF5F3FF),
-                textColor: netDebts >= 0 ? Color(0xFF047857) : Color(0xFFBE123C),
-                icon: Icons.balance,
-                format: format,
-                isSigned: true,
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildLedgerCard({
+  Widget _buildGradientKPI({
     required String title,
     required double amount,
-    required Color bgColor,
-    required Color textColor,
-    required IconData icon,
     required NumberFormat format,
+    required List<Color> colors,
+    required Color borderColor,
+    required Color textColor,
+    required String subtext,
+    required IconData icon,
     bool isSigned = false,
+    bool isFullWidth = false,
   }) {
     String signedAmount = format.format(amount.abs());
     if (isSigned) {
@@ -296,19 +325,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
 
     return Container(
-      width: 190,
-      margin: EdgeInsets.only(left: 12, bottom: 5),
-      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      height: isFullWidth ? 95 : 110,
+      padding: EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: bgColor,
+        gradient: LinearGradient(
+          colors: colors,
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: textColor.withOpacity(0.15), width: 1.5),
+        border: Border.all(color: borderColor, width: 1.5),
         boxShadow: [
-          BoxShadow(
-            color: textColor.withOpacity(0.015),
-            blurRadius: 10,
-            offset: Offset(0, 4),
-          )
+          BoxShadow(color: textColor.withOpacity(0.03), blurRadius: 10, offset: Offset(0, 5))
         ],
       ),
       child: Column(
@@ -332,27 +360,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
               Icon(icon, color: textColor, size: 14),
             ],
           ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                signedAmount,
-                style: GoogleFonts.almarai(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w900,
-                  color: textColor,
-                ),
-              ),
-              Text(
-                'مبالغ مقدرة بالدولار',
-                style: GoogleFonts.almarai(
-                  fontSize: 8,
-                  fontWeight: FontWeight.bold,
-                  color: textColor.withOpacity(0.6),
-                ),
-              ),
-            ],
-          )
+          SizedBox(height: 4),
+          Text(
+            signedAmount,
+            style: GoogleFonts.almarai(
+              fontSize: 18,
+              fontWeight: FontWeight.w900,
+              color: textColor,
+            ),
+          ),
+          SizedBox(height: 2),
+          Text(
+            subtext,
+            style: GoogleFonts.almarai(
+              fontSize: 8,
+              fontWeight: FontWeight.bold,
+              color: textColor.withOpacity(0.7),
+            ),
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+          ),
         ],
       ),
     );
@@ -368,8 +395,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
         _buildSectionHeader('مواعيد الاستحقاق القريبة (التنبيهات)'),
         SizedBox(height: 15),
         ...upcoming.map((debt) {
-          final int daysLeft = (debt['days_left'] ?? 0).toInt();
-          final double remaining = (debt['remaining_amount'] ?? 0).toDouble();
+          final int daysLeft = int.tryParse(debt['days_left']?.toString() ?? '0') ?? 0;
+          final double remaining = double.tryParse(debt['remaining_amount']?.toString() ?? '0') ?? 0.0;
           final String partyName = debt['party_name'] ?? 'ذمة';
           final String type = debt['type'] ?? 'receivable';
           final String currency = debt['currency'] ?? 'USD';
@@ -563,20 +590,34 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _buildWalletsList() {
     final wallets = data?['wallets'] as List? ?? [];
     if (wallets.isEmpty) return _buildEmptyAsset('لا توجد محافظ');
+    
+    final double totalPersonalCash = double.tryParse(data?['estimated_personal_cash_usd']?.toString() ?? '0') ?? 0.0;
+
     return Container(
-      height: 170,
+      height: 185,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         physics: BouncingScrollPhysics(),
         itemCount: wallets.length,
         itemBuilder: (context, i) {
           final w = wallets[i];
+          final double balance = double.tryParse(w['balance']?.toString() ?? '0') ?? 0.0;
+          
+          double balanceUSD = balance;
+          final String currency = w['currency'] ?? 'USD';
+          if (currency == 'SYP') {
+            final double sypRate = double.tryParse(data?['syp_rate']?.toString() ?? '15000') ?? 15000.0;
+            balanceUSD = sypRate > 0 ? balance / sypRate : balance;
+          }
+          final double percentageOfTotal = totalPersonalCash > 0 ? (balanceUSD / totalPersonalCash) * 100 : 0.0;
+          final double progressPercent = (percentageOfTotal / 100).clamp(0.0, 1.0);
+
           return GestureDetector(
             onTap: () => Get.to(() => WalletDetailScreen(walletId: w['id'])),
             child: Container(
               width: 220,
               margin: EdgeInsets.only(left: 15, bottom: 10),
-              padding: EdgeInsets.all(22),
+              padding: EdgeInsets.all(20),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [Color(0xFFF0F9FF), Color(0xFFE0F2FE)],
@@ -596,99 +637,63 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Container(
-                        padding: EdgeInsets.all(10),
+                        padding: EdgeInsets.all(8),
                         decoration: BoxDecoration(
                           color: Colors.white.withOpacity(0.7),
-                          borderRadius: BorderRadius.circular(14),
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                        child: Icon(Icons.account_balance_wallet, color: Color(0xFF0369A1), size: 20),
+                        child: Icon(Icons.account_balance_wallet_rounded, color: Color(0xFF0369A1), size: 18),
                       ),
                       Container(
-                        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
                           color: Color(0xFF0284C7),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
-                          w['currency'] ?? 'USD',
-                          style: GoogleFonts.almarai(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 10),
+                          currency,
+                          style: GoogleFonts.almarai(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 9),
                         ),
                       )
                     ],
                   ),
                   Spacer(),
-                  Text(w['name'], style: GoogleFonts.almarai(fontWeight: FontWeight.w900, fontSize: 14, color: Color(0xFF0C4A6E))),
-                  SizedBox(height: 6),
-                  Text('${NumberFormat('#,##0').format(w['balance'])} ${w['currency']}', style: GoogleFonts.almarai(color: Color(0xFF0369A1), fontWeight: FontWeight.w900, fontSize: 18)),
-                ],
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildBusinessesList() {
-    final businesses = data?['businesses'] as List? ?? [];
-    if (businesses.isEmpty) return _buildEmptyAsset('لا توجد أعمال');
-    return Container(
-      height: 170,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        physics: BouncingScrollPhysics(),
-        itemCount: businesses.length,
-        itemBuilder: (context, i) {
-          final b = businesses[i];
-          return GestureDetector(
-            onTap: () => Get.to(() => BusinessDetailScreen(businessId: b['id'])),
-            child: Container(
-              width: 220,
-              margin: EdgeInsets.only(left: 15, bottom: 10),
-              padding: EdgeInsets.all(22),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xFFFEF3C7), Color(0xFFFDE68A).withOpacity(0.7)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(26), 
-                border: Border.all(color: Color(0xFFFCD34D), width: 1.5),
-                boxShadow: [
-                  BoxShadow(color: Color(0xFFD97706).withOpacity(0.04), blurRadius: 15, offset: Offset(0, 8))
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+                  Text(w['name'], style: GoogleFonts.almarai(fontWeight: FontWeight.w900, fontSize: 13, color: Color(0xFF0C4A6E))),
+                  SizedBox(height: 3),
+                  Text('${NumberFormat('#,##0').format(balance)} $currency', style: GoogleFonts.almarai(color: Color(0xFF0369A1), fontWeight: FontWeight.w900, fontSize: 16)),
+                  
+                  // Visual Chart: Progress bar showing percentage of total liquidity cash!
+                  SizedBox(height: 12),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Container(
-                        padding: EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.7),
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        child: Icon(Icons.storefront, color: Color(0xFFB45309), size: 20),
+                      Text(
+                        'نسبة السيولة الشخصية',
+                        style: GoogleFonts.almarai(fontSize: 8, color: Color(0xFF0369A1).withOpacity(0.7), fontWeight: FontWeight.bold),
                       ),
-                      Container(
-                        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: Color(0xFFD97706),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          b['currency'] ?? 'USD',
-                          style: GoogleFonts.almarai(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 10),
-                        ),
-                      )
+                      Text(
+                        '${percentageOfTotal.toStringAsFixed(0)}%',
+                        style: GoogleFonts.almarai(fontSize: 8, color: Color(0xFF0369A1), fontWeight: FontWeight.w900),
+                      ),
                     ],
                   ),
-                  Spacer(),
-                  Text(b['name'], style: GoogleFonts.almarai(fontWeight: FontWeight.w900, fontSize: 14, color: Color(0xFF78350F))),
-                  SizedBox(height: 6),
-                  Text('${NumberFormat('#,##0').format(b['total_value'])} ${b['currency'] ?? 'USD'}', style: GoogleFonts.almarai(color: Color(0xFFB45309), fontWeight: FontWeight.w900, fontSize: 18)),
+                  SizedBox(height: 4),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: Container(
+                      height: 4,
+                      width: double.infinity,
+                      color: Colors.white,
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: Container(
+                          width: 220 * progressPercent,
+                          height: 4,
+                          color: Color(0xFF0284C7),
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -700,68 +705,193 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Widget _buildFundsList() {
     final fundsList = data?['funds'] as List? ?? [];
-    if (fundsList.isEmpty) return _buildEmptyAsset('لا توجد استثمارات');
+    final businessList = data?['businesses'] as List? ?? [];
+    
+    if (fundsList.isEmpty && businessList.isEmpty) return _buildEmptyAsset('لا توجد استثمارات أو مشاريع');
+
+    final List combined = [];
+    for (var b in businessList) {
+      combined.add({
+        'is_business': true,
+        ...b
+      });
+    }
+    for (var f in fundsList) {
+      combined.add({
+        'is_business': false,
+        ...f
+      });
+    }
+
     return Container(
-      height: 170,
+      height: 190,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         physics: BouncingScrollPhysics(),
-        itemCount: fundsList.length,
+        itemCount: combined.length,
         itemBuilder: (context, i) {
-          final f = fundsList[i];
-          return GestureDetector(
-            onTap: () => Get.to(() => FundDetailScreen(fundId: f['id'])),
-            child: Container(
-              width: 220,
-              margin: EdgeInsets.only(left: 15, bottom: 10),
-              padding: EdgeInsets.all(22),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xFFFAF5FF), Color(0xFFF3E8FF)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(26), 
-                border: Border.all(color: Color(0xFFE9D5FF), width: 1.5),
-                boxShadow: [
-                  BoxShadow(color: Color(0xFF7E22CE).withOpacity(0.04), blurRadius: 15, offset: Offset(0, 8))
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        padding: EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.7),
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        child: Text(f['icon'] ?? '📈', style: GoogleFonts.almarai(fontSize: 18)),
-                      ),
-                      Container(
-                        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: Color(0xFF7E22CE),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          f['currency'] ?? 'USD',
-                          style: GoogleFonts.almarai(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 10),
-                        ),
-                      )
-                    ],
+          final item = combined[i];
+          final bool isBusiness = item['is_business'] == true;
+
+          if (isBusiness) {
+            final double totalValue = double.tryParse(item['total_value']?.toString() ?? '0') ?? 0.0;
+            final String currency = item['currency'] ?? 'USD';
+            return GestureDetector(
+              onTap: () => Get.to(() => BusinessDetailScreen(businessId: item['id'])),
+              child: Container(
+                width: 220,
+                margin: EdgeInsets.only(left: 15, bottom: 10),
+                padding: EdgeInsets.all(22),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Color(0xFFFEF3C7), Color(0xFFFDE68A).withOpacity(0.7)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
-                  Spacer(),
-                  Text(f['name'], style: GoogleFonts.almarai(fontWeight: FontWeight.w900, fontSize: 14, color: Color(0xFF581C87))),
-                  SizedBox(height: 6),
-                  Text('${NumberFormat('#,##0').format(f['current_value'])} ${f['currency']}', style: GoogleFonts.almarai(color: Color(0xFF7E22CE), fontWeight: FontWeight.w900, fontSize: 18)),
-                ],
+                  borderRadius: BorderRadius.circular(26), 
+                  border: Border.all(color: Color(0xFFFCD34D), width: 1.5),
+                  boxShadow: [
+                    BoxShadow(color: Color(0xFFD97706).withOpacity(0.04), blurRadius: 15, offset: Offset(0, 8))
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          padding: EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.7),
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          child: Icon(Icons.storefront, color: Color(0xFFB45309), size: 20),
+                        ),
+                        Container(
+                          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Color(0xFFD97706),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            currency,
+                            style: GoogleFonts.almarai(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 10),
+                          ),
+                        )
+                      ],
+                    ),
+                    Spacer(),
+                    Text(item['name'], style: GoogleFonts.almarai(fontWeight: FontWeight.w900, fontSize: 14, color: Color(0xFF78350F))),
+                    SizedBox(height: 6),
+                    Text('${NumberFormat('#,##0').format(totalValue)} $currency', style: GoogleFonts.almarai(color: Color(0xFFB45309), fontWeight: FontWeight.w900, fontSize: 18)),
+                  ],
+                ),
               ),
-            ),
-          );
+            );
+          } else {
+            final double currentValue = double.tryParse(item['current_value']?.toString() ?? '0') ?? 0.0;
+            final double capital = double.tryParse(item['capital']?.toString() ?? '0') ?? 0.0;
+            
+            final double fundProfit = currentValue - capital;
+            final double fundProfitPct = capital > 0 ? (fundProfit / capital) * 100 : 0.0;
+            final double barPercent = capital > 0 ? (currentValue / capital).clamp(0.0, 1.0) : 0.0;
+
+            final isProfit = fundProfit >= 0;
+            final String currency = item['currency'] ?? 'USD';
+
+            return GestureDetector(
+              onTap: () => Get.to(() => FundDetailScreen(fundId: item['id'])),
+              child: Container(
+                width: 220,
+                margin: EdgeInsets.only(left: 15, bottom: 10),
+                padding: EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Color(0xFFFAF5FF), Color(0xFFF3E8FF)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(26), 
+                  border: Border.all(color: Color(0xFFE9D5FF), width: 1.5),
+                  boxShadow: [
+                    BoxShadow(color: Color(0xFF7E22CE).withOpacity(0.04), blurRadius: 15, offset: Offset(0, 8))
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          padding: EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.7),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(item['icon'] ?? '📈', style: GoogleFonts.almarai(fontSize: 16)),
+                        ),
+                        Container(
+                          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: isProfit ? Color(0xFFD1FAE5) : Color(0xFFFEE2E2),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: isProfit ? Color(0xA010B981) : Color(0xA0EF4444), width: 0.5),
+                          ),
+                          child: Text(
+                            '${isProfit ? '+' : ''}${fundProfitPct.toStringAsFixed(1)}%',
+                            style: GoogleFonts.almarai(
+                              color: isProfit ? Color(0xFF065F46) : Color(0xFF991B1B), 
+                              fontWeight: FontWeight.w900, 
+                              fontSize: 9
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                    Spacer(),
+                    Text(item['name'], style: GoogleFonts.almarai(fontWeight: FontWeight.w900, fontSize: 13, color: Color(0xFF581C87))),
+                    SizedBox(height: 3),
+                    Text('${NumberFormat('#,##0').format(currentValue)} $currency', style: GoogleFonts.almarai(color: Color(0xFF7E22CE), fontWeight: FontWeight.w900, fontSize: 16)),
+                    
+                    // Visual Chart: Fund Investment Progress Bar (Value vs Capital)
+                    SizedBox(height: 12),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'العائد الرأسمالي المقدر',
+                          style: GoogleFonts.almarai(fontSize: 8, color: Color(0xFF7E22CE).withOpacity(0.7), fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          '${(barPercent * 100).toStringAsFixed(0)}%',
+                          style: GoogleFonts.almarai(fontSize: 8, color: Color(0xFF7E22CE), fontWeight: FontWeight.w900),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 4),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(4),
+                      child: Container(
+                        height: 4,
+                        width: double.infinity,
+                        color: Colors.white,
+                        child: Align(
+                          alignment: Alignment.centerRight,
+                          child: Container(
+                            width: 220 * barPercent,
+                            height: 4,
+                            color: Color(0xFF7E22CE),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
         },
       ),
     );
@@ -858,85 +988,147 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildCashflowChart() {
-    if (data == null || data?['chart_data'] == null) return SizedBox();
+    if (data == null) return SizedBox();
     
-    final chartDataRaw = data?['chart_data'];
-    if (chartDataRaw is! Map) return _buildEmptyAsset('بيانات الرسم البياني غير متوفرة');
-    
-    final chartData = chartDataRaw;
-    final List<double> commercial = (chartData['commercial'] as List? ?? [])
-        .map((e) => (e as num).toDouble())
-        .toList();
-    final List<double> personal = (chartData['personal'] as List? ?? [])
-        .map((e) => (e as num).toDouble())
-        .toList();
-    final List<String> days = List<String>.from(chartData['days'] ?? []);
+    final double personal = double.tryParse(data?['estimated_personal_cash_usd']?.toString() ?? '0') ?? 0.0;
+    final double business = double.tryParse(data?['estimated_business_only_usd']?.toString() ?? '0') ?? 0.0;
+    final double funds = double.tryParse(data?['estimated_funds_only_usd']?.toString() ?? '0') ?? 0.0;
+    final double investmentsTotal = business + funds;
+    final double total = personal + investmentsTotal;
+
+    if (total == 0) {
+      return _buildEmptyAsset('لا توجد بيانات سيولة متوفرة حالياً');
+    }
+
+    final double personalPct = total > 0 ? (personal / total) * 100 : 0;
+    final double investmentsPct = total > 0 ? (investmentsTotal / total) * 100 : 0;
 
     return Container(
-      height: 280,
-      padding: EdgeInsets.fromLTRB(10, 25, 25, 10),
+      height: 220,
+      padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(30),
         border: Border.all(color: Color(0xFFE2E8F0), width: 1.5),
-        boxShadow: [BoxShadow(color: Colors.indigo.shade900.withOpacity(0.01), blurRadius: 30, offset: Offset(0, 10))],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.indigo.shade900.withOpacity(0.01),
+            blurRadius: 20,
+            offset: Offset(0, 8),
+          )
+        ],
       ),
-      child: LineChart(
-        LineChartData(
-          gridData: FlGridData(show: true, drawVerticalLine: false, getDrawingHorizontalLine: (value) => FlLine(color: Colors.indigo.shade50, strokeWidth: 1)),
-          titlesData: FlTitlesData(
-            show: true,
-            rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            bottomTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                reservedSize: 30,
-                interval: 1,
-                getTitlesWidget: (value, meta) {
-                  int index = value.toInt();
-                  if (index >= 0 && index < days.length) {
-                    return Text(days[index], style: GoogleFonts.almarai(color: Colors.indigo.shade200, fontWeight: FontWeight.bold, fontSize: 10));
-                  }
-                  return Text('');
-                },
-              ),
-            ),
-            leftTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                interval: 5000,
-                getTitlesWidget: (value, meta) {
-                  if (value == 0) return Text('0', style: GoogleFonts.almarai(color: Colors.indigo.shade100, fontSize: 10));
-                  return Text('${(value / 1000).toStringAsFixed(0)}k', style: GoogleFonts.almarai(color: Colors.indigo.shade200, fontWeight: FontWeight.bold, fontSize: 10));
-                },
-                reservedSize: 35,
+      child: Row(
+        children: [
+          // Donut Chart
+          Expanded(
+            flex: 4,
+            child: Container(
+              height: 150,
+              child: PieChart(
+                PieChartData(
+                  sectionsSpace: 4,
+                  centerSpaceRadius: 42,
+                  startDegreeOffset: 270,
+                  sections: [
+                    if (personal > 0)
+                      PieChartSectionData(
+                        color: Color(0xFF0284C7),
+                        value: personal,
+                        title: '${personalPct.toStringAsFixed(0)}%',
+                        radius: 20,
+                        titleStyle: GoogleFonts.almarai(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.white,
+                        ),
+                      ),
+                    if (investmentsTotal > 0)
+                      PieChartSectionData(
+                        color: Color(0xFF7E22CE),
+                        value: investmentsTotal,
+                        title: '${investmentsPct.toStringAsFixed(0)}%',
+                        radius: 20,
+                        titleStyle: GoogleFonts.almarai(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.white,
+                        ),
+                      ),
+                  ],
+                ),
               ),
             ),
           ),
-          borderData: FlBorderData(show: false),
-          lineBarsData: [
-            LineChartBarData(
-              spots: List.generate(commercial.length, (i) => FlSpot(i.toDouble(), commercial[i])),
-              isCurved: true,
-              color: Colors.amber.shade400,
-              barWidth: 4,
-              isStrokeCapRound: true,
-              dotData: FlDotData(show: false),
-              belowBarData: BarAreaData(show: true, gradient: LinearGradient(colors: [Colors.amber.shade400.withOpacity(0.15), Colors.amber.shade400.withOpacity(0.0)], begin: Alignment.topCenter, end: Alignment.bottomCenter)),
+          SizedBox(width: 15),
+          // Legend
+          Expanded(
+            flex: 5,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildLegendItem('محافظ شخصية', personal, personalPct, Color(0xFF0284C7)),
+                SizedBox(height: 15),
+                _buildLegendItem('الاستثمارات والمشاريع', investmentsTotal, investmentsPct, Color(0xFF7E22CE)),
+              ],
             ),
-            LineChartBarData(
-              spots: List.generate(personal.length, (i) => FlSpot(i.toDouble(), personal[i])),
-              isCurved: true,
-              color: Colors.indigo.shade500,
-              barWidth: 4,
-              isStrokeCapRound: true,
-              dotData: FlDotData(show: false),
-              belowBarData: BarAreaData(show: true, gradient: LinearGradient(colors: [Colors.indigo.shade500.withOpacity(0.15), Colors.indigo.shade500.withOpacity(0.0)], begin: Alignment.topCenter, end: Alignment.bottomCenter)),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
+    );
+  }
+
+  Widget _buildLegendItem(String title, double amount, double percentage, Color color) {
+    return Row(
+      children: [
+        Container(
+          width: 12,
+          height: 12,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(4),
+          ),
+        ),
+        SizedBox(width: 10),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    title,
+                    style: GoogleFonts.almarai(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 11,
+                      color: Color(0xFF1E293B),
+                    ),
+                  ),
+                  Text(
+                    '${percentage.toStringAsFixed(1)}%',
+                    style: GoogleFonts.almarai(
+                      fontWeight: FontWeight.w900,
+                      fontSize: 10,
+                      color: color,
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 2),
+              Text(
+                '\$${NumberFormat('#,##0').format(amount)}',
+                style: GoogleFonts.almarai(
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF64748B),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -965,7 +1157,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
             SizedBox(width: 8),
             Text('تسجيل حركة جديدة', style: GoogleFonts.almarai(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 15)),
           ],
-          
         ),
       ),
     );
