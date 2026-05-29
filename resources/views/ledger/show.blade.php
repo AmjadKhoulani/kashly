@@ -133,18 +133,31 @@
                 </div>
 
                 {{-- Stats Row --}}
-                <div class="grid grid-cols-3 gap-4 mt-6 pt-6 border-t border-white/20">
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6 pt-6 border-t border-white/20">
                     <div>
-                        <p class="text-white/50 text-[9px] font-black uppercase tracking-widest">المدفوع</p>
-                        <p class="text-white font-black text-lg tracking-tighter">{{ number_format($entry->paid_amount, 2) }}</p>
+                        <p class="text-white/50 text-[9px] font-black uppercase tracking-widest">المدفوع (السداد)</p>
+                        <p class="text-white font-black text-lg tracking-tighter">
+                            {{ number_format($entry->paid_amount, 2) }}
+                            <span class="text-xs opacity-75">{{ $entry->currency }}</span>
+                        </p>
+                        <p class="text-[9px] text-white/40 font-bold mt-0.5">عدد الدفعات: {{ $entry->payments->count() }}</p>
                     </div>
                     <div>
-                        <p class="text-white/50 text-[9px] font-black uppercase tracking-widest">عدد الدفعات</p>
-                        <p class="text-white font-black text-lg">{{ $entry->payments->count() }}</p>
+                        <p class="text-white/50 text-[9px] font-black uppercase tracking-widest">المضاف للذمة</p>
+                        <p class="text-white font-black text-lg tracking-tighter">
+                            {{ number_format($entry->charges()->sum('amount'), 2) }}
+                            <span class="text-xs opacity-75">{{ $entry->currency }}</span>
+                        </p>
+                        <p class="text-[9px] text-white/40 font-bold mt-0.5">عدد الإضافات: {{ $entry->charges()->count() }}</p>
+                    </div>
+                    <div>
+                        <p class="text-white/50 text-[9px] font-black uppercase tracking-widest">إجمالي الحركات</p>
+                        <p class="text-white font-black text-lg tracking-tighter">{{ $entry->movements->count() }} حركة</p>
+                        <p class="text-[9px] text-white/40 font-bold mt-0.5">موثقة بالسجل أدناه</p>
                     </div>
                     <div>
                         <p class="text-white/50 text-[9px] font-black uppercase tracking-widest">تاريخ الاستحقاق</p>
-                        <p class="text-white font-black text-sm">
+                        <p class="text-white font-black text-sm mt-1">
                             {{ $entry->due_date ? $entry->due_date->format('d/m/Y') : 'غير محدد' }}
                         </p>
                     </div>

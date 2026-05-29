@@ -38,6 +38,11 @@ class LedgerEntry extends Model
         return $this->hasMany(LedgerPayment::class);
     }
 
+    public function charges(): HasMany
+    {
+        return $this->hasMany(LedgerPayment::class)->where('type', 'charge');
+    }
+
     // المبلغ المتبقي
     public function getRemainingAmountAttribute(): float
     {
