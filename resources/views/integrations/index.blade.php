@@ -141,9 +141,12 @@
                     @endphp
 
                     @if($madaaqIntegration)
-                        <button @click="showMadaaqModal = true" class="w-full px-5 py-2.5 bg-slate-100 text-slate-900 rounded-xl font-black text-xs shadow-sm hover:scale-105 active:scale-95 transition-all">عرض بيانات الـ Webhook</button>
+                        <button @click="showMadaaqModal = true" class="w-full px-5 py-2.5 bg-slate-100 text-slate-900 rounded-xl font-black text-xs shadow-sm hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2">
+                            <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                            تكامل نشط
+                        </button>
                     @else
-                        <button @click="showMadaaqModal = true" class="w-full px-5 py-2.5 bg-orange-600 text-white rounded-xl font-black text-xs shadow-lg shadow-orange-500/20 hover:scale-105 active:scale-95 transition-all">إعداد الـ Webhook</button>
+                        <button @click="showMadaaqModal = true" class="w-full px-5 py-2.5 bg-orange-600 text-white rounded-xl font-black text-xs shadow-lg shadow-orange-500/20 hover:scale-105 active:scale-95 transition-all">ربط مع MadaaQ</button>
                     @endif
 
                     <!-- MadaaQ Setup Modal -->
@@ -152,48 +155,70 @@
                             
                             <!-- Sticky Header inside Modal -->
                             <div class="sticky top-0 bg-white/95 border-b border-slate-100 px-6 py-4 flex justify-between items-center z-10 backdrop-blur-md">
-                                <h3 class="text-lg font-black text-slate-900">إعداد تكامل MadaaQ</h3>
+                                <h3 class="text-lg font-black text-slate-900">
+                                    @if($madaaqIntegration) تكامل MadaaQ @else ربط مع MadaaQ @endif
+                                </h3>
                                 <button @click="showMadaaqModal = false" class="text-slate-400 hover:text-slate-600 transition-all p-1.5 hover:bg-slate-50 rounded-xl border border-transparent hover:border-slate-100">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
                                 </button>
                             </div>
 
                             <!-- Modal Content -->
-                            <div class="p-6 space-y-6">
+                            <div class="p-6 space-y-5">
                                 @if($madaaqIntegration)
-                                    <div class="space-y-4 text-right">
-                                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
-                                            <p class="text-[9px] font-black text-slate-450 uppercase tracking-widest mb-1">Webhook URL</p>
-                                            <code class="text-xs font-bold text-indigo-600 break-all select-all">{{ url('/api/webhooks/madaaq') }}</code>
+                                    {{-- Integration is active - show status only --}}
+                                    <div class="text-center space-y-5">
+                                        <div class="w-16 h-16 bg-emerald-50 rounded-2xl flex items-center justify-center mx-auto text-3xl border border-emerald-100 shadow-sm">✅</div>
+                                        <div>
+                                            <p class="text-lg font-black text-slate-900">التكامل نشط ويعمل</p>
+                                            <p class="text-xs font-bold text-slate-400 mt-1 leading-relaxed">
+                                                يتم استقبال تحصيلات MadaaQ تلقائياً وتسجيلها في صندوقك المالي.
+                                            </p>
                                         </div>
-                                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
-                                            <p class="text-[9px] font-black text-slate-450 uppercase tracking-widest mb-1">X-MadaaQ-Key (Security Key)</p>
-                                            <code class="text-xs font-bold text-orange-600 break-all select-all">{{ $madaaqIntegration->webhook_secret }}</code>
+                                        <div class="bg-slate-50 rounded-2xl p-4 text-right border border-slate-100">
+                                            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">الصندوق المستهدف</p>
+                                            <p class="text-sm font-black text-slate-900">{{ $madaaqIntegration->target->name ?? 'غير محدد' }}</p>
                                         </div>
-                                        <p class="text-xs font-bold text-slate-500 leading-relaxed text-center">
-                                            استخدم هذه البيانات في لوحة تحكم MadaaQ لتفعيل المزامنة التلقائية.
-                                        </p>
-                                        <button @click="showMadaaqModal = false" class="w-full px-5 py-2.5 bg-slate-900 text-white rounded-xl font-black text-xs hover:scale-105 active:scale-95 transition-all">إغلاق</button>
+                                        <div class="flex gap-3 pt-1">
+                                            <button @click="showMadaaqModal = false" class="flex-1 px-5 py-2.5 bg-slate-100 text-slate-700 rounded-xl font-black text-xs hover:scale-105 active:scale-95 transition-all">إغلاق</button>
+                                            <form action="{{ route('integrations.destroy', $madaaqIntegration->id) }}" method="POST" onsubmit="return confirm('هل أنت متأكد من إلغاء ربط MadaaQ؟')" class="flex-1">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="w-full px-5 py-2.5 bg-rose-50 text-rose-600 rounded-xl font-black text-xs hover:scale-105 active:scale-95 transition-all border border-rose-100">إلغاء الربط</button>
+                                            </form>
+                                        </div>
                                     </div>
                                 @else
+                                    {{-- No integration - show secret code input form --}}
+                                    <div class="bg-orange-50 rounded-2xl p-4 border border-orange-100 text-right">
+                                        <p class="text-xs font-black text-orange-700 mb-1">كيف يعمل الربط؟</p>
+                                        <p class="text-[11px] font-bold text-orange-600 leading-relaxed">
+                                            ادخل إلى لوحة تحكم MadaaQ ← الإعدادات ← الربط الخارجي، ثم انسخ الـ Secret Code وأدخله هنا.
+                                        </p>
+                                    </div>
+
                                     <form action="{{ route('integrations.store') }}" method="POST" class="space-y-4 text-right">
                                         @csrf
                                         <input type="hidden" name="provider" value="madaaq">
-                                        
-                                        <div>
-                                            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 mr-1">اسم التكامل</label>
-                                            <input type="text" name="name" value="MadaaQ Integration" class="w-full bg-gray-50 border-0 rounded-2xl p-4 font-bold text-sm focus:ring-2 focus:ring-indigo-500 outline-none" required>
-                                        </div>
+                                        <input type="hidden" name="name" value="MadaaQ Integration">
 
                                         <div>
-                                            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 mr-1">الرمز السري المولد من MadaaQ (Secret Code)</label>
-                                            <input type="text" name="webhook_secret" placeholder="أدخل الرمز السري المولد من لوحة تحكم MadaaQ..." class="w-full bg-gray-50 border-0 rounded-2xl p-4 font-bold text-sm focus:ring-2 focus:ring-indigo-500 outline-none" required>
+                                            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 mr-1">Secret Code من MadaaQ</label>
+                                            <input 
+                                                type="text" 
+                                                name="webhook_secret" 
+                                                placeholder="الصق الـ Secret Code هنا..." 
+                                                class="w-full bg-gray-50 border-0 rounded-2xl p-4 font-bold text-sm focus:ring-2 focus:ring-orange-400 outline-none text-right" 
+                                                required
+                                                autocomplete="off"
+                                            >
+                                            <p class="text-[10px] font-bold text-slate-400 mt-1.5 mr-1">ستجده في إعدادات الربط الخارجي بمنصة MadaaQ</p>
                                         </div>
 
                                         <div>
                                             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 mr-1">الصندوق المالي المستهدف</label>
-                                            <select name="target_id" class="w-full bg-gray-50 border-0 rounded-2xl p-4 font-bold text-sm focus:ring-2 focus:ring-indigo-500 outline-none" required>
-                                                <option value="">اختر الصندوق...</option>
+                                            <select name="target_id" class="w-full bg-gray-50 border-0 rounded-2xl p-4 font-bold text-sm focus:ring-2 focus:ring-orange-400 outline-none" required>
+                                                <option value="">اختر الصندوق الذي ستُودع فيه التحصيلات...</option>
                                                 @foreach($funds as $fund)
                                                     <option value="{{ $fund->id }}">{{ $fund->name }}</option>
                                                 @endforeach
@@ -201,8 +226,10 @@
                                             <input type="hidden" name="target_type" value="App\Models\InvestmentFund">
                                         </div>
 
-                                        <div class="pt-2">
-                                            <button type="submit" class="w-full px-5 py-2.5 bg-orange-600 text-white rounded-xl font-black text-xs shadow-lg shadow-orange-500/20 hover:scale-105 active:scale-95 transition-all">تفعيل وحفظ البيانات</button>
+                                        <div class="pt-1">
+                                            <button type="submit" class="w-full px-5 py-3 bg-orange-600 text-white rounded-xl font-black text-sm shadow-lg shadow-orange-500/20 hover:scale-105 active:scale-95 transition-all">
+                                                تفعيل الربط مع MadaaQ
+                                            </button>
                                         </div>
                                     </form>
                                 @endif
@@ -287,7 +314,11 @@
                                     </div>
                                 </div>
                                 <div class="h-8 w-px bg-slate-100"></div>
-                                <button class="text-xs font-black text-rose-500 uppercase tracking-widest hover:underline">تعطيل التكامل</button>
+                                <form action="{{ route('integrations.destroy', $integration->id) }}" method="POST" onsubmit="return confirm('هل أنت متأكد من تعطيل هذا الربط وحذف إعداداته؟')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="text-xs font-black text-rose-500 uppercase tracking-widest hover:underline bg-transparent border-0 p-0 cursor-pointer">تعطيل التكامل</button>
+                                </form>
                             </div>
                         </div>
                     @empty

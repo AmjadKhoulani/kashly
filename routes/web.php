@@ -42,6 +42,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/transactions/{transaction}', [TransactionController::class, 'destroy'])->name('transactions.destroy');
     Route::get('/integrations', [IntegrationsController::class, 'index'])->name('integrations.index');
     Route::post('/integrations', [IntegrationsController::class, 'store'])->name('integrations.store');
+    Route::delete('/integrations/{id}', [IntegrationsController::class, 'destroy'])->name('integrations.destroy');
     Route::resource('payment-methods', PaymentMethodController::class);
     Route::post('/wallets/{id}/reconcile', [WalletController::class, 'reconcile'])->name('wallets.reconcile');
     Route::resource('wallets', WalletController::class);

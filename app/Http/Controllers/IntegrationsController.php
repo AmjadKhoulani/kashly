@@ -43,4 +43,15 @@ class IntegrationsController extends Controller
 
         return back()->with('success', 'تم إنشاء التكامل بنجاح');
     }
+
+    public function destroy($id)
+    {
+        $integration = Integration::where('user_id', auth()->id())
+            ->where('id', $id)
+            ->firstOrFail();
+            
+        $integration->delete();
+
+        return back()->with('success', 'تم إلغاء تفعيل التكامل بنجاح');
+    }
 }
