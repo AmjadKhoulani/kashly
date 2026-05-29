@@ -427,65 +427,250 @@ class _WalletDetailScreenState extends State<WalletDetailScreen> {
       return _buildEmptyState('لا توجد حسابات أو عهد فرعية مسجلة');
     }
 
-    return Column(
-      children: subAccounts.map((sa) {
-        final double balance = double.tryParse(sa['balance']?.toString() ?? '0') ?? 0.0;
-        final String currency = sa['currency'] ?? 'USD';
-        final String type = sa['type'] ?? 'cash';
-        final String custodianName = sa['custodian_name'] ?? '';
+    final bankAccounts = subAccounts.where((sa) => sa['type'] == 'bank' && sa['parent_id'] == null).toList();
+    final otherAccounts = subAccounts.where((sa) => sa['parent_id'] == null && sa['type'] != 'bank' && (sa['custodian_name'] == null || sa['custodian_name'].toString().isEmpty)).toList();
+    final custodies = subAccounts.where((sa) => sa['custodian_name'] != null && sa['custodian_name'].toString().isNotEmpty).toList();
 
-        return Container(
-          margin: EdgeInsets.only(bottom: 12),
-          padding: EdgeInsets.all(18),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: Color(0xFFE2E8F0), width: 1.5),
-            boxShadow: [
-              BoxShadow(color: Colors.black.withOpacity(0.01), blurRadius: 10, offset: Offset(0, 4))
-            ],
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (bankAccounts.isNotEmpty) ...[
+          Text(
+            '🏛️ الحسابات البنكية والبطاقات المرتبطة',
+            style: GoogleFonts.almarai(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF64748B)),
           ),
-          child: Row(
-            children: [
-              Container(
-                padding: EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: Colors.indigo.shade50,
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: Icon(
-                  type == 'bank' ? Icons.account_balance_rounded : Icons.account_balance_wallet_rounded,
-                  color: Colors.indigo,
-                  size: 20,
-                ),
+          SizedBox(height: 10),
+          ...bankAccounts.map((bank) {
+            final double balance = double.tryParse(bank['balance']?.toString() ?? '0') ?? 0.0;
+            final String currency = bank['currency'] ?? 'USD';
+            final int bankId = bank['id'];
+            final linkedCards = subAccounts.where((sa) => sa['parent_id'] == bankId).toList();
+
+            return Container(
+              margin: EdgeInsets.only(bottom: 15),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(color: Color(0xFFE2E8F0), width: 1.5),
               ),
-              SizedBox(width: 15),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      sa['name'] ?? 'حساب فرعي',
-                      style: GoogleFonts.almarai(fontWeight: FontWeight.w900, fontSize: 13, color: Color(0xFF0F172A)),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: Colors.indigo.shade50,
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          child: Icon(Icons.account_balance_rounded, color: Colors.indigo, size: 20),
+                        ),
+                        SizedBox(width: 15),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                bank['name'] ?? 'حساب بنكي رئيسي',
+                                style: GoogleFonts.almarai(fontWeight: FontWeight.w900, fontSize: 13, color: Color(0xFF0F172A)),
+                              ),
+                              Text(
+                                'حساب بنكي رئيسي',
+                                style: GoogleFonts.almarai(color: Color(0xFF94A3B8), fontSize: 10, fontWeight: FontWeight.bold),
+                              )
+                            ],
+                          ),
+                        ),
+                        Text(
+                          '${format.format(balance)} $currency',
+                          style: GoogleFonts.almarai(fontWeight: FontWeight.w900, color: Color(0xFF0F172A), fontSize: 14),
+                        ),
+                      ],
                     ),
-                    if (custodianName.isNotEmpty) ...[
-                      SizedBox(height: 3),
-                      Text(
-                        'بعهدة المسؤول المالي: $custodianName',
-                        style: GoogleFonts.almarai(color: Color(0xFFD97706), fontSize: 10, fontWeight: FontWeight.bold),
-                      )
-                    ]
+                  ),
+                  if (linkedCards.isNotEmpty) ...[
+                    Container(
+                      color: Color(0xFFF8FAFC),
+                      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '💳 البطاقات المرتبطة بالحساب:',
+                            style: GoogleFonts.almarai(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.indigo),
+                          ),
+                          SizedBox(height: 8),
+                          ...linkedCards.map((card) {
+                            final double cardBalance = double.tryParse(card['balance']?.toString() ?? '0') ?? 0.0;
+                            final String cardCurrency = card['currency'] ?? 'USD';
+                            final String cardType = card['type'] ?? 'credit_card';
+
+                            return Container(
+                              margin: EdgeInsets.only(bottom: 8),
+                              padding: EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(color: Color(0xFFE2E8F0)),
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(Icons.credit_card_rounded, color: Colors.indigo.shade400, size: 16),
+                                  SizedBox(width: 10),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          card['name'] ?? 'بطاقة بنكية',
+                                          style: GoogleFonts.almarai(fontWeight: FontWeight.bold, fontSize: 12, color: Color(0xFF334155)),
+                                        ),
+                                        Text(
+                                          cardType == 'credit_card' ? 'بطاقة ائتمانية' : 'بطاقة دفع',
+                                          style: GoogleFonts.almarai(color: Color(0xFF94A3B8), fontSize: 9, fontWeight: FontWeight.bold),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                  Text(
+                                    '${format.format(cardBalance)} $cardCurrency',
+                                    style: GoogleFonts.almarai(fontWeight: FontWeight.w900, color: Color(0xFF475569), fontSize: 12),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }).toList(),
+                        ],
+                      ),
+                    ),
                   ],
-                ),
+                ],
               ),
-              Text(
-                '${format.format(balance)} $currency',
-                style: GoogleFonts.almarai(fontWeight: FontWeight.w900, color: Color(0xFF0F172A), fontSize: 14),
-              ),
-            ],
+            );
+          }).toList(),
+          SizedBox(height: 20),
+        ],
+        if (otherAccounts.isNotEmpty) ...[
+          Text(
+            '💳 الحسابات والبطاقات المستقلة',
+            style: GoogleFonts.almarai(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF64748B)),
           ),
-        );
-      }).toList(),
+          SizedBox(height: 10),
+          ...otherAccounts.map((sa) {
+            final double balance = double.tryParse(sa['balance']?.toString() ?? '0') ?? 0.0;
+            final String currency = sa['currency'] ?? 'USD';
+            final String type = sa['type'] ?? 'cash';
+
+            return Container(
+              margin: EdgeInsets.only(bottom: 12),
+              padding: EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(color: Color(0xFFE2E8F0), width: 1.5),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Colors.slate.shade50,
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Icon(
+                      type == 'cash' ? Icons.money_rounded : Icons.credit_card_rounded,
+                      color: Colors.slate.shade700,
+                      size: 20,
+                    ),
+                  ),
+                  SizedBox(width: 15),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          sa['name'] ?? 'حساب فرعي',
+                          style: GoogleFonts.almarai(fontWeight: FontWeight.w900, fontSize: 13, color: Color(0xFF0F172A)),
+                        ),
+                        Text(
+                          type == 'cash' ? 'نقد / كاش' : 'بطاقة مستقلة',
+                          style: GoogleFonts.almarai(color: Color(0xFF94A3B8), fontSize: 10, fontWeight: FontWeight.bold),
+                        )
+                      ],
+                    ),
+                  ),
+                  Text(
+                    '${format.format(balance)} $currency',
+                    style: GoogleFonts.almarai(fontWeight: FontWeight.w900, color: Color(0xFF0F172A), fontSize: 14),
+                  ),
+                ],
+              ),
+            );
+          }).toList(),
+          SizedBox(height: 20),
+        ],
+        if (custodies.isNotEmpty) ...[
+          Text(
+            '💼 العهد المالية',
+            style: GoogleFonts.almarai(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF64748B)),
+          ),
+          SizedBox(height: 10),
+          ...custodies.map((sa) {
+            final double balance = double.tryParse(sa['balance']?.toString() ?? '0') ?? 0.0;
+            final String currency = sa['currency'] ?? 'USD';
+            final String custodianName = sa['custodian_name'] ?? '';
+
+            return Container(
+              margin: EdgeInsets.only(bottom: 12),
+              padding: EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Color(0xFFFEF3C7).withOpacity(0.2),
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(color: Color(0xFFFDE68A), width: 1.5),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Color(0xFFF59E0B).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Icon(
+                      Icons.folder_shared_rounded,
+                      color: Color(0xFFD97706),
+                      size: 20,
+                    ),
+                  ),
+                  SizedBox(width: 15),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          sa['name'] ?? 'عهدة فرعية',
+                          style: GoogleFonts.almarai(fontWeight: FontWeight.w900, fontSize: 13, color: Color(0xFF92400E)),
+                        ),
+                        Text(
+                          'بعهدة المسؤول المالي: $custodianName',
+                          style: GoogleFonts.almarai(color: Color(0xFFB45309), fontSize: 10, fontWeight: FontWeight.bold),
+                        )
+                      ],
+                    ),
+                  ),
+                  Text(
+                    '${format.format(balance)} $currency',
+                    style: GoogleFonts.almarai(fontWeight: FontWeight.w900, color: Color(0xFF92400E), fontSize: 14),
+                  ),
+                ],
+              ),
+            );
+          }).toList(),
+        ],
+      ],
     );
   }
 

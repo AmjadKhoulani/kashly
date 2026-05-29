@@ -21,8 +21,6 @@ class PaymentMethodController extends Controller
         return view('payment_methods.index', compact('methods', 'funds', 'wallets'));
     }
 
-    public function store(Request $request)
-    {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'custodian_name' => 'nullable|string|max:255',
@@ -32,6 +30,7 @@ class PaymentMethodController extends Controller
             'association_type' => 'required|string|in:fund,wallet',
             'fund_id' => 'nullable|required_if:association_type,fund|exists:investment_funds,id',
             'wallet_id' => 'nullable|required_if:association_type,wallet|exists:wallets,id',
+            'parent_id' => 'nullable|exists:payment_methods,id',
         ]);
 
         PaymentMethod::create([
@@ -43,6 +42,7 @@ class PaymentMethodController extends Controller
             'currency' => $validated['currency'],
             'fund_id' => $validated['association_type'] === 'fund' ? $validated['fund_id'] : null,
             'wallet_id' => $validated['association_type'] === 'wallet' ? $validated['wallet_id'] : null,
+            'parent_id' => $validated['parent_id'] ?? null,
         ]);
 
         return back()->with('success', 'تمت إضافة وسيلة الدفع بنجاح');

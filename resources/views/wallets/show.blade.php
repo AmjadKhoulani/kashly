@@ -200,44 +200,140 @@
         </div>
 
         {{-- ===================== SUB ACCOUNTS ===================== --}}
-        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-            <div class="flex items-center justify-between px-6 py-5 border-b border-slate-50">
+        <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden p-6 space-y-6">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-100">
                 <h3 class="text-base font-black text-slate-900 flex items-center gap-2">
-                    <span class="w-7 h-7 bg-amber-50 text-amber-600 rounded-lg flex items-center justify-center text-sm">🏛️</span>
-                    الحسابات والعهد التابعة
+                    <span class="w-7 h-7 bg-indigo-50 text-indigo-600 rounded-lg flex items-center justify-center text-sm">🏛️</span>
+                    الحسابات والبطاقات والعهد
                 </h3>
-                <button @click="showAccountModal = true" class="flex items-center gap-1.5 text-xs font-black text-indigo-600 hover:text-indigo-800 transition-colors bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg">
+                <button @click="showAccountModal = true" class="flex items-center gap-1.5 text-xs font-black text-indigo-600 hover:text-indigo-800 transition-colors bg-indigo-50 hover:bg-indigo-100 px-3.5 py-2 rounded-xl">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
-                    إضافة عهدة
+                    إضافة عهدة / حساب
                 </button>
             </div>
+
             @if($paymentMethods->isEmpty())
-                <div class="py-10 text-center text-slate-400 text-sm font-bold">لا توجد حسابات أو عهد مرتبطة.</div>
+                <div class="py-10 text-center text-slate-400 text-sm font-bold">لا توجد حسابات أو عهد مرتبطة بعد.</div>
             @else
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px bg-slate-100">
-                    @foreach($paymentMethods as $pm)
-                        <div class="bg-white p-5 flex items-center justify-between hover:bg-slate-50/80 transition-all">
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-lg">
-                                    @switch($pm->type)
-                                        @case('bank') 🏛️ @break
-                                        @case('cash') 💵 @break
-                                        @default 💳
-                                    @endswitch
-                                </div>
-                                <div>
-                                    <p class="font-black text-slate-900 text-sm">{{ $pm->name }}</p>
-                                    @if($pm->custodian_name)
-                                        <p class="text-[10px] font-bold text-amber-600">{{ $pm->custodian_name }}</p>
-                                    @endif
-                                </div>
-                            </div>
-                            <div class="text-left">
-                                <p class="font-black text-slate-800 text-sm">{{ number_format($pm->balance, 2) }}</p>
-                                <p class="text-[10px] font-black text-slate-400 uppercase">{{ $pm->currency }}</p>
+                @php
+                    $bankAccounts = $paymentMethods->where('type', 'bank')->whereNull('parent_id');
+                    $otherAccounts = $paymentMethods->where('parent_id', null)->where('type', '!=', 'bank')->whereNull('custodian_name');
+                    $custodies = $paymentMethods->whereNotNull('custodian_name');
+                @endphp
+
+                <div class="space-y-6">
+                    {{-- 1. Bank Accounts & Linked Cards --}}
+                    @if($bankAccounts->isNotEmpty())
+                        <div class="space-y-4">
+                            <h4 class="text-xs font-black text-slate-400 uppercase tracking-wider">🏛️ الحسابات البنكية والبطاقات المرتبطة</h4>
+                            <div class="grid grid-cols-1 gap-4">
+                                @foreach($bankAccounts as $bank)
+                                    <div class="bg-slate-50/50 rounded-2xl border border-slate-100 p-4 space-y-3">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center text-lg">🏛️</div>
+                                                <div>
+                                                    <p class="font-black text-slate-900 text-sm">{{ $bank->name }}</p>
+                                                    <p class="text-[10px] font-bold text-slate-400">حساب بنكي رئيسي</p>
+                                                </div>
+                                            </div>
+                                            <div class="text-left">
+                                                <p class="font-black text-slate-900 text-sm">{{ number_format($bank->balance, 2) }}</p>
+                                                <p class="text-[10px] font-black text-slate-400 uppercase">{{ $bank->currency }}</p>
+                                            </div>
+                                        </div>
+
+                                        {{-- Linked Cards --}}
+                                        @php
+                                            $linkedCards = $paymentMethods->where('parent_id', $bank->id);
+                                        @endphp
+                                        @if($linkedCards->isNotEmpty())
+                                            <div class="pr-6 border-r-2 border-indigo-100 space-y-2 mt-2">
+                                                <p class="text-[10px] font-black text-indigo-500 mb-1">💳 البطاقات المرتبطة بالحساب:</p>
+                                                @foreach($linkedCards as $card)
+                                                    <div class="bg-white p-3 rounded-xl border border-slate-100 flex items-center justify-between shadow-sm">
+                                                        <div class="flex items-center gap-2">
+                                                            <span class="text-sm">💳</span>
+                                                            <div>
+                                                                <p class="font-bold text-slate-800 text-xs">{{ $card->name }}</p>
+                                                                <p class="text-[9px] font-bold text-slate-400">{{ $card->type === 'credit_card' ? 'بطاقة ائتمانية' : 'بطاقة دفع' }}</p>
+                                                            </div>
+                                                        </div>
+                                                        <div class="text-left">
+                                                            <p class="font-black text-slate-700 text-xs">{{ number_format($card->balance, 2) }}</p>
+                                                            <p class="text-[8px] font-black text-slate-400 uppercase">{{ $card->currency }}</p>
+                                                        </div>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        @endif
+                                    </div>
+                                @endforeach
                             </div>
                         </div>
-                    @endforeach
+                    @endif
+
+                    {{-- 2. Standalone Other Accounts (Cash / Credit Cards not linked / Others) --}}
+                    @if($otherAccounts->isNotEmpty())
+                        <div class="space-y-4">
+                            <h4 class="text-xs font-black text-slate-400 uppercase tracking-wider">💳 الحسابات والبطاقات المستقلة</h4>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                @foreach($otherAccounts as $pm)
+                                    <div class="bg-white p-4 rounded-2xl border border-slate-150 flex items-center justify-between hover:shadow-md transition-all">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-lg">
+                                                @switch($pm->type)
+                                                    @case('cash') 💵 @break
+                                                    @case('credit_card') 💳 @break
+                                                    @case('debit_card') 💳 @break
+                                                    @default 🪙
+                                                @endswitch
+                                            </div>
+                                            <div>
+                                                <p class="font-black text-slate-900 text-sm">{{ $pm->name }}</p>
+                                                <p class="text-[10px] font-bold text-slate-400">
+                                                    @switch($pm->type)
+                                                        @case('cash') نقد / كاش @break
+                                                        @case('credit_card') بطاقة ائتمانية مستقلة @break
+                                                        @case('debit_card') بطاقة دفع مستقلة @break
+                                                        @default حساب آخر @break
+                                                    @endswitch
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="text-left">
+                                            <p class="font-black text-slate-800 text-sm">{{ number_format($pm->balance, 2) }}</p>
+                                            <p class="text-[10px] font-black text-slate-400 uppercase">{{ $pm->currency }}</p>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+
+                    {{-- 3. Standalone Custodies --}}
+                    @if($custodies->isNotEmpty())
+                        <div class="space-y-4">
+                            <h4 class="text-xs font-black text-slate-400 uppercase tracking-wider">💼 العهد المالية</h4>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                @foreach($custodies as $pm)
+                                    <div class="bg-amber-50/30 p-4 rounded-2xl border border-amber-100/50 flex items-center justify-between hover:shadow-md transition-all">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-10 h-10 bg-amber-100 text-amber-700 rounded-xl flex items-center justify-center text-lg">💼</div>
+                                            <div>
+                                                <p class="font-black text-slate-900 text-sm">{{ $pm->name }}</p>
+                                                <p class="text-[10px] font-black text-amber-600">بعهدة: {{ $pm->custodian_name }}</p>
+                                            </div>
+                                        </div>
+                                        <div class="text-left">
+                                            <p class="font-black text-amber-800 text-sm">{{ number_format($pm->balance, 2) }}</p>
+                                            <p class="text-[10px] font-black text-amber-600 uppercase">{{ $pm->currency }}</p>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
                 </div>
             @endif
         </div>
@@ -433,7 +529,7 @@
     </div>
 
     {{-- ========== ADD ACCOUNT MODAL ========== --}}
-    <div x-show="showAccountModal" class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-4 sm:p-6 bg-gray-900/60 backdrop-blur-md" x-cloak x-transition>
+    <div x-show="showAccountModal" x-data="{ accountType: 'cash' }" class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-4 sm:p-6 bg-gray-900/60 backdrop-blur-md" x-cloak x-transition>
         <div class="bg-white rounded-3xl w-full max-w-md p-8 shadow-2xl relative text-right" @click.away="showAccountModal = false">
             <div class="flex items-center justify-between mb-6">
                 <h3 class="text-xl font-black text-gray-900">إضافة عهدة / حساب</h3>
@@ -455,7 +551,7 @@
                 </div>
                 <div>
                     <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 tracking-widest">نوع الحساب</label>
-                    <select name="type" class="w-full bg-gray-50 border-0 rounded-2xl p-4 font-bold text-base focus:ring-2 focus:ring-indigo-500 outline-none">
+                    <select name="type" x-model="accountType" class="w-full bg-gray-50 border-0 rounded-2xl p-4 font-bold text-base focus:ring-2 focus:ring-indigo-500 outline-none">
                         <option value="cash">نقد / عهدة كاش</option>
                         <option value="bank">حساب بنكي</option>
                         <option value="credit_card">بطاقة ائتمان</option>
@@ -463,6 +559,18 @@
                         <option value="other">أخرى</option>
                     </select>
                 </div>
+                
+                {{-- Parent Bank Selector --}}
+                <div x-show="accountType === 'credit_card' || accountType === 'debit_card'" x-transition x-cloak>
+                    <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 tracking-widest">ربط بالحساب البنكي الأب (اختياري)</label>
+                    <select name="parent_id" class="w-full bg-gray-50 border-0 rounded-2xl p-4 font-bold text-base focus:ring-2 focus:ring-indigo-500 outline-none">
+                        <option value="">لا يوجد (حساب مستقل)</option>
+                        @foreach($paymentMethods->where('type', 'bank') as $bank)
+                            <option value="{{ $bank->id }}">{{ $bank->name }} ({{ $bank->currency }})</option>
+                        @endforeach
+                    </select>
+                </div>
+
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 tracking-widest">الرصيد الافتتاحي</label>
