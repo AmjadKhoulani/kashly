@@ -351,14 +351,5 @@ class _WalletsScreenState extends State<WalletsScreen> {
           ],
         ),
       ),
-    );
-  }
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showWalletDialog(),
-        backgroundColor: Color(0xFF0284C7),
-        elevation: 4,
-        child: Icon(Icons.add, color: Colors.white),
-      ),
-    );
   }
 }
