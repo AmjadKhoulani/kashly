@@ -299,13 +299,6 @@
                         </div>
                     </div>
 
-                    {{-- Sync Banner / Premium Shortcut Callout --}}
-                    <div class="bg-gradient-to-br from-indigo-600 to-purple-600 rounded-3xl p-6 text-white shadow-xl shadow-indigo-500/10 relative overflow-hidden group">
-                        <div class="absolute -right-10 -top-10 w-36 h-36 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
-                        <h4 class="text-lg font-black mb-1 relative z-10 leading-none">مزامنة الحسابات</h4>
-                        <p class="text-indigo-100 text-xs font-bold mb-6 leading-relaxed relative z-10">اربط حساباتك البنكية وبوابات الدفع للمزامنة التلقائية والتحليل المالي الموحد.</p>
-                        <a href="{{ route('integrations.index') }}" class="w-full bg-white text-indigo-700 py-3 rounded-xl font-black text-xs hover:bg-indigo-50 transition-all shadow-md relative z-10 block text-center">الربط التلقائي والدمج</a>
-                    </div>
                 </div>
             </div>
 
