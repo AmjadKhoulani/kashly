@@ -43,7 +43,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final currencyFormat = NumberFormat.currency(symbol: '\$', decimalDigits: 0);
 
     return Scaffold(
-      backgroundColor: Color(0xFFF8FAFC),
+      backgroundColor: Color(0xFFF4F6F9),
       body: isLoading 
         ? Center(child: CircularProgressIndicator(color: Colors.indigo)) 
         : RefreshIndicator(
@@ -62,11 +62,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         _buildMainWealthCard(currencyFormat),
                         SizedBox(height: 30),
                         
-                        // New Ledger (Debts/Claims) Section
+                        // Ledger (Debts/Claims) Section
                         _buildLedgerSection(currencyFormat),
                         SizedBox(height: 30),
                         
-                        // New Upcoming Payment Reminders Section
+                        // Upcoming Payment Reminders Section
                         _buildUpcomingDebtsSection(currencyFormat),
                         SizedBox(height: 30),
                         
@@ -123,7 +123,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       expandedHeight: 100,
       floating: true,
       pinned: true,
-      backgroundColor: Color(0xFFF8FAFC),
+      backgroundColor: Color(0xFFF4F6F9),
       elevation: 0,
       centerTitle: false,
       title: Text('كاشلي.', style: GoogleFonts.almarai(fontWeight: FontWeight.w900, color: Colors.indigo.shade900, fontSize: 26)),
@@ -134,7 +134,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             decoration: BoxDecoration(
               color: Colors.white, 
               shape: BoxShape.circle, 
-              border: Border.all(color: Color(0xFFF1F5F9)),
+              border: Border.all(color: Color(0xFFE2E8F0)),
               boxShadow: [
                 BoxShadow(color: Color(0xFF0F172A).withOpacity(0.015), blurRadius: 10)
               ]
@@ -302,7 +302,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: textColor.withOpacity(0.1), width: 1.5),
+        border: Border.all(color: textColor.withOpacity(0.15), width: 1.5),
         boxShadow: [
           BoxShadow(
             color: textColor.withOpacity(0.015),
@@ -403,7 +403,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: Color(0xFFF1F5F9), width: 1.5),
+              border: Border.all(color: Color(0xFFE2E8F0), width: 1.5),
               boxShadow: [
                 BoxShadow(
                   color: Colors.indigo.shade900.withOpacity(0.015),
@@ -578,10 +578,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
               margin: EdgeInsets.only(left: 15, bottom: 10),
               padding: EdgeInsets.all(22),
               decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(24), 
-                border: Border.all(color: Color(0xFFF1F5F9), width: 1.5),
-                boxShadow: [BoxShadow(color: Colors.indigo.shade900.withOpacity(0.015), blurRadius: 20, offset: Offset(0, 10))],
+                gradient: LinearGradient(
+                  colors: [Color(0xFFF0F9FF), Color(0xFFE0F2FE)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(26), 
+                border: Border.all(color: Color(0xFFBAE6FD), width: 1.5),
+                boxShadow: [
+                  BoxShadow(color: Color(0xFF0284C7).withOpacity(0.04), blurRadius: 15, offset: Offset(0, 8))
+                ],
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -592,28 +598,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       Container(
                         padding: EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: Colors.indigo.shade50,
+                          color: Colors.white.withOpacity(0.7),
                           borderRadius: BorderRadius.circular(14),
                         ),
-                        child: Icon(Icons.account_balance_wallet, color: Colors.indigo.shade600, size: 20),
+                        child: Icon(Icons.account_balance_wallet, color: Color(0xFF0369A1), size: 20),
                       ),
                       Container(
                         padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
-                          color: Colors.green.shade50,
+                          color: Color(0xFF0284C7),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
                           w['currency'] ?? 'USD',
-                          style: GoogleFonts.almarai(color: Colors.green.shade700, fontWeight: FontWeight.bold, fontSize: 10),
+                          style: GoogleFonts.almarai(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 10),
                         ),
                       )
                     ],
                   ),
                   Spacer(),
-                  Text(w['name'], style: GoogleFonts.almarai(fontWeight: FontWeight.w900, fontSize: 14, color: Colors.blueGrey.shade900)),
+                  Text(w['name'], style: GoogleFonts.almarai(fontWeight: FontWeight.w900, fontSize: 14, color: Color(0xFF0C4A6E))),
                   SizedBox(height: 6),
-                  Text('${NumberFormat('#,##0').format(w['balance'])} ${w['currency']}', style: GoogleFonts.almarai(color: Colors.indigo.shade700, fontWeight: FontWeight.w900, fontSize: 18)),
+                  Text('${NumberFormat('#,##0').format(w['balance'])} ${w['currency']}', style: GoogleFonts.almarai(color: Color(0xFF0369A1), fontWeight: FontWeight.w900, fontSize: 18)),
                 ],
               ),
             ),
@@ -641,10 +647,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
               margin: EdgeInsets.only(left: 15, bottom: 10),
               padding: EdgeInsets.all(22),
               decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(24), 
-                border: Border.all(color: Color(0xFFF1F5F9), width: 1.5),
-                boxShadow: [BoxShadow(color: Colors.amber.shade900.withOpacity(0.015), blurRadius: 20, offset: Offset(0, 10))],
+                gradient: LinearGradient(
+                  colors: [Color(0xFFFEF3C7), Color(0xFFFDE68A).withOpacity(0.7)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(26), 
+                border: Border.all(color: Color(0xFFFCD34D), width: 1.5),
+                boxShadow: [
+                  BoxShadow(color: Color(0xFFD97706).withOpacity(0.04), blurRadius: 15, offset: Offset(0, 8))
+                ],
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -655,15 +667,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       Container(
                         padding: EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: Colors.amber.shade50,
+                          color: Colors.white.withOpacity(0.7),
                           borderRadius: BorderRadius.circular(14),
                         ),
-                        child: Icon(Icons.storefront, color: Colors.amber.shade800, size: 20),
+                        child: Icon(Icons.storefront, color: Color(0xFFB45309), size: 20),
                       ),
                       Container(
                         padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
-                          color: Colors.amber.shade800,
+                          color: Color(0xFFD97706),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
@@ -674,9 +686,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ],
                   ),
                   Spacer(),
-                  Text(b['name'], style: GoogleFonts.almarai(fontWeight: FontWeight.w900, fontSize: 14, color: Colors.amber.shade900)),
+                  Text(b['name'], style: GoogleFonts.almarai(fontWeight: FontWeight.w900, fontSize: 14, color: Color(0xFF78350F))),
                   SizedBox(height: 6),
-                  Text('${NumberFormat('#,##0').format(b['total_value'])} ${b['currency'] ?? 'USD'}', style: GoogleFonts.almarai(color: Colors.amber.shade900, fontWeight: FontWeight.w900, fontSize: 18)),
+                  Text('${NumberFormat('#,##0').format(b['total_value'])} ${b['currency'] ?? 'USD'}', style: GoogleFonts.almarai(color: Color(0xFFB45309), fontWeight: FontWeight.w900, fontSize: 18)),
                 ],
               ),
             ),
@@ -704,10 +716,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
               margin: EdgeInsets.only(left: 15, bottom: 10),
               padding: EdgeInsets.all(22),
               decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(24), 
-                border: Border.all(color: Color(0xFFF1F5F9), width: 1.5),
-                boxShadow: [BoxShadow(color: Colors.green.shade900.withOpacity(0.015), blurRadius: 20, offset: Offset(0, 10))],
+                gradient: LinearGradient(
+                  colors: [Color(0xFFFAF5FF), Color(0xFFF3E8FF)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(26), 
+                border: Border.all(color: Color(0xFFE9D5FF), width: 1.5),
+                boxShadow: [
+                  BoxShadow(color: Color(0xFF7E22CE).withOpacity(0.04), blurRadius: 15, offset: Offset(0, 8))
+                ],
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -718,7 +736,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       Container(
                         padding: EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: Colors.green.shade50,
+                          color: Colors.white.withOpacity(0.7),
                           borderRadius: BorderRadius.circular(14),
                         ),
                         child: Text(f['icon'] ?? '📈', style: GoogleFonts.almarai(fontSize: 18)),
@@ -726,7 +744,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       Container(
                         padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
-                          color: Colors.green.shade700,
+                          color: Color(0xFF7E22CE),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
@@ -737,9 +755,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ],
                   ),
                   Spacer(),
-                  Text(f['name'], style: GoogleFonts.almarai(fontWeight: FontWeight.w900, fontSize: 14, color: Colors.green.shade900)),
+                  Text(f['name'], style: GoogleFonts.almarai(fontWeight: FontWeight.w900, fontSize: 14, color: Color(0xFF581C87))),
                   SizedBox(height: 6),
-                  Text('${NumberFormat('#,##0').format(f['current_value'])} ${f['currency']}', style: GoogleFonts.almarai(color: Colors.green.shade800, fontWeight: FontWeight.w900, fontSize: 18)),
+                  Text('${NumberFormat('#,##0').format(f['current_value'])} ${f['currency']}', style: GoogleFonts.almarai(color: Color(0xFF7E22CE), fontWeight: FontWeight.w900, fontSize: 18)),
                 ],
               ),
             ),
@@ -755,7 +773,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       decoration: BoxDecoration(
         color: Colors.white, 
         borderRadius: BorderRadius.circular(24), 
-        border: Border.all(color: Color(0xFFF1F5F9), width: 1.5),
+        border: Border.all(color: Color(0xFFE2E8F0), width: 1.5),
         boxShadow: [BoxShadow(color: Colors.indigo.shade900.withOpacity(0.01), blurRadius: 15, offset: Offset(0, 5))],
       ),
       child: Center(child: Text(text, style: GoogleFonts.almarai(color: Colors.blueGrey.shade200, fontWeight: FontWeight.bold))),
@@ -796,7 +814,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           decoration: BoxDecoration(
             color: Colors.white, 
             borderRadius: BorderRadius.circular(22),
-            border: Border.all(color: Color(0xFFF1F5F9), width: 1.5),
+            border: Border.all(color: Color(0xFFE2E8F0), width: 1.5),
             boxShadow: [BoxShadow(color: Colors.indigo.shade900.withOpacity(0.01), blurRadius: 15, offset: Offset(0, 5))]
           ),
           child: Row(
@@ -860,7 +878,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(30),
-        border: Border.all(color: Color(0xFFF1F5F9), width: 1.5),
+        border: Border.all(color: Color(0xFFE2E8F0), width: 1.5),
         boxShadow: [BoxShadow(color: Colors.indigo.shade900.withOpacity(0.01), blurRadius: 30, offset: Offset(0, 10))],
       ),
       child: LineChart(
@@ -947,6 +965,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             SizedBox(width: 8),
             Text('تسجيل حركة جديدة', style: GoogleFonts.almarai(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 15)),
           ],
+          
         ),
       ),
     );
