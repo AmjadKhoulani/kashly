@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../api/api_service.dart';
 import 'add_transaction_screen.dart';
+import 'payment_method_detail_screen.dart';
 
 class WalletDetailScreen extends StatefulWidget {
   final int walletId;
@@ -455,39 +456,42 @@ class _WalletDetailScreenState extends State<WalletDetailScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Padding(
-                    padding: EdgeInsets.all(16),
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: Colors.indigo.shade50,
-                            borderRadius: BorderRadius.circular(14),
+                  GestureDetector(
+                    onTap: () => Get.to(() => PaymentMethodDetailScreen(paymentMethodId: bankId))!.then((_) => loadDetail()),
+                    child: Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: Colors.indigo.shade50,
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                            child: Icon(Icons.account_balance_rounded, color: Colors.indigo, size: 20),
                           ),
-                          child: Icon(Icons.account_balance_rounded, color: Colors.indigo, size: 20),
-                        ),
-                        SizedBox(width: 15),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                bank['name'] ?? 'حساب بنكي رئيسي',
-                                style: GoogleFonts.almarai(fontWeight: FontWeight.w900, fontSize: 13, color: Color(0xFF0F172A)),
-                              ),
-                              Text(
-                                'حساب بنكي رئيسي',
-                                style: GoogleFonts.almarai(color: Color(0xFF94A3B8), fontSize: 10, fontWeight: FontWeight.bold),
-                              )
-                            ],
+                          SizedBox(width: 15),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  bank['name'] ?? 'حساب بنكي رئيسي',
+                                  style: GoogleFonts.almarai(fontWeight: FontWeight.w900, fontSize: 13, color: Color(0xFF0F172A)),
+                                ),
+                                Text(
+                                  'حساب بنكي رئيسي (اضغط للتفاصيل)',
+                                  style: GoogleFonts.almarai(color: Colors.indigo.shade400, fontSize: 9, fontWeight: FontWeight.bold),
+                                )
+                              ],
+                            ),
                           ),
-                        ),
-                        Text(
-                          '${format.format(balance)} $currency',
-                          style: GoogleFonts.almarai(fontWeight: FontWeight.w900, color: Color(0xFF0F172A), fontSize: 14),
-                        ),
-                      ],
+                          Text(
+                            '${format.format(balance)} $currency',
+                            style: GoogleFonts.almarai(fontWeight: FontWeight.w900, color: Color(0xFF0F172A), fontSize: 14),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                   if (linkedCards.isNotEmpty) ...[
@@ -507,38 +511,41 @@ class _WalletDetailScreenState extends State<WalletDetailScreen> {
                             final String cardCurrency = card['currency'] ?? 'USD';
                             final String cardType = card['type'] ?? 'credit_card';
 
-                            return Container(
-                              margin: EdgeInsets.only(bottom: 8),
-                              padding: EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(16),
-                                border: Border.all(color: Color(0xFFE2E8F0)),
-                              ),
-                              child: Row(
-                                children: [
-                                  Icon(Icons.credit_card_rounded, color: Colors.indigo.shade400, size: 16),
-                                  SizedBox(width: 10),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          card['name'] ?? 'بطاقة بنكية',
-                                          style: GoogleFonts.almarai(fontWeight: FontWeight.bold, fontSize: 12, color: Color(0xFF334155)),
-                                        ),
-                                        Text(
-                                          cardType == 'credit_card' ? 'بطاقة ائتمانية' : 'بطاقة دفع',
-                                          style: GoogleFonts.almarai(color: Color(0xFF94A3B8), fontSize: 9, fontWeight: FontWeight.bold),
-                                        )
-                                      ],
+                            return GestureDetector(
+                              onTap: () => Get.to(() => PaymentMethodDetailScreen(paymentMethodId: card['id']))!.then((_) => loadDetail()),
+                              child: Container(
+                                margin: EdgeInsets.only(bottom: 8),
+                                padding: EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(color: Color(0xFFE2E8F0)),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.credit_card_rounded, color: Colors.indigo.shade400, size: 16),
+                                    SizedBox(width: 10),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            card['name'] ?? 'بطاقة بنكية',
+                                            style: GoogleFonts.almarai(fontWeight: FontWeight.bold, fontSize: 12, color: Color(0xFF334155)),
+                                          ),
+                                          Text(
+                                            cardType == 'credit_card' ? 'بطاقة ائتمانية' : 'بطاقة دفع',
+                                            style: GoogleFonts.almarai(color: Color(0xFF94A3B8), fontSize: 9, fontWeight: FontWeight.bold),
+                                          )
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                  Text(
-                                    '${format.format(cardBalance)} $cardCurrency',
-                                    style: GoogleFonts.almarai(fontWeight: FontWeight.w900, color: Color(0xFF475569), fontSize: 12),
-                                  ),
-                                ],
+                                    Text(
+                                      '${format.format(cardBalance)} $cardCurrency',
+                                      style: GoogleFonts.almarai(fontWeight: FontWeight.w900, color: Color(0xFF475569), fontSize: 12),
+                                    ),
+                                  ],
+                                ),
                               ),
                             );
                           }).toList(),
@@ -563,49 +570,52 @@ class _WalletDetailScreenState extends State<WalletDetailScreen> {
             final String currency = sa['currency'] ?? 'USD';
             final String type = sa['type'] ?? 'cash';
 
-            return Container(
-              margin: EdgeInsets.only(bottom: 12),
-              padding: EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: Color(0xFFE2E8F0), width: 1.5),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    padding: EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: Color(0xFFF1F5F9),
-                      borderRadius: BorderRadius.circular(14),
+            return GestureDetector(
+              onTap: () => Get.to(() => PaymentMethodDetailScreen(paymentMethodId: sa['id']))!.then((_) => loadDetail()),
+              child: Container(
+                margin: EdgeInsets.only(bottom: 12),
+                padding: EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: Color(0xFFE2E8F0), width: 1.5),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: Color(0xFFF1F5F9),
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: Icon(
+                        type == 'cash' ? Icons.money_rounded : Icons.credit_card_rounded,
+                        color: Color(0xFF475569),
+                        size: 20,
+                      ),
                     ),
-                    child: Icon(
-                      type == 'cash' ? Icons.money_rounded : Icons.credit_card_rounded,
-                      color: Color(0xFF475569),
-                      size: 20,
+                    SizedBox(width: 15),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            sa['name'] ?? 'حساب فرعي',
+                            style: GoogleFonts.almarai(fontWeight: FontWeight.w900, fontSize: 13, color: Color(0xFF0F172A)),
+                          ),
+                          Text(
+                            type == 'cash' ? 'نقد / كاش (اضغط للتفاصيل)' : 'بطاقة مستقلة (اضغط للتفاصيل)',
+                            style: GoogleFonts.almarai(color: type == 'cash' ? Colors.grey.shade400 : Colors.indigo.shade400, fontSize: 9, fontWeight: FontWeight.bold),
+                          )
+                        ],
+                      ),
                     ),
-                  ),
-                  SizedBox(width: 15),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          sa['name'] ?? 'حساب فرعي',
-                          style: GoogleFonts.almarai(fontWeight: FontWeight.w900, fontSize: 13, color: Color(0xFF0F172A)),
-                        ),
-                        Text(
-                          type == 'cash' ? 'نقد / كاش' : 'بطاقة مستقلة',
-                          style: GoogleFonts.almarai(color: Color(0xFF94A3B8), fontSize: 10, fontWeight: FontWeight.bold),
-                        )
-                      ],
+                    Text(
+                      '${format.format(balance)} $currency',
+                      style: GoogleFonts.almarai(fontWeight: FontWeight.w900, color: Color(0xFF0F172A), fontSize: 14),
                     ),
-                  ),
-                  Text(
-                    '${format.format(balance)} $currency',
-                    style: GoogleFonts.almarai(fontWeight: FontWeight.w900, color: Color(0xFF0F172A), fontSize: 14),
-                  ),
-                ],
+                  ],
+                ),
               ),
             );
           }).toList(),

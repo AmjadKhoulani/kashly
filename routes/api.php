@@ -34,6 +34,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/wallets/{id}', [\App\Http\Controllers\Api\WalletController::class, 'destroy']);
     Route::post('/wallets/{id}/reconcile', [\App\Http\Controllers\Api\WalletController::class, 'reconcile']);
 
+    Route::get('/payment-methods/{id}', [\App\Http\Controllers\Api\PaymentMethodController::class, 'show']);
+    Route::delete('/payment-methods/{id}', [\App\Http\Controllers\Api\PaymentMethodController::class, 'destroy']);
+
     Route::get('/businesses', [\App\Http\Controllers\Api\BusinessController::class, 'index']);
     Route::get('/businesses/{id}', [\App\Http\Controllers\Api\BusinessController::class, 'show']);
     Route::delete('/businesses/{id}', [\App\Http\Controllers\Api\BusinessController::class, 'destroy']);

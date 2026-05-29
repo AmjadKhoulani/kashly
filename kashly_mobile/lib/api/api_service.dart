@@ -78,6 +78,17 @@ class ApiService {
     return null;
   }
 
+  Future<Map<String, dynamic>?> getPaymentMethodDetail(int id) async {
+    final response = await http.get(Uri.parse('$baseUrl/payment-methods/$id'), headers: await _getHeaders());
+    if (response.statusCode == 200) return jsonDecode(response.body);
+    return null;
+  }
+
+  Future<bool> deletePaymentMethod(int id) async {
+    final response = await http.delete(Uri.parse('$baseUrl/payment-methods/$id'), headers: await _getHeaders());
+    return response.statusCode == 200;
+  }
+
   Future<Map<String, dynamic>?> getTransactions({String? type, String? category, int page = 1}) async {
     var url = '$baseUrl/transactions?page=$page';
     if (type != null) url += '&type=$type';
