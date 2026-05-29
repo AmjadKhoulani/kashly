@@ -93,38 +93,38 @@
             $net = $totalIncome - $totalExpense;
         @endphp
 
-        <div class="grid grid-cols-4 gap-2 sm:gap-3">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
             <div class="bg-white rounded-2xl p-3 sm:p-4 border border-emerald-100 shadow-sm relative overflow-hidden">
-                <div class="absolute top-0 right-0 w-12 h-12 bg-emerald-500/10 rounded-bl-2xl flex items-center justify-center">
+                <div class="absolute top-0 left-0 w-12 h-12 bg-emerald-500/10 rounded-br-2xl flex items-center justify-center">
                     <span class="text-base">📈</span>
                 </div>
                 <p class="text-[8px] sm:text-[9px] font-black text-emerald-600 uppercase tracking-widest">إيرادات</p>
-                <p class="text-sm sm:text-lg font-black text-emerald-700 tracking-tighter mt-0.5">{{ number_format($totalIncome, 0) }}</p>
+                <p class="text-sm sm:text-lg font-black text-emerald-700 tracking-tighter mt-0.5 ltr" dir="ltr">{{ number_format($totalIncome, 0) }}</p>
                 <p class="text-[8px] font-bold text-emerald-400 mt-0.5 hidden sm:block">{{ $transactions->where('type','income')->count() }} عملية</p>
             </div>
 
             <div class="bg-white rounded-2xl p-3 sm:p-4 border border-rose-100 shadow-sm relative overflow-hidden">
-                <div class="absolute top-0 right-0 w-12 h-12 bg-rose-500/10 rounded-bl-2xl flex items-center justify-center">
+                <div class="absolute top-0 left-0 w-12 h-12 bg-rose-500/10 rounded-br-2xl flex items-center justify-center">
                     <span class="text-base">📉</span>
                 </div>
                 <p class="text-[8px] sm:text-[9px] font-black text-rose-600 uppercase tracking-widest">مصاريف</p>
-                <p class="text-sm sm:text-lg font-black text-rose-700 tracking-tighter mt-0.5">{{ number_format($totalExpense, 0) }}</p>
+                <p class="text-sm sm:text-lg font-black text-rose-700 tracking-tighter mt-0.5 ltr" dir="ltr">{{ number_format($totalExpense, 0) }}</p>
                 <p class="text-[8px] font-bold text-rose-400 mt-0.5 hidden sm:block">{{ $transactions->where('type','expense')->count() }} عملية</p>
             </div>
 
             <div class="bg-white rounded-2xl p-3 sm:p-4 border border-indigo-100 shadow-sm relative overflow-hidden">
-                <div class="absolute top-0 right-0 w-12 h-12 bg-indigo-500/10 rounded-bl-2xl flex items-center justify-center">
+                <div class="absolute top-0 left-0 w-12 h-12 bg-indigo-500/10 rounded-br-2xl flex items-center justify-center">
                     <span class="text-base">💼</span>
                 </div>
                 <p class="text-[8px] sm:text-[9px] font-black text-indigo-600 uppercase tracking-widest">رأس مال</p>
-                <p class="text-sm sm:text-lg font-black text-indigo-700 tracking-tighter mt-0.5">{{ number_format($totalCapital, 0) }}</p>
+                <p class="text-sm sm:text-lg font-black text-indigo-700 tracking-tighter mt-0.5 ltr" dir="ltr">{{ number_format($totalCapital, 0) }}</p>
                 <p class="text-[8px] font-bold text-indigo-400 mt-0.5 hidden sm:block">{{ $transactions->where('type','capital')->count() }} عملية</p>
             </div>
 
             <div class="rounded-2xl p-3 sm:p-4 border shadow-sm relative overflow-hidden
                 {{ $net >= 0 ? 'bg-gradient-to-br from-emerald-500 to-teal-600 border-emerald-400' : 'bg-gradient-to-br from-rose-500 to-pink-600 border-rose-400' }}">
                 <p class="text-[8px] sm:text-[9px] font-black text-white/70 uppercase tracking-widest">صافي</p>
-                <p class="text-sm sm:text-lg font-black text-white tracking-tighter mt-0.5">
+                <p class="text-sm sm:text-lg font-black text-white tracking-tighter mt-0.5 ltr" dir="ltr">
                     {{ $net >= 0 ? '+' : '' }}{{ number_format($net, 0) }}
                 </p>
                 <p class="text-[8px] font-bold text-white/60 mt-0.5 hidden sm:block">{{ $transactions->count() }} إجمالاً</p>
@@ -200,7 +200,7 @@
                         {{ $dateObj->isToday() ? 'اليوم' : ($dateObj->isYesterday() ? 'أمس' : $dateObj->translatedFormat('l، d M Y')) }}
                     </span>
                 </div>
-                <div class="flex items-center gap-3 text-[9px] font-black">
+                <div class="flex items-center gap-3 text-[9px] font-black ltr" dir="ltr">
                     @if($dayIncome > 0)
                         <span class="text-emerald-500">+{{ number_format($dayIncome, 0) }}</span>
                     @endif
@@ -264,7 +264,7 @@
                     </div>
 
                     {{-- Amount --}}
-                    <div class="text-right flex-shrink-0">
+                    <div class="text-left flex-shrink-0 ltr" dir="ltr">
                         <p class="font-black text-base tracking-tight leading-none
                             @if($tx->type === 'income') text-emerald-600
                             @elseif($tx->type === 'capital') text-indigo-600

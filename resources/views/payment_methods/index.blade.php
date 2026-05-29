@@ -52,7 +52,7 @@
                                     @case('credit_card') بطاقة ائتمان @break
                                     @case('debit_card') بطاقة صراف @break
                                     @default أخرى
-                                endswitch
+                                @endswitch
                             </p>
 
                             <!-- Dependency Badges -->
