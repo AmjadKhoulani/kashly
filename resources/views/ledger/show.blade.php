@@ -565,6 +565,12 @@
                 </div>
 
                 <div>
+                    <label class="block text-[10px] font-black text-gray-400 uppercase mb-2 tracking-widest">تاريخ الإضافة</label>
+                    <input type="date" name="charge_date" value="{{ date('Y-m-d') }}"
+                           class="w-full bg-gray-50 border-0 rounded-2xl p-4 font-bold text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+                </div>
+
+                <div>
                     <label class="block text-[10px] font-black text-gray-400 uppercase mb-2 tracking-widest">سبب الإضافة (اختياري)</label>
                     <input type="text" name="notes"
                            class="w-full bg-gray-50 border-0 rounded-2xl p-4 font-bold text-sm focus:ring-2 focus:ring-amber-500 outline-none"

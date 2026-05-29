@@ -171,7 +171,8 @@ class LedgerController extends Controller
 
         $entry->total_amount += $amount;
 
-        $note = now()->format('d/m/Y') . ': أضيف ' . number_format($amount, 2) . ' ' . $entry->currency . $noteExtra;
+        $chargeDate = $request->filled('charge_date') ? \Carbon\Carbon::parse($request->charge_date)->format('d/m/Y') : now()->format('d/m/Y');
+        $note = $chargeDate . ': أضيف ' . number_format($amount, 2) . ' ' . $entry->currency . $noteExtra;
         if ($request->notes) $note .= ' — ' . $request->notes;
         $entry->notes = $entry->notes ? $entry->notes . "\n" . $note : $note;
 
