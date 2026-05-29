@@ -532,7 +532,7 @@
     <div x-show="showAccountModal" x-data="{ accountType: 'cash' }" class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-4 sm:p-6 bg-gray-900/60 backdrop-blur-md" x-cloak x-transition>
         <div class="bg-white rounded-3xl w-full max-w-md p-8 shadow-2xl relative text-right" @click.away="showAccountModal = false">
             <div class="flex items-center justify-between mb-6">
-                <h3 class="text-xl font-black text-gray-900">إضافة عهدة / حساب</h3>
+                <h3 class="text-xl font-black text-gray-900">إضافة حساب فرعي</h3>
                 <button @click="showAccountModal = false" class="w-8 h-8 bg-gray-100 text-gray-400 rounded-xl flex items-center justify-center hover:bg-rose-50 hover:text-rose-600 transition-all">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
@@ -542,20 +542,16 @@
                 <input type="hidden" name="association_type" value="wallet">
                 <input type="hidden" name="wallet_id" value="{{ $wallet->id }}">
                 <div>
-                    <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 tracking-widest">اسم الحساب / العهدة</label>
+                    <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 tracking-widest">اسم الحساب الفرعي</label>
                     <input type="text" name="name" required class="w-full bg-gray-50 border-0 rounded-2xl p-4 font-bold text-base focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="مثلاً: صندوق الدولار...">
-                </div>
-                <div>
-                    <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 tracking-widest">اسم أمين العهدة (اختياري)</label>
-                    <input type="text" name="custodian_name" class="w-full bg-gray-50 border-0 rounded-2xl p-4 font-bold text-base focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="مثلاً: محمد...">
                 </div>
                 <div>
                     <label class="block text-[10px] font-black text-gray-400 uppercase mb-3 tracking-widest">نوع الحساب</label>
                     <select name="type" x-model="accountType" class="w-full bg-gray-50 border-0 rounded-2xl p-4 font-bold text-base focus:ring-2 focus:ring-indigo-500 outline-none">
-                        <option value="cash">نقد / عهدة كاش</option>
-                        <option value="bank">حساب بنكي</option>
-                        <option value="credit_card">بطاقة ائتمان</option>
-                        <option value="debit_card">بطاقة دفع</option>
+                        <option value="cash">نقد / كاش فرعي</option>
+                        <option value="bank">حساب بنكي فرعي</option>
+                        <option value="credit_card">بطاقة ائتمان مستقلة</option>
+                        <option value="debit_card">بطاقة دفع مستقلة</option>
                         <option value="other">أخرى</option>
                     </select>
                 </div>

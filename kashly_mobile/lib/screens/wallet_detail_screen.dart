@@ -429,7 +429,6 @@ class _WalletDetailScreenState extends State<WalletDetailScreen> {
 
     final bankAccounts = subAccounts.where((sa) => sa['type'] == 'bank' && sa['parent_id'] == null).toList();
     final otherAccounts = subAccounts.where((sa) => sa['parent_id'] == null && sa['type'] != 'bank' && (sa['custodian_name'] == null || sa['custodian_name'].toString().isEmpty)).toList();
-    final custodies = subAccounts.where((sa) => sa['custodian_name'] != null && sa['custodian_name'].toString().isNotEmpty).toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -611,64 +610,6 @@ class _WalletDetailScreenState extends State<WalletDetailScreen> {
             );
           }).toList(),
           SizedBox(height: 20),
-        ],
-        if (custodies.isNotEmpty) ...[
-          Text(
-            '💼 العهد المالية',
-            style: GoogleFonts.almarai(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF64748B)),
-          ),
-          SizedBox(height: 10),
-          ...custodies.map((sa) {
-            final double balance = double.tryParse(sa['balance']?.toString() ?? '0') ?? 0.0;
-            final String currency = sa['currency'] ?? 'USD';
-            final String custodianName = sa['custodian_name'] ?? '';
-
-            return Container(
-              margin: EdgeInsets.only(bottom: 12),
-              padding: EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Color(0xFFFEF3C7).withOpacity(0.2),
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: Color(0xFFFDE68A), width: 1.5),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    padding: EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: Color(0xFFF59E0B).withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: Icon(
-                      Icons.folder_shared_rounded,
-                      color: Color(0xFFD97706),
-                      size: 20,
-                    ),
-                  ),
-                  SizedBox(width: 15),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          sa['name'] ?? 'عهدة فرعية',
-                          style: GoogleFonts.almarai(fontWeight: FontWeight.w900, fontSize: 13, color: Color(0xFF92400E)),
-                        ),
-                        Text(
-                          'بعهدة المسؤول المالي: $custodianName',
-                          style: GoogleFonts.almarai(color: Color(0xFFB45309), fontSize: 10, fontWeight: FontWeight.bold),
-                        )
-                      ],
-                    ),
-                  ),
-                  Text(
-                    '${format.format(balance)} $currency',
-                    style: GoogleFonts.almarai(fontWeight: FontWeight.w900, color: Color(0xFF92400E), fontSize: 14),
-                  ),
-                ],
-              ),
-            );
-          }).toList(),
         ],
       ],
     );
