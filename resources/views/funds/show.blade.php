@@ -93,60 +93,77 @@
             </div>
 
             <!-- Stats Overview: Sleek Cards -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-                <div class="bg-gradient-to-br from-indigo-50/40 via-white to-slate-50/20 rounded-2xl p-5 border border-indigo-100/60 shadow-sm hover:shadow-md transition-all group">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4" dir="rtl">
+                <!-- Card 1: Available Cash -->
+                <div class="bg-gradient-to-br from-indigo-50/40 via-white to-slate-50/20 rounded-2xl p-5 border border-indigo-100/60 shadow-sm hover:shadow-md transition-all group text-right">
                     <div class="w-11 h-11 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600 mb-4 group-hover:scale-105 group-hover:rotate-3 transition-transform border border-indigo-100 shadow-sm">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        💵
                     </div>
-                    <p class="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1.5">رأس المال المستثمر</p>
+                    <p class="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1.5">السيولة النقدية (الحسابات)</p>
                     <div class="flex items-baseline gap-1.5">
-                        <p class="text-2xl font-black text-slate-900 tracking-tighter group-hover:text-indigo-600 transition-colors">{{ number_format($fund->total_invested_capital, 0) }}</p>
+                        <p class="text-2xl font-black text-slate-900 tracking-tighter group-hover:text-indigo-600 transition-colors">{{ number_format($totalLiquidCash, 2) }}</p>
                         <span class="text-[10px] font-black text-slate-400 uppercase">{{ $fund->currency }}</span>
                     </div>
                 </div>
 
-                <div class="bg-gradient-to-br from-blue-50/40 via-white to-slate-50/20 rounded-2xl p-5 border border-blue-100/60 shadow-sm hover:shadow-md transition-all group">
-                    <div class="w-11 h-11 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600 mb-4 group-hover:scale-105 group-hover:rotate-3 transition-transform border border-blue-100 shadow-sm">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                <!-- Card 2: Total Income/Revenue -->
+                <div class="bg-gradient-to-br from-emerald-50/40 via-white to-slate-50/20 rounded-2xl p-5 border border-emerald-100/60 shadow-sm hover:shadow-md transition-all group text-right">
+                    <div class="w-11 h-11 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600 mb-4 group-hover:scale-105 group-hover:rotate-3 transition-transform border border-emerald-100 shadow-sm">
+                        📈
                     </div>
-                    <p class="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1.5">القيمة السوقية الحالية</p>
+                    <p class="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1.5">إجمالي الدخل / الإيرادات</p>
                     <div class="flex items-baseline gap-1.5">
-                        <p class="text-2xl font-black text-indigo-700 tracking-tighter">{{ number_format($fund->current_value, 0) }}</p>
+                        <p class="text-2xl font-black text-emerald-605 tracking-tighter">{{ number_format($income, 2) }}</p>
                         <span class="text-[10px] font-black text-slate-400 uppercase">{{ $fund->currency }}</span>
                     </div>
                 </div>
 
-                <div class="bg-gradient-to-br from-amber-50/40 via-white to-slate-50/20 rounded-2xl p-5 border border-amber-100/60 shadow-sm hover:shadow-md transition-all group">
-                    <div class="w-11 h-11 bg-amber-50 rounded-xl flex items-center justify-center text-amber-600 mb-4 group-hover:scale-105 group-hover:rotate-3 transition-transform border border-amber-100 shadow-sm">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                <!-- Card 3: Total Expenses -->
+                <div class="bg-gradient-to-br from-rose-50/40 via-white to-slate-50/20 rounded-2xl p-5 border border-rose-100/60 shadow-sm hover:shadow-md transition-all group text-right">
+                    <div class="w-11 h-11 bg-rose-50 rounded-xl flex items-center justify-center text-rose-600 mb-4 group-hover:scale-105 group-hover:rotate-3 transition-transform border border-rose-100 shadow-sm">
+                        📉
                     </div>
-                    <p class="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1.5">إجمالي قيمة الأصول</p>
+                    <p class="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1.5">إجمالي المصاريف</p>
                     <div class="flex items-baseline gap-1.5">
-                        <p class="text-2xl font-black text-slate-900 tracking-tighter group-hover:text-amber-600 transition-colors">{{ number_format($fund->assets->sum('value'), 0) }}</p>
+                        <p class="text-2xl font-black text-rose-600 tracking-tighter">{{ number_format($expense, 2) }}</p>
                         <span class="text-[10px] font-black text-slate-400 uppercase">{{ $fund->currency }}</span>
                     </div>
                 </div>
 
-                <div class="bg-gradient-to-br from-violet-50/40 via-white to-slate-50/20 rounded-2xl p-5 border border-violet-100/60 shadow-sm hover:shadow-md transition-all group">
-                    <div class="w-11 h-11 bg-violet-50 rounded-xl flex items-center justify-center text-violet-600 mb-4 group-hover:scale-105 group-hover:rotate-3 transition-transform border border-violet-100 shadow-sm">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                    </div>
-                    <p class="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1.5">حركات رأس المال</p>
-                    <div class="flex items-baseline gap-1.5">
-                        <p class="text-2xl font-black text-violet-700 tracking-tighter">{{ number_format($capitalSum, 0) }}</p>
-                        <span class="text-[10px] font-black text-slate-400 uppercase">{{ $fund->currency }}</span>
-                    </div>
-                </div>
-
-                <div class="bg-gradient-to-br from-slate-50 via-white to-slate-50/20 rounded-2xl p-5 border border-slate-100 shadow-sm hover:shadow-md transition-all group
+                <!-- Card 4: Net Profit/Loss -->
+                <div class="bg-gradient-to-br from-slate-50 via-white to-slate-50/20 rounded-2xl p-5 border border-slate-100 shadow-sm hover:shadow-md transition-all group text-right
                     {{ $profit >= 0 ? 'from-emerald-50/30 border-emerald-100/60' : 'from-rose-50/30 border-rose-100/60' }}">
                     <div class="w-11 h-11 rounded-xl flex items-center justify-center mb-4 group-hover:scale-105 group-hover:rotate-3 transition-transform border shadow-sm
                         {{ $profit >= 0 ? 'bg-emerald-50 text-emerald-600 border-emerald-100 shadow-emerald-500/5' : 'bg-rose-50 text-rose-600 border-rose-100 shadow-rose-500/5' }}">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                        ⚖️
                     </div>
-                    <p class="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1.5">صافي الأرباح / الخسائر</p>
+                    <p class="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1.5">صافي أرباح الفترة</p>
                     <div class="flex items-baseline gap-1.5">
-                        <p class="text-2xl font-black tracking-tighter {{ $profit >= 0 ? 'text-emerald-600' : 'text-rose-600' }}">{{ $profit >= 0 ? '+' : '' }}{{ number_format($profit, 0) }}</p>
+                        <p class="text-2xl font-black tracking-tighter {{ $profit >= 0 ? 'text-emerald-600' : 'text-rose-600' }}">{{ $profit >= 0 ? '+' : '' }}{{ number_format($profit, 2) }}</p>
+                        <span class="text-[10px] font-black text-slate-400 uppercase">{{ $fund->currency }}</span>
+                    </div>
+                </div>
+
+                <!-- Card 5: Invested Capital -->
+                <div class="bg-gradient-to-br from-violet-50/40 via-white to-slate-50/20 rounded-2xl p-5 border border-violet-100/60 shadow-sm hover:shadow-md transition-all group text-right">
+                    <div class="w-11 h-11 bg-violet-50 rounded-xl flex items-center justify-center text-violet-600 mb-4 group-hover:scale-105 group-hover:rotate-3 transition-transform border border-violet-100 shadow-sm">
+                        💼
+                    </div>
+                    <p class="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1.5">رأس المال المستثمر</p>
+                    <div class="flex items-baseline gap-1.5">
+                        <p class="text-2xl font-black text-violet-750 tracking-tighter">{{ number_format($fund->total_invested_capital, 2) }}</p>
+                        <span class="text-[10px] font-black text-slate-400 uppercase">{{ $fund->currency }}</span>
+                    </div>
+                </div>
+
+                <!-- Card 6: Total Assets -->
+                <div class="bg-gradient-to-br from-amber-50/40 via-white to-slate-50/20 rounded-2xl p-5 border border-amber-100/60 shadow-sm hover:shadow-md transition-all group text-right">
+                    <div class="w-11 h-11 bg-amber-50 rounded-xl flex items-center justify-center text-amber-600 mb-4 group-hover:scale-105 group-hover:rotate-3 transition-transform border border-amber-100 shadow-sm">
+                        🏢
+                    </div>
+                    <p class="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1.5">إجمالي قيمة الأصول</p>
+                    <div class="flex items-baseline gap-1.5">
+                        <p class="text-2xl font-black text-slate-900 tracking-tighter group-hover:text-amber-600 transition-colors">{{ number_format($fund->assets->sum('value'), 2) }}</p>
                         <span class="text-[10px] font-black text-slate-400 uppercase">{{ $fund->currency }}</span>
                     </div>
                 </div>

@@ -136,6 +136,35 @@ class InvestmentFundController extends Controller
         $capitalSum = $queryCapital->sum('amount');
         $profit = $income - $expense;
 
+        // Calculate Liquid Available Cash inside Fund accounts
+        $allPm = PaymentMethod::where('fund_id', $fund->id)->get();
+        $totalLiquidCash = 0;
+        $sypRate = \App\Services\ExchangeRateService::getSypRate();
+        
+        foreach ($allPm as $pm) {
+            // Check if this payment method has sub-accounts
+            $hasChildren = PaymentMethod::where('parent_id', $pm->id)->exists();
+            if ($hasChildren) {
+                continue; // Skip parent to avoid double counting
+            }
+            
+            $amount = $pm->balance;
+            $currency = $pm->currency;
+            $targetCurrency = $fund->currency;
+            
+            if ($currency === $targetCurrency) {
+                $totalLiquidCash += $amount;
+            } else {
+                if ($currency === 'SYP' && $targetCurrency === 'USD') {
+                    $totalLiquidCash += ($sypRate > 0) ? $amount / $sypRate : $amount;
+                } elseif ($currency === 'USD' && $targetCurrency === 'SYP') {
+                    $totalLiquidCash += $amount * $sypRate;
+                } else {
+                    $totalLiquidCash += $amount; // Fallback
+                }
+            }
+        }
+
         // Get list of available months for filter
         $availableMonths = Transaction::where('transactionable_id', $fund->id)
             ->where('transactionable_type', InvestmentFund::class)
@@ -168,7 +197,7 @@ class InvestmentFundController extends Controller
 
         return view('funds.show', compact(
             'fund', 'equities', 'transactions', 'paymentMethods', 'allPaymentMethods',
-            'income', 'expense', 'capitalSum', 'profit', 'selectedMonth', 'monthsList'
+            'income', 'expense', 'capitalSum', 'profit', 'selectedMonth', 'monthsList', 'totalLiquidCash'
         ));
     }
 
