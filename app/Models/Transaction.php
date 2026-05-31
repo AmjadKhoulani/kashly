@@ -13,12 +13,22 @@ class Transaction extends Model
         'currency', 'exchange_rate', 'original_amount', 'invoice_path', 'payment_method_id'
     ];
 
+    protected $appends = ['amount_in_currency'];
+
     protected $casts = [
         'transaction_date' => 'datetime',
         'amount' => 'decimal:2',
         'exchange_rate' => 'decimal:6',
         'original_amount' => 'decimal:2',
     ];
+
+    /**
+     * Get the transaction amount in its original currency.
+     */
+    public function getAmountInCurrencyAttribute()
+    {
+        return $this->original_amount ?? $this->amount;
+    }
 
     public function transactionable()
     {

@@ -3,12 +3,80 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
 use App\Models\Integration;
 use App\Models\Transaction;
 
 class WebhookController extends Controller
 {
+    /**
+     * Helper to process transaction, convert currencies, and update balances.
+     */
+    private function processTransaction($integration, $amount, $currency, $category, $description)
+    {
+        $target = $integration->target;
+        if (!$target) {
+            return;
+        }
+
+        $targetCurrency = $target->currency ?? 'USD';
+        
+        // Calculate exchange rate and target amount
+        $rate = 1.0;
+        $targetAmount = $amount;
+
+        if ($currency !== $targetCurrency) {
+            if ($currency === 'SYP' && $targetCurrency === 'USD') {
+                $sypRate = \App\Services\ExchangeRateService::getSypRate();
+                $rate = $sypRate > 0 ? 1 / $sypRate : 1.0;
+                $targetAmount = $amount * $rate;
+            } elseif ($currency === 'USD' && $targetCurrency === 'SYP') {
+                $sypRate = \App\Services\ExchangeRateService::getSypRate();
+                $rate = $sypRate;
+                $targetAmount = $amount * $rate;
+            } else {
+                // Fallback to query last transaction rate or 1.0
+                $lastRate = Transaction::where('user_id', $integration->user_id)
+                    ->where('currency', $currency)
+                    ->where('exchange_rate', '>', 0)
+                    ->latest()
+                    ->value('exchange_rate') ?? 1.0;
+                $rate = $lastRate;
+                $targetAmount = $amount * $rate;
+            }
+        }
+
+        // Determine final amount stored in Transaction (consistent with TransactionController)
+        $finalAmount = $targetAmount;
+        $originalAmount = null;
+        if ($currency !== $targetCurrency) {
+            $originalAmount = $amount;
+        }
+
+        // Create the transaction
+        Transaction::create([
+            'amount' => $finalAmount,
+            'original_amount' => $originalAmount,
+            'currency' => $currency,
+            'exchange_rate' => $rate,
+            'type' => 'income',
+            'category' => $category,
+            'description' => $description,
+            'transactionable_type' => $integration->target_type,
+            'transactionable_id' => $integration->target_id,
+            'user_id' => $integration->user_id,
+            'transaction_date' => now(),
+        ]);
+
+        // Increment the target balance/current value/total value
+        if ($integration->target_type === 'App\Models\Wallet') {
+            $target->increment('balance', $targetAmount);
+        } elseif ($integration->target_type === 'App\Models\InvestmentFund') {
+            $target->increment('current_value', $targetAmount);
+        } elseif ($integration->target_type === 'App\Models\Business') {
+            $target->increment('total_value', $targetAmount);
+        }
+    }
+
     public function shopify(Request $request, $integrationId)
     {
         $integration = Integration::findOrFail($integrationId);
@@ -19,16 +87,15 @@ class WebhookController extends Controller
         $amount = $data['total_price'] ?? 0;
         
         if ($amount > 0) {
-            Transaction::create([
-                'amount' => $amount,
-                'type' => 'income',
-                'category' => 'Shopify Order',
-                'description' => 'طلب رقم #' . ($data['order_number'] ?? 'N/A'),
-                'transactionable_type' => $integration->target_type,
-                'transactionable_id' => $integration->target_id,
-                'user_id' => $integration->user_id,
-                'transaction_date' => now(),
-            ]);
+            $currency = $data['currency'] ?? 'USD';
+            $orderNumber = $data['order_number'] ?? 'N/A';
+            $this->processTransaction(
+                $integration,
+                $amount,
+                $currency,
+                'Shopify Order',
+                'طلب رقم #' . $orderNumber
+            );
         }
 
         return response()->json(['status' => 'success']);
@@ -41,16 +108,15 @@ class WebhookController extends Controller
         $amount = $request->input('amount') ?? 0;
         
         if ($amount > 0) {
-            Transaction::create([
-                'amount' => $amount,
-                'type' => 'income',
-                'category' => 'WHMCS Payment',
-                'description' => 'فاتورة رقم #' . ($request->input('invoiceid') ?? 'N/A'),
-                'transactionable_type' => $integration->target_type,
-                'transactionable_id' => $integration->target_id,
-                'user_id' => $integration->user_id,
-                'transaction_date' => now(),
-            ]);
+            $currency = $request->input('currency') ?? 'USD';
+            $invoiceId = $request->input('invoiceid') ?? 'N/A';
+            $this->processTransaction(
+                $integration,
+                $amount,
+                $currency,
+                'WHMCS Payment',
+                'فاتورة رقم #' . $invoiceId
+            );
         }
 
         return response()->json(['status' => 'success']);
@@ -81,19 +147,16 @@ class WebhookController extends Controller
             'type' => 'required|string'
         ]);
 
-        // Create the transaction
-        Transaction::create([
-            'amount' => $validated['amount'],
-            'currency' => $validated['currency'],
-            'type' => 'income',
-            'category' => 'MadaaQ Payment',
-            'description' => "دفعة من المشترك: {$validated['subscriber']} ({$validated['type']})",
-            'transactionable_type' => $integration->target_type,
-            'transactionable_id' => $integration->target_id,
-            'user_id' => $integration->user_id,
-            'transaction_date' => now(),
-        ]);
+        // Process the transaction and update the target's balance with currency rate support
+        $this->processTransaction(
+            $integration,
+            $validated['amount'],
+            $validated['currency'],
+            'MadaaQ Payment',
+            "دفعة من المشترك: {$validated['subscriber']} ({$validated['type']})"
+        );
 
         return response()->json(['status' => 'success', 'message' => 'Transaction recorded']);
     }
 }
+
