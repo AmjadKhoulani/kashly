@@ -195,13 +195,22 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <form action="{{ route('integrations.destroy', $mi->id) }}" method="POST" onsubmit="return confirm('إلغاء ربط {{ $mi->target->name ?? 'هذا الصندوق' }} من MadaaQ؟')">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="p-2 text-rose-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all flex-shrink-0" title="إلغاء الربط">
-                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                                                    </button>
-                                                </form>
+                                                <div class="flex items-center gap-1.5 no-print">
+                                                    <form action="{{ route('integrations.syncMadaaq', $mi->id) }}" method="POST" class="inline">
+                                                        @csrf
+                                                        <button type="submit" class="px-2.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-xl font-black text-[10px] transition-all flex items-center gap-1 hover:scale-105 active:scale-95 shadow-sm border border-indigo-100/30" title="جلب ومزامنة العمليات المالية التاريخية">
+                                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.253 8H18"/></svg>
+                                                            <span>جلب الحركات</span>
+                                                        </button>
+                                                    </form>
+                                                    <form action="{{ route('integrations.destroy', $mi->id) }}" method="POST" onsubmit="return confirm('إلغاء ربط {{ $mi->target->name ?? 'هذا الصندوق' }} من MadaaQ؟')">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="p-2 text-rose-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all flex-shrink-0" title="إلغاء الربط">
+                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                                        </button>
+                                                    </form>
+                                                </div>
                                             </div>
                                         @endforeach
                                     </div>

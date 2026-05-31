@@ -3,11 +3,11 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
 use App\Models\Integration;
 use App\Models\Business;
 use App\Models\Wallet;
 use App\Models\InvestmentFund;
+use App\Models\Transaction;
 
 class IntegrationsController extends Controller
 {
@@ -54,4 +54,140 @@ class IntegrationsController extends Controller
 
         return back()->with('success', 'تم إلغاء تفعيل التكامل بنجاح');
     }
+
+    /**
+     * Fetch all historical payments from MadaaQ and import them safely.
+     */
+    public function syncMadaaq($id)
+    {
+        $integration = Integration::where('user_id', auth()->id())
+            ->where('provider', 'madaaq')
+            ->where('id', $id)
+            ->firstOrFail();
+
+        try {
+            $response = \Illuminate\Support\Facades\Http::withHeaders([
+                'Accept' => 'application/json',
+                'X-MadaaQ-Key' => $integration->webhook_secret
+            ])->timeout(12)->get('https://www.madaaq.com/api/payments');
+
+            if (!$response->successful()) {
+                return back()->with('error', 'فشل الاتصال بمنصة MadaaQ: ' . ($response->json()['message'] ?? 'خطأ غير معروف'));
+            }
+
+            $data = $response->json();
+            $payments = $data['payments'] ?? [];
+            $importedCount = 0;
+            $skippedCount = 0;
+
+            foreach ($payments as $payment) {
+                $description = "دفعة من المشترك: {$payment['subscriber']} ({$payment['type']})";
+                
+                // Determine transaction date
+                $txDate = isset($payment['transaction_date']) 
+                    ? \Carbon\Carbon::parse($payment['transaction_date']) 
+                    : now();
+
+                // Check if this transaction already exists in our database
+                $exists = Transaction::where('user_id', $integration->user_id)
+                    ->where('transactionable_type', $integration->target_type)
+                    ->where('transactionable_id', $integration->target_id)
+                    ->where('description', $description)
+                    ->whereDate('transaction_date', $txDate->toDateString())
+                    ->exists();
+
+                if ($exists) {
+                    $skippedCount++;
+                    continue;
+                }
+
+                // Call helper processing transaction
+                $this->processWebhookTransaction(
+                    $integration,
+                    $payment['amount'],
+                    $payment['currency'] ?? 'SYP',
+                    'MadaaQ Payment',
+                    $description,
+                    $txDate
+                );
+
+                $importedCount++;
+            }
+
+            return back()->with('success', "تمت مزامنة العمليات بنجاح! تم استيراد {$importedCount} حركات جديدة، وتخطي {$skippedCount} حركات مكررة.");
+            
+        } catch (\Exception $e) {
+            return back()->with('error', 'حدث خطأ أثناء الاتصال بمنصة MadaaQ: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Helper to process transaction, convert currencies, and update balances.
+     */
+    private function processWebhookTransaction($integration, $amount, $currency, $category, $description, $transactionDate = null)
+    {
+        $target = $integration->target;
+        if (!$target) {
+            return;
+        }
+
+        $targetCurrency = $target->currency ?? 'USD';
+        
+        // Calculate exchange rate and target amount
+        $rate = 1.0;
+        $targetAmount = $amount;
+
+        if ($currency !== $targetCurrency) {
+            if ($currency === 'SYP' && $targetCurrency === 'USD') {
+                $sypRate = \App\Services\ExchangeRateService::getSypRate();
+                $rate = $sypRate > 0 ? 1 / $sypRate : 1.0;
+                $targetAmount = $amount * $rate;
+            } elseif ($currency === 'USD' && $targetCurrency === 'SYP') {
+                $sypRate = \App\Services\ExchangeRateService::getSypRate();
+                $rate = $sypRate;
+                $targetAmount = $amount * $rate;
+            } else {
+                // Fallback to query last transaction rate or 1.0
+                $lastRate = Transaction::where('user_id', $integration->user_id)
+                    ->where('currency', $currency)
+                    ->where('exchange_rate', '>', 0)
+                    ->latest()
+                    ->value('exchange_rate') ?? 1.0;
+                $rate = $lastRate;
+                $targetAmount = $amount * $rate;
+            }
+        }
+
+        // Determine final amount stored in Transaction (consistent with TransactionController)
+        $finalAmount = $targetAmount;
+        $originalAmount = null;
+        if ($currency !== $targetCurrency) {
+            $originalAmount = $amount;
+        }
+
+        // Create the transaction
+        Transaction::create([
+            'amount' => $finalAmount,
+            'original_amount' => $originalAmount,
+            'currency' => $currency,
+            'exchange_rate' => $rate,
+            'type' => 'income',
+            'category' => $category,
+            'description' => $description,
+            'transactionable_type' => $integration->target_type,
+            'transactionable_id' => $integration->target_id,
+            'user_id' => $integration->user_id,
+            'transaction_date' => $transactionDate ?: now(),
+        ]);
+
+        // Increment the target balance/current value/total value
+        if ($integration->target_type === 'App\Models\Wallet') {
+            $target->increment('balance', $targetAmount);
+        } elseif ($integration->target_type === 'App\Models\InvestmentFund') {
+            $target->increment('current_value', $targetAmount);
+        } elseif ($integration->target_type === 'App\Models\Business') {
+            $target->increment('total_value', $targetAmount);
+        }
+    }
 }
+
