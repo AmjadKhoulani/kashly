@@ -133,6 +133,35 @@
                                 <div class="h-full bg-gradient-to-l from-indigo-600 to-indigo-400 rounded-full transition-all duration-1000"
                                     style="width: {{ $barPercent }}%"></div>
                             </div>
+
+                            {{-- Mini Stats: Partners, Assets, Profit --}}
+                            <div class="flex items-center justify-between border-t border-slate-100 pt-4 mt-4 text-right">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="text-sm">👥</span>
+                                    <div>
+                                        <p class="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none">الشركاء</p>
+                                        <p class="text-xs font-black text-slate-800 mt-1 leading-none">{{ $fund->equities->count() }}</p>
+                                    </div>
+                                </div>
+                                <div class="w-px h-6 bg-slate-100"></div>
+                                <div class="flex items-center gap-1.5">
+                                    <span class="text-sm">🏢</span>
+                                    <div>
+                                        <p class="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none">الأصول</p>
+                                        <p class="text-xs font-black text-slate-800 mt-1 leading-none">{{ $fund->assets->count() }}</p>
+                                    </div>
+                                </div>
+                                <div class="w-px h-6 bg-slate-100"></div>
+                                <div class="flex items-center gap-1.5">
+                                    <span class="text-sm">{{ $fundProfit >= 0 ? '📈' : '📉' }}</span>
+                                    <div>
+                                        <p class="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none">صافي العائد</p>
+                                        <p class="text-xs font-black {{ $fundProfit >= 0 ? 'text-emerald-600' : 'text-rose-600' }} mt-1 leading-none">
+                                            {{ $fundProfit >= 0 ? '+' : '' }}{{ number_format($fundProfit, 0) }} {{ $fund->currency }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </a>
                 @endforeach

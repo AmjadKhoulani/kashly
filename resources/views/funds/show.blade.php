@@ -73,6 +73,25 @@
 
         <div class="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-6">
 
+            <!-- Month Filter Selection Bar -->
+            <div class="bg-white rounded-3xl border border-slate-100/80 p-4 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4 no-print" dir="rtl">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center text-lg border border-indigo-100/30">📅</div>
+                    <div class="text-right">
+                        <h3 class="text-xs font-black text-slate-900">تصفية وإحصائيات الفترة للكيان</h3>
+                        <p class="text-[9px] font-bold text-slate-400 mt-0.5">اختر الشهر لعرض الإيرادات والمصاريف وصافي الأرباح المقابلة</p>
+                    </div>
+                </div>
+                <form action="{{ route('funds.show', $fund->id) }}" method="GET" class="w-full sm:w-auto flex items-center gap-2" id="monthFilterForm">
+                    <select name="month" onchange="document.getElementById('monthFilterForm').submit()" class="w-full sm:w-56 bg-slate-50 border border-slate-200/60 rounded-xl px-3 py-2 text-xs font-black text-slate-700 focus:ring-2 focus:ring-indigo-500 transition-all text-right">
+                        <option value="all" {{ $selectedMonth === 'all' ? 'selected' : '' }}>كل الأوقات (تراكمي)</option>
+                        @foreach($monthsList as $mItem)
+                            <option value="{{ $mItem['val'] }}" {{ $selectedMonth === $mItem['val'] ? 'selected' : '' }}>{{ $mItem['lbl'] }}</option>
+                        @endforeach
+                    </select>
+                </form>
+            </div>
+
             <!-- Stats Overview: Sleek Cards -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                 <div class="bg-gradient-to-br from-indigo-50/40 via-white to-slate-50/20 rounded-2xl p-5 border border-indigo-100/60 shadow-sm hover:shadow-md transition-all group">
@@ -107,13 +126,6 @@
                         <span class="text-[10px] font-black text-slate-400 uppercase">{{ $fund->currency }}</span>
                     </div>
                 </div>
-
-                @php
-                    $income = \App\Models\Transaction::where('transactionable_id', $fund->id)->where('transactionable_type', \App\Models\InvestmentFund::class)->where('type', 'income')->sum('amount');
-                    $expense = \App\Models\Transaction::where('transactionable_id', $fund->id)->where('transactionable_type', \App\Models\InvestmentFund::class)->where('type', 'expense')->sum('amount');
-                    $capitalSum = \App\Models\Transaction::where('transactionable_id', $fund->id)->where('transactionable_type', \App\Models\InvestmentFund::class)->where('type', 'capital')->sum('amount');
-                    $profit = $income - $expense;
-                @endphp
 
                 <div class="bg-gradient-to-br from-violet-50/40 via-white to-slate-50/20 rounded-2xl p-5 border border-violet-100/60 shadow-sm hover:shadow-md transition-all group">
                     <div class="w-11 h-11 bg-violet-50 rounded-xl flex items-center justify-center text-violet-600 mb-4 group-hover:scale-105 group-hover:rotate-3 transition-transform border border-violet-100 shadow-sm">

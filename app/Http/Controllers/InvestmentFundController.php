@@ -77,7 +77,7 @@ class InvestmentFundController extends Controller
         }
     }
 
-    public function show($id)
+    public function show(Request $request, $id)
     {
         $fund = InvestmentFund::where('user_id', auth()->id())
             ->with(['assets', 'distributions'])
@@ -113,7 +113,63 @@ class InvestmentFundController extends Controller
                 ->get();
         }
 
-        return view('funds.show', compact('fund', 'equities', 'transactions', 'paymentMethods', 'allPaymentMethods'));
+        // Month Filtering for stats
+        $selectedMonth = $request->query('month', 'all'); // 'all' or 'YYYY-MM'
+        
+        $queryIncome = Transaction::where('transactionable_id', $fund->id)->where('transactionable_type', InvestmentFund::class)->where('type', 'income');
+        $queryExpense = Transaction::where('transactionable_id', $fund->id)->where('transactionable_type', InvestmentFund::class)->where('type', 'expense');
+        $queryCapital = Transaction::where('transactionable_id', $fund->id)->where('transactionable_type', InvestmentFund::class)->where('type', 'capital');
+
+        if ($selectedMonth !== 'all') {
+            $parts = explode('-', $selectedMonth);
+            if (count($parts) === 2) {
+                $year = $parts[0];
+                $month = $parts[1];
+                $queryIncome->whereYear('transaction_date', $year)->whereMonth('transaction_date', $month);
+                $queryExpense->whereYear('transaction_date', $year)->whereMonth('transaction_date', $month);
+                $queryCapital->whereYear('transaction_date', $year)->whereMonth('transaction_date', $month);
+            }
+        }
+
+        $income = $queryIncome->sum('amount');
+        $expense = $queryExpense->sum('amount');
+        $capitalSum = $queryCapital->sum('amount');
+        $profit = $income - $expense;
+
+        // Get list of available months for filter
+        $availableMonths = Transaction::where('transactionable_id', $fund->id)
+            ->where('transactionable_type', InvestmentFund::class)
+            ->selectRaw("DATE_FORMAT(transaction_date, '%Y-%m') as month_val")
+            ->groupBy('month_val')
+            ->orderBy('month_val', 'desc')
+            ->pluck('month_val')
+            ->toArray();
+        
+        // Map to Arabic Month Names
+        $monthsList = [];
+        $arabicMonths = [
+            '01' => 'كانون الثاني', '02' => 'شباط', '03' => 'آذار', '04' => 'نيسان',
+            '05' => 'أيار', '06' => 'حزيران', '07' => 'تموز', '08' => 'آب',
+            '09' => 'أيلول', '10' => 'تشرين الأول', '11' => 'تشرين الثاني', '12' => 'كانون الأول'
+        ];
+
+        foreach ($availableMonths as $mVal) {
+            $parts = explode('-', $mVal);
+            if (count($parts) === 2) {
+                $monthNum = $parts[1];
+                $yearNum = $parts[0];
+                $monthArabic = $arabicMonths[$monthNum] ?? $monthNum;
+                $monthsList[] = [
+                    'val' => $mVal,
+                    'lbl' => $monthArabic . ' ' . $yearNum
+                ];
+            }
+        }
+
+        return view('funds.show', compact(
+            'fund', 'equities', 'transactions', 'paymentMethods', 'allPaymentMethods',
+            'income', 'expense', 'capitalSum', 'profit', 'selectedMonth', 'monthsList'
+        ));
     }
 
     public function fundTransactions($id)
