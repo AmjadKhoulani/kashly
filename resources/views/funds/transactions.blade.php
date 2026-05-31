@@ -115,8 +115,8 @@
                                             @elseif($transaction->type == 'capital') text-violet-600
                                             @else text-rose-600 @endif">
                                             {{ $transaction->type == 'income' ? '+' : ($transaction->type == 'capital' ? '●' : '−') }}
-                                            {{ number_format($transaction->original_amount ?? $transaction->amount, 0) }}
-                                            <span class="text-[10px] opacity-75 font-black">{{ $transaction->paymentMethod->currency ?? $fund->currency }}</span>
+                                            {{ number_format($transaction->amount, 2) }}
+                                            <span class="text-[10px] opacity-75 font-black">{{ $fund->currency }}</span>
                                         </span>
                                         @if($transaction->type == 'capital')
                                             <p class="text-[8px] text-violet-400 font-black uppercase tracking-widest mt-0.5">رأس مال</p>
