@@ -11,7 +11,7 @@ class WebhookController extends Controller
     /**
      * Helper to process transaction, convert currencies, and update balances.
      */
-    private function processTransaction($integration, $amount, $currency, $category, $description, $transactionDate = null)
+    private function processTransaction($integration, $amount, $currency, $category, $description, $transactionDate = null, $transactionType = 'income')
     {
         $target = $integration->target;
         if (!$target) {
@@ -58,7 +58,7 @@ class WebhookController extends Controller
             'original_amount' => $originalAmount,
             'currency' => $currency,
             'exchange_rate' => $rate,
-            'type' => 'income',
+            'type' => $transactionType,
             'category' => $category,
             'description' => $description,
             'transactionable_type' => $integration->target_type,
@@ -67,13 +67,27 @@ class WebhookController extends Controller
             'transaction_date' => $transactionDate ?: now(),
         ]);
 
-        // Increment the target balance/current value/total value
+        $isIncome = ($transactionType === 'income' || $transactionType === 'capital');
+
+        // Increment or decrement the target balance/current value/total value based on transaction type
         if ($integration->target_type === 'App\Models\Wallet') {
-            $target->increment('balance', $targetAmount);
+            if ($isIncome) {
+                $target->increment('balance', $targetAmount);
+            } else {
+                $target->decrement('balance', $targetAmount);
+            }
         } elseif ($integration->target_type === 'App\Models\InvestmentFund') {
-            $target->increment('current_value', $targetAmount);
+            if ($isIncome) {
+                $target->increment('current_value', $targetAmount);
+            } else {
+                $target->decrement('current_value', $targetAmount);
+            }
         } elseif ($integration->target_type === 'App\Models\Business') {
-            $target->increment('total_value', $targetAmount);
+            if ($isIncome) {
+                $target->increment('total_value', $targetAmount);
+            } else {
+                $target->decrement('total_value', $targetAmount);
+            }
         }
     }
 
@@ -150,7 +164,9 @@ class WebhookController extends Controller
             'subscriber' => 'required|string',
             'type' => 'required|string',
             'action' => 'nullable|string',
-            'transaction_date' => 'nullable'
+            'transaction_date' => 'nullable',
+            'flow' => 'nullable|string',
+            'transaction_type' => 'nullable|string'
         ]);
 
         $action = strtolower($validated['action'] ?? 'create');
@@ -177,12 +193,26 @@ class WebhookController extends Controller
                     $target = $integration->target;
                     if ($target) {
                         $targetAmount = $transaction->amount; // Converted amount stored in DB
+                        $isIncome = ($transaction->type === 'income' || $transaction->type === 'capital');
+                        
                         if ($integration->target_type === 'App\Models\Wallet') {
-                            $target->decrement('balance', $targetAmount);
+                            if ($isIncome) {
+                                $target->decrement('balance', $targetAmount);
+                            } else {
+                                $target->increment('balance', $targetAmount);
+                            }
                         } elseif ($integration->target_type === 'App\Models\InvestmentFund') {
-                            $target->decrement('current_value', $targetAmount);
+                            if ($isIncome) {
+                                $target->decrement('current_value', $targetAmount);
+                            } else {
+                                $target->increment('current_value', $targetAmount);
+                            }
                         } elseif ($integration->target_type === 'App\Models\Business') {
-                            $target->decrement('total_value', $targetAmount);
+                            if ($isIncome) {
+                                $target->decrement('total_value', $targetAmount);
+                            } else {
+                                $target->increment('total_value', $targetAmount);
+                            }
                         }
                     }
                     $transaction->delete();
@@ -203,14 +233,30 @@ class WebhookController extends Controller
             }
         }
 
+        // Determine transaction flow/type
+        $amount = $validated['amount'];
+        $flow = strtolower($validated['flow'] ?? $validated['transaction_type'] ?? 'income');
+        
+        $txType = 'income';
+        $category = 'MadaaQ Payment';
+        $descriptionPrefix = 'دفعة من المشترك';
+
+        if ($amount < 0 || $flow === 'expense' || $flow === 'outflow') {
+            $txType = 'expense';
+            $category = 'MadaaQ Expense';
+            $descriptionPrefix = 'مصروف للمشترك';
+            $amount = abs($amount); // Keep amount absolute in database
+        }
+
         // Process the transaction and update the target's balance with currency rate support
         $this->processTransaction(
             $integration,
-            $validated['amount'],
+            $amount,
             $validated['currency'],
-            'MadaaQ Payment',
-            "دفعة من المشترك: {$validated['subscriber']} ({$validated['type']})",
-            $transactionDate
+            $category,
+            "{$descriptionPrefix}: {$validated['subscriber']} ({$validated['type']})",
+            $transactionDate,
+            $txType
         );
 
         return response()->json(['status' => 'success', 'message' => 'Transaction recorded']);
