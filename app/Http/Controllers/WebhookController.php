@@ -11,7 +11,7 @@ class WebhookController extends Controller
     /**
      * Helper to process transaction, convert currencies, and update balances.
      */
-    private function processTransaction($integration, $amount, $currency, $category, $description)
+    private function processTransaction($integration, $amount, $currency, $category, $description, $transactionDate = null)
     {
         $target = $integration->target;
         if (!$target) {
@@ -64,7 +64,7 @@ class WebhookController extends Controller
             'transactionable_type' => $integration->target_type,
             'transactionable_id' => $integration->target_id,
             'user_id' => $integration->user_id,
-            'transaction_date' => now(),
+            'transaction_date' => $transactionDate ?: now(),
         ]);
 
         // Increment the target balance/current value/total value
@@ -89,12 +89,14 @@ class WebhookController extends Controller
         if ($amount > 0) {
             $currency = $data['currency'] ?? 'USD';
             $orderNumber = $data['order_number'] ?? 'N/A';
+            $transactionDate = isset($data['created_at']) ? \Carbon\Carbon::parse($data['created_at']) : null;
             $this->processTransaction(
                 $integration,
                 $amount,
                 $currency,
                 'Shopify Order',
-                'طلب رقم #' . $orderNumber
+                'طلب رقم #' . $orderNumber,
+                $transactionDate
             );
         }
 
@@ -110,12 +112,14 @@ class WebhookController extends Controller
         if ($amount > 0) {
             $currency = $request->input('currency') ?? 'USD';
             $invoiceId = $request->input('invoiceid') ?? 'N/A';
+            $transactionDate = $request->filled('date') ? \Carbon\Carbon::parse($request->input('date')) : null;
             $this->processTransaction(
                 $integration,
                 $amount,
                 $currency,
                 'WHMCS Payment',
-                'فاتورة رقم #' . $invoiceId
+                'فاتورة رقم #' . $invoiceId,
+                $transactionDate
             );
         }
 
@@ -145,7 +149,8 @@ class WebhookController extends Controller
             'currency' => 'required|string',
             'subscriber' => 'required|string',
             'type' => 'required|string',
-            'action' => 'nullable|string'
+            'action' => 'nullable|string',
+            'transaction_date' => 'nullable'
         ]);
 
         $action = strtolower($validated['action'] ?? 'create');
@@ -189,13 +194,23 @@ class WebhookController extends Controller
             return response()->json(['error' => 'Transaction not found for deletion'], 404);
         }
 
+        $transactionDate = null;
+        if ($request->filled('transaction_date')) {
+            try {
+                $transactionDate = \Carbon\Carbon::parse($request->input('transaction_date'));
+            } catch (\Exception $e) {
+                // Fail silently and fallback to now()
+            }
+        }
+
         // Process the transaction and update the target's balance with currency rate support
         $this->processTransaction(
             $integration,
             $validated['amount'],
             $validated['currency'],
             'MadaaQ Payment',
-            "دفعة من المشترك: {$validated['subscriber']} ({$validated['type']})"
+            "دفعة من المشترك: {$validated['subscriber']} ({$validated['type']})",
+            $transactionDate
         );
 
         return response()->json(['status' => 'success', 'message' => 'Transaction recorded']);
