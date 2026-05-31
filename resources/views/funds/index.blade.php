@@ -79,6 +79,31 @@
                         $fundProfit = $fund->current_value - $fund->capital;
                         $fundProfitPct = $fund->capital > 0 ? (($fund->current_value - $fund->capital) / $fund->capital) * 100 : 0;
                         $barPercent = min(100, ($fund->current_value / max($fund->capital, 1)) * 100);
+                        
+                        // Calculate liquid cash balance for this fund
+                        $allPm = \App\Models\PaymentMethod::where('fund_id', $fund->id)->get();
+                        $totalLiquidCash = 0;
+                        $sypRate = \App\Services\ExchangeRateService::getSypRate();
+                        foreach ($allPm as $pm) {
+                            $hasChildren = \App\Models\PaymentMethod::where('parent_id', $pm->id)->exists();
+                            if ($hasChildren) {
+                                continue;
+                            }
+                            $amount = $pm->balance;
+                            $currency = $pm->currency;
+                            $targetCurrency = $fund->currency;
+                            if ($currency === $targetCurrency) {
+                                $totalLiquidCash += $amount;
+                            } else {
+                                if ($currency === 'SYP' && $targetCurrency === 'USD') {
+                                    $totalLiquidCash += ($sypRate > 0) ? $amount / $sypRate : $amount;
+                                } elseif ($currency === 'USD' && $targetCurrency === 'SYP') {
+                                    $totalLiquidCash += $amount * $sypRate;
+                                } else {
+                                    $totalLiquidCash += $amount;
+                                }
+                            }
+                        }
                     @endphp
                     @php
                         $isLinked = isset($linkedFundIds[$fund->id]);
@@ -111,18 +136,22 @@
                                 </div>
                             </div>
 
-                            {{-- Capital vs Current Value --}}
-                            <div class="grid grid-cols-2 gap-3 mb-4">
-                                <div class="bg-slate-50 rounded-xl p-3 border border-slate-100">
-                                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">رأس المال</p>
-                                    <p class="text-lg font-black text-slate-900 tracking-tighter">${{ number_format($fund->capital, 0) }}</p>
+                            {{-- Stats Grid: Capital vs Cash Balance vs Current Value --}}
+                            <div class="grid grid-cols-3 gap-2.5 mb-4">
+                                <div class="bg-slate-50 rounded-xl p-3 border border-slate-100 text-right">
+                                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 leading-none">رأس المال</p>
+                                    <p class="text-base font-black text-slate-900 tracking-tighter mt-1.5">${{ number_format($fund->capital, 0) }}</p>
                                 </div>
-                                <div class="bg-indigo-50/60 rounded-xl p-3 border border-indigo-100">
-                                    <p class="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-1">القيمة الحالية</p>
-                                    <div class="flex items-baseline gap-2">
-                                        <p class="text-lg font-black text-indigo-600 tracking-tighter">${{ number_format($fund->current_value, 0) }}</p>
-                                        <span class="text-[10px] font-black {{ $fundProfitPct >= 0 ? 'text-emerald-600 bg-emerald-50' : 'text-rose-600 bg-rose-50' }} px-1.5 py-0.5 rounded-md">
-                                            {{ $fundProfitPct >= 0 ? '+' : '' }}{{ number_format($fundProfitPct, 1) }}%
+                                <div class="bg-emerald-50/50 rounded-xl p-3 border border-emerald-100 text-right">
+                                    <p class="text-[9px] font-black text-emerald-600 uppercase tracking-widest mb-1 leading-none">الرصيد (السيولة)</p>
+                                    <p class="text-base font-black text-emerald-700 tracking-tighter mt-1.5">${{ number_format($totalLiquidCash, 1) }}</p>
+                                </div>
+                                <div class="bg-indigo-50/60 rounded-xl p-3 border border-indigo-100 text-right">
+                                    <p class="text-[9px] font-black text-indigo-400 uppercase tracking-widest mb-1 leading-none">القيمة الحالية</p>
+                                    <div class="flex items-baseline gap-1 mt-1.5 flex-wrap">
+                                        <p class="text-base font-black text-indigo-600 tracking-tighter">${{ number_format($fund->current_value, 0) }}</p>
+                                        <span class="text-[8px] font-black {{ $fundProfitPct >= 0 ? 'text-emerald-600 bg-emerald-50' : 'text-rose-600 bg-rose-50' }} px-1 rounded-sm">
+                                            {{ $fundProfitPct >= 0 ? '+' : '' }}{{ number_format($fundProfitPct, 0) }}%
                                         </span>
                                     </div>
                                 </div>
