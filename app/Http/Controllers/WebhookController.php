@@ -144,8 +144,50 @@ class WebhookController extends Controller
             'amount' => 'required|numeric',
             'currency' => 'required|string',
             'subscriber' => 'required|string',
-            'type' => 'required|string'
+            'type' => 'required|string',
+            'action' => 'nullable|string'
         ]);
+
+        $action = strtolower($validated['action'] ?? 'create');
+
+        // Check if this is a deletion/cancellation request
+        if ($action === 'delete' || strtolower($validated['type']) === 'delete' || strtolower($validated['type']) === 'cancelled') {
+            // Find the transaction to delete
+            $query = Transaction::where('user_id', $integration->user_id)
+                ->where('transactionable_type', $integration->target_type)
+                ->where('transactionable_id', $integration->target_id);
+
+            if (strtolower($validated['type']) === 'delete' || strtolower($validated['type']) === 'cancelled') {
+                $query->where('description', 'like', "دفعة من المشترك: {$validated['subscriber']}%");
+            } else {
+                $description = "دفعة من المشترك: {$validated['subscriber']} ({$validated['type']})";
+                $query->where('description', $description);
+            }
+
+            $transaction = $query->latest()->first();
+
+            if ($transaction) {
+                \DB::transaction(function () use ($transaction, $integration) {
+                    // Revert the balance of the target
+                    $target = $integration->target;
+                    if ($target) {
+                        $targetAmount = $transaction->amount; // Converted amount stored in DB
+                        if ($integration->target_type === 'App\Models\Wallet') {
+                            $target->decrement('balance', $targetAmount);
+                        } elseif ($integration->target_type === 'App\Models\InvestmentFund') {
+                            $target->decrement('current_value', $targetAmount);
+                        } elseif ($integration->target_type === 'App\Models\Business') {
+                            $target->decrement('total_value', $targetAmount);
+                        }
+                    }
+                    $transaction->delete();
+                });
+
+                return response()->json(['status' => 'success', 'message' => 'Transaction deleted and balances reverted']);
+            }
+
+            return response()->json(['error' => 'Transaction not found for deletion'], 404);
+        }
 
         // Process the transaction and update the target's balance with currency rate support
         $this->processTransaction(
