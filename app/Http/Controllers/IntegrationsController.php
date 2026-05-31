@@ -88,12 +88,19 @@ class IntegrationsController extends Controller
                     ? \Carbon\Carbon::parse($payment['transaction_date']) 
                     : now();
 
-                // Check if this transaction already exists in our database
+                // Bulletproof duplicate check: check same target, same day, same absolute amount, and matching subscriber name
                 $exists = Transaction::where('user_id', $integration->user_id)
                     ->where('transactionable_type', $integration->target_type)
                     ->where('transactionable_id', $integration->target_id)
-                    ->where('description', $description)
                     ->whereDate('transaction_date', $txDate->toDateString())
+                    ->where(function($q) use ($payment) {
+                        $absAmount = abs($payment['amount']);
+                        $q->where('amount', $absAmount)
+                          ->orWhere('original_amount', $absAmount)
+                          ->orWhere('amount', -$absAmount)
+                          ->orWhere('original_amount', -$absAmount);
+                    })
+                    ->where('description', 'like', "%" . $payment['subscriber'] . "%")
                     ->exists();
 
                 if ($exists) {
@@ -133,6 +140,19 @@ class IntegrationsController extends Controller
 
         $targetCurrency = $target->currency ?? 'USD';
         
+        // Determine transaction flow/type and dynamically adjust texts
+        $txType = 'income';
+        if ($amount < 0) {
+            $txType = 'expense';
+            $amount = abs($amount);
+            if (strpos($category, 'Payment') !== false) {
+                $category = str_replace('Payment', 'Expense', $category);
+            }
+            if (strpos($description, 'دفعة من المشترك') !== false) {
+                $description = str_replace('دفعة من المشترك', 'مصروف للمشترك', $description);
+            }
+        }
+
         // Calculate exchange rate and target amount
         $rate = 1.0;
         $targetAmount = $amount;
@@ -171,7 +191,7 @@ class IntegrationsController extends Controller
             'original_amount' => $originalAmount,
             'currency' => $currency,
             'exchange_rate' => $rate,
-            'type' => 'income',
+            'type' => $txType,
             'category' => $category,
             'description' => $description,
             'transactionable_type' => $integration->target_type,
@@ -180,13 +200,27 @@ class IntegrationsController extends Controller
             'transaction_date' => $transactionDate ?: now(),
         ]);
 
-        // Increment the target balance/current value/total value
+        $isIncome = ($txType === 'income' || $txType === 'capital');
+
+        // Increment or decrement the target balance/current value/total value based on transaction type
         if ($integration->target_type === 'App\Models\Wallet') {
-            $target->increment('balance', $targetAmount);
+            if ($isIncome) {
+                $target->increment('balance', $targetAmount);
+            } else {
+                $target->decrement('balance', $targetAmount);
+            }
         } elseif ($integration->target_type === 'App\Models\InvestmentFund') {
-            $target->increment('current_value', $targetAmount);
+            if ($isIncome) {
+                $target->increment('current_value', $targetAmount);
+            } else {
+                $target->decrement('current_value', $targetAmount);
+            }
         } elseif ($integration->target_type === 'App\Models\Business') {
-            $target->increment('total_value', $targetAmount);
+            if ($isIncome) {
+                $target->increment('total_value', $targetAmount);
+            } else {
+                $target->decrement('total_value', $targetAmount);
+            }
         }
     }
 }
