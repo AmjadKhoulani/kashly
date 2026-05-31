@@ -158,13 +158,15 @@ class IntegrationsController extends Controller
                 }
 
                 // Call helper processing transaction
+                $flow = strtolower($payment['flow'] ?? $payment['transaction_type'] ?? 'income');
                 $this->processWebhookTransaction(
                     $integration,
                     $payment['amount'],
                     $payment['currency'] ?? 'SYP',
                     'MadaaQ Payment',
                     $description,
-                    $txDate
+                    $txDate,
+                    $flow
                 );
 
                 $importedCount++;
@@ -184,7 +186,7 @@ class IntegrationsController extends Controller
     /**
      * Helper to process transaction, convert currencies, and update balances.
      */
-    private function processWebhookTransaction($integration, $amount, $currency, $category, $description, $transactionDate = null)
+    private function processWebhookTransaction($integration, $amount, $currency, $category, $description, $transactionDate = null, $flow = 'income')
     {
         $target = $integration->target;
         if (!$target) {
@@ -195,7 +197,8 @@ class IntegrationsController extends Controller
         
         // Determine transaction flow/type and dynamically adjust texts
         $txType = 'income';
-        if ($amount < 0) {
+        $flow = strtolower($flow);
+        if ($amount < 0 || $flow === 'expense' || $flow === 'outflow') {
             $txType = 'expense';
             $amount = abs($amount);
             if (strpos($category, 'Payment') !== false) {
