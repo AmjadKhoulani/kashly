@@ -166,7 +166,8 @@ class WebhookController extends Controller
             'action' => 'nullable|string',
             'transaction_date' => 'nullable',
             'flow' => 'nullable|string',
-            'transaction_type' => 'nullable|string'
+            'transaction_type' => 'nullable|string',
+            'category' => 'nullable|string'
         ]);
 
         $action = strtolower($validated['action'] ?? 'create');
@@ -246,6 +247,15 @@ class WebhookController extends Controller
             $category = 'MadaaQ Expense';
             $descriptionPrefix = 'مصروف للمشترك';
             $amount = abs($amount); // Keep amount absolute in database
+        } elseif ($flow === 'capital') {
+            $txType = 'capital';
+            $category = 'MadaaQ Capital';
+            $descriptionPrefix = 'رأس مال من المشترك';
+        }
+
+        // Custom dynamic category mapping support
+        if ($request->filled('category')) {
+            $category = $request->input('category');
         }
 
         // Process the transaction and update the target's balance with currency rate support

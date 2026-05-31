@@ -159,6 +159,7 @@ class IntegrationsController extends Controller
 
                 // Call helper processing transaction
                 $flow = strtolower($payment['flow'] ?? $payment['transaction_type'] ?? 'income');
+                $customCategory = $payment['category'] ?? null;
                 $this->processWebhookTransaction(
                     $integration,
                     $payment['amount'],
@@ -166,7 +167,8 @@ class IntegrationsController extends Controller
                     'MadaaQ Payment',
                     $description,
                     $txDate,
-                    $flow
+                    $flow,
+                    $customCategory
                 );
 
                 $importedCount++;
@@ -186,7 +188,7 @@ class IntegrationsController extends Controller
     /**
      * Helper to process transaction, convert currencies, and update balances.
      */
-    private function processWebhookTransaction($integration, $amount, $currency, $category, $description, $transactionDate = null, $flow = 'income')
+    private function processWebhookTransaction($integration, $amount, $currency, $category, $description, $transactionDate = null, $flow = 'income', $customCategory = null)
     {
         $target = $integration->target;
         if (!$target) {
@@ -207,6 +209,17 @@ class IntegrationsController extends Controller
             if (strpos($description, 'دفعة من المشترك') !== false) {
                 $description = str_replace('دفعة من المشترك', 'مصروف للمشترك', $description);
             }
+        } elseif ($flow === 'capital') {
+            $txType = 'capital';
+            $category = 'MadaaQ Capital';
+            if (strpos($description, 'دفعة من المشترك') !== false) {
+                $description = str_replace('دفعة من المشترك', 'رأس مال من المشترك', $description);
+            }
+        }
+
+        // Apply custom dynamic category mapping
+        if ($customCategory) {
+            $category = $customCategory;
         }
 
         // Calculate exchange rate and target amount
