@@ -131,7 +131,7 @@
                     $madaaqIntegrations = $integrations->where('provider', 'madaaq');
                     $madaaqCount = $madaaqIntegrations->count();
                 @endphp
-                <div x-data="{ showMadaaqModal: false, showAddForm: false }" class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 hover:shadow-md transition-all flex flex-col justify-between group relative overflow-hidden">
+                 <div x-data="{ showMadaaqModal: false, showAddForm: false, showSyncModal: false, syncUrl: '', syncTargetName: '', syncMode: 'incremental' }" class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 hover:shadow-md transition-all flex flex-col justify-between group relative overflow-hidden">
                     <div>
                         <div class="w-16 h-16 bg-orange-50 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500 overflow-hidden text-3xl border border-orange-100 shadow-sm">
                             📡
@@ -196,13 +196,10 @@
                                                     </div>
                                                 </div>
                                                 <div class="flex items-center gap-1.5 no-print">
-                                                    <form action="{{ route('integrations.syncMadaaq', $mi->id) }}" method="POST" class="inline">
-                                                        @csrf
-                                                        <button type="submit" class="px-2.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-xl font-black text-[10px] transition-all flex items-center gap-1 hover:scale-105 active:scale-95 shadow-sm border border-indigo-100/30" title="جلب ومزامنة العمليات المالية التاريخية">
+                                                    <button type="button" @click.prevent="syncUrl = '{{ route('integrations.syncMadaaq', $mi->id) }}'; syncTargetName = '{{ $mi->target->name ?? 'غير محدد' }}'; showSyncModal = true; showMadaaqModal = false;" class="px-2.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-xl font-black text-[10px] transition-all flex items-center gap-1 hover:scale-105 active:scale-95 shadow-sm border border-indigo-100/30" title="جلب ومزامنة العمليات المالية التاريخية">
                                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.253 8H18"/></svg>
                                                             <span>جلب الحركات</span>
                                                         </button>
-                                                    </form>
                                                     <form action="{{ route('integrations.destroy', $mi->id) }}" method="POST" onsubmit="return confirm('إلغاء ربط {{ $mi->target->name ?? 'هذا الصندوق' }} من MadaaQ؟')">
                                                         @csrf
                                                         @method('DELETE')
@@ -390,6 +387,86 @@
                                         </div>
                                     </form>
                                 @endif
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- MadaaQ Sync Options Modal -->
+                    <div x-show="showSyncModal" class="fixed inset-0 z-[110] flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-md" x-cloak x-transition>
+                        <div class="bg-white rounded-3xl w-full max-w-md shadow-2xl text-right relative overflow-hidden border border-slate-100/50" @click.away="showSyncModal = false">
+                            
+                            <!-- Sticky Header inside Modal -->
+                            <div class="sticky top-0 bg-white/95 border-b border-slate-100 px-6 py-4 flex justify-between items-center z-10 backdrop-blur-md">
+                                <div>
+                                    <h3 class="text-lg font-black text-slate-900">خيارات جلب البيانات</h3>
+                                    <p class="text-[10px] font-bold text-slate-400 mt-0.5" x-text="syncTargetName"></p>
+                                </div>
+                                <button @click="showSyncModal = false" class="text-slate-400 hover:text-slate-600 transition-all p-1.5 hover:bg-slate-50 rounded-xl border border-transparent hover:border-slate-100">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                </button>
+                            </div>
+
+                            <!-- Modal Content -->
+                            <div class="p-6 space-y-6">
+                                
+                                <!-- Warning banner -->
+                                <div class="bg-amber-50 rounded-2xl p-4 border border-amber-100 text-right space-y-2">
+                                    <div class="flex items-center gap-2 text-amber-850">
+                                        <span class="text-lg">⚠️</span>
+                                        <p class="text-xs font-black text-amber-900">تنبيه هام بخصوص الحركات اليدوية</p>
+                                    </div>
+                                    <p class="text-[11px] font-bold text-amber-700 leading-relaxed">
+                                        إذا قمت بإجراء تعديلات يدوية أو حركات يدوية مرتبطة بـ MadaaQ، فقد يتم حذفها أو إعادة تعيين قيمتها عند اختيار "استيراد نظيف كامل". يرجى اختيار الخيار المناسب لك أدناه.
+                                    </p>
+                                </div>
+
+                                <form :action="syncUrl" method="POST" class="space-y-4 text-right">
+                                    @csrf
+                                    
+                                    <div class="space-y-3">
+                                        <!-- Option 1: Incremental -->
+                                        <label class="block cursor-pointer">
+                                            <input type="radio" name="sync_mode" value="incremental" x-model="syncMode" class="hidden peer">
+                                            <div class="p-4 rounded-2xl border border-slate-100 bg-slate-50/50 hover:bg-slate-50 peer-checked:border-indigo-500 peer-checked:bg-indigo-50/30 transition-all flex gap-3 items-start">
+                                                <div class="w-5 h-5 rounded-full border-2 border-slate-300 peer-checked:border-indigo-600 flex items-center justify-center mt-0.5 flex-shrink-0">
+                                                    <div x-show="syncMode === 'incremental'" class="w-2.5 h-2.5 bg-indigo-600 rounded-full"></div>
+                                                </div>
+                                                <div>
+                                                    <p class="text-xs font-black text-slate-900 flex items-center gap-1.5">
+                                                        <span>مزامنة ذكية (استيراد الجديد فقط)</span>
+                                                        <span class="bg-indigo-100 text-indigo-700 text-[9px] font-black px-1.5 py-0.5 rounded-md">مستحسن</span>
+                                                    </p>
+                                                    <p class="text-[10px] font-bold text-slate-400 mt-1 leading-relaxed">
+                                                        يقوم بمقارنة الحركات الحالية واستيراد العمليات الجديدة فقط. يحافظ على أي حركات وتعديلات حالية ويمنع التكرار نهائياً.
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </label>
+
+                                        <!-- Option 2: Clean -->
+                                        <label class="block cursor-pointer">
+                                            <input type="radio" name="sync_mode" value="clean" x-model="syncMode" class="hidden peer">
+                                            <div class="p-4 rounded-2xl border border-slate-100 bg-slate-50/50 hover:bg-slate-50 peer-checked:border-orange-500 peer-checked:bg-orange-50/30 transition-all flex gap-3 items-start">
+                                                <div class="w-5 h-5 rounded-full border-2 border-slate-300 peer-checked:border-orange-600 flex items-center justify-center mt-0.5 flex-shrink-0">
+                                                    <div x-show="syncMode === 'clean'" class="w-2.5 h-2.5 bg-orange-600 rounded-full"></div>
+                                                </div>
+                                                <div>
+                                                    <p class="text-xs font-black text-slate-900">استيراد نظيف كامل (حذف وإعادة مزامنة)</p>
+                                                    <p class="text-[10px] font-bold text-slate-400 mt-1 leading-relaxed">
+                                                        سيقوم النظام بحذف كافة حركات MadaaQ السابقة وإرجاع الأرصدة تلقائياً لوضعها السابق، ثم إعادة استيراد كل العمليات نظيفة بنسبة 100%.
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </label>
+                                    </div>
+
+                                    <div class="flex gap-3 pt-3">
+                                        <button type="button" @click="showSyncModal = false" class="flex-1 px-5 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-black text-xs transition-all">إلغاء</button>
+                                        <button type="submit" class="flex-1 px-5 py-3 text-white rounded-xl font-black text-xs transition-all shadow-lg" :class="syncMode === 'clean' ? 'bg-orange-600 hover:bg-orange-700 shadow-orange-500/20' : 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-500/20'">
+                                            بدء مزامنة البيانات
+                                        </button>
+                                    </div>
+                                </form>
                             </div>
                         </div>
                     </div>

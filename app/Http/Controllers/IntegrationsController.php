@@ -58,14 +58,61 @@ class IntegrationsController extends Controller
     /**
      * Fetch all historical payments from MadaaQ and import them safely.
      */
-    public function syncMadaaq($id)
+    public function syncMadaaq(Request $request, $id)
     {
         $integration = Integration::where('user_id', auth()->id())
             ->where('provider', 'madaaq')
             ->where('id', $id)
             ->firstOrFail();
 
+        $syncMode = $request->input('sync_mode', 'incremental'); // 'clean' or 'incremental'
+
         try {
+            // 1. If clean sync, revert balances and delete old MadaaQ transactions
+            if ($syncMode === 'clean') {
+                $oldTransactions = Transaction::where('user_id', $integration->user_id)
+                    ->where('transactionable_type', $integration->target_type)
+                    ->where('transactionable_id', $integration->target_id)
+                    ->where(function($q) {
+                        $q->where('category', 'like', '%MadaaQ%')
+                          ->orWhere('description', 'like', '%دفعة من المشترك%')
+                          ->orWhere('description', 'like', '%مصروف للمشترك%');
+                    })
+                    ->get();
+
+                \DB::transaction(function() use ($oldTransactions, $integration) {
+                    foreach ($oldTransactions as $tx) {
+                        $target = $integration->target;
+                        if ($target) {
+                            $targetAmount = $tx->amount; // Converted amount stored in DB
+                            $isIncome = ($tx->type === 'income' || $tx->type === 'capital');
+                            
+                            if ($integration->target_type === 'App\Models\Wallet') {
+                                if ($isIncome) {
+                                    $target->decrement('balance', $targetAmount);
+                                } else {
+                                    $target->increment('balance', $targetAmount);
+                                }
+                            } elseif ($integration->target_type === 'App\Models\InvestmentFund') {
+                                if ($isIncome) {
+                                    $target->decrement('current_value', $targetAmount);
+                                } else {
+                                    $target->increment('current_value', $targetAmount);
+                                }
+                            } elseif ($integration->target_type === 'App\Models\Business') {
+                                if ($isIncome) {
+                                    $target->decrement('total_value', $targetAmount);
+                                } else {
+                                    $target->increment('total_value', $targetAmount);
+                                }
+                            }
+                        }
+                        $tx->delete();
+                    }
+                });
+            }
+
+            // 2. Fetch payments from MadaaQ API
             $response = \Illuminate\Support\Facades\Http::withHeaders([
                 'Accept' => 'application/json',
                 'X-MadaaQ-Key' => $integration->webhook_secret
@@ -88,24 +135,26 @@ class IntegrationsController extends Controller
                     ? \Carbon\Carbon::parse($payment['transaction_date']) 
                     : now();
 
-                // Bulletproof duplicate check: check same target, same day, same absolute amount, and matching subscriber name
-                $exists = Transaction::where('user_id', $integration->user_id)
-                    ->where('transactionable_type', $integration->target_type)
-                    ->where('transactionable_id', $integration->target_id)
-                    ->whereDate('transaction_date', $txDate->toDateString())
-                    ->where(function($q) use ($payment) {
-                        $absAmount = abs($payment['amount']);
-                        $q->where('amount', $absAmount)
-                          ->orWhere('original_amount', $absAmount)
-                          ->orWhere('amount', -$absAmount)
-                          ->orWhere('original_amount', -$absAmount);
-                    })
-                    ->where('description', 'like', "%" . $payment['subscriber'] . "%")
-                    ->exists();
+                if ($syncMode !== 'clean') {
+                    // Bulletproof duplicate check: check same target, same day, same absolute amount, and matching subscriber name
+                    $exists = Transaction::where('user_id', $integration->user_id)
+                        ->where('transactionable_type', $integration->target_type)
+                        ->where('transactionable_id', $integration->target_id)
+                        ->whereDate('transaction_date', $txDate->toDateString())
+                        ->where(function($q) use ($payment) {
+                            $absAmount = abs($payment['amount']);
+                            $q->where('amount', $absAmount)
+                              ->orWhere('original_amount', $absAmount)
+                              ->orWhere('amount', -$absAmount)
+                              ->orWhere('original_amount', -$absAmount);
+                        })
+                        ->where('description', 'like', "%" . $payment['subscriber'] . "%")
+                        ->exists();
 
-                if ($exists) {
-                    $skippedCount++;
-                    continue;
+                    if ($exists) {
+                        $skippedCount++;
+                        continue;
+                    }
                 }
 
                 // Call helper processing transaction
@@ -121,7 +170,11 @@ class IntegrationsController extends Controller
                 $importedCount++;
             }
 
-            return back()->with('success', "تمت مزامنة العمليات بنجاح! تم استيراد {$importedCount} حركات جديدة، وتخطي {$skippedCount} حركات مكررة.");
+            $successMsg = $syncMode === 'clean' 
+                ? "تم تنظيف الحركات السابقة وإعادة استيراد {$importedCount} حركات مطابقة بالكامل لـ MadaaQ بنجاح!"
+                : "تمت مزامنة العمليات بنجاح! تم استيراد {$importedCount} حركات جديدة، وتخطي {$skippedCount} حركات مكررة.";
+
+            return back()->with('success', $successMsg);
             
         } catch (\Exception $e) {
             return back()->with('error', 'حدث خطأ أثناء الاتصال بمنصة MadaaQ: ' . $e->getMessage());
