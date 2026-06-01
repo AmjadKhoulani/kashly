@@ -158,10 +158,10 @@ class _PaymentMethodDetailScreenState extends State<PaymentMethodDetailScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.between,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Container(
-                            padding: EdgeInsets.symmetric(horizontal: 12, py: 6),
+                            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                             decoration: BoxDecoration(
                               color: Colors.white.withOpacity(0.12),
                               borderRadius: BorderRadius.circular(10),
