@@ -17,6 +17,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   String type = 'expense';
   String? selectedAccountType; // 'wallet', 'fund', 'business'
   int? selectedAccountId;
+  int? selectedPaymentMethodId; // selected sub-account for wallets
   dynamic selectedCategory;
   DateTime selectedDate = DateTime.now();
 
@@ -28,6 +29,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   List funds = [];
   List businesses = [];
   List allCategories = [];
+  List currentPaymentMethods = []; // list of sub-accounts for the currently selected wallet
   bool isLoading = true;
 
   // Derived: which types to show
@@ -45,10 +47,18 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     if (Get.arguments != null && Get.arguments is Map) {
       final args = Get.arguments as Map;
       if (args.containsKey('accountType') && args.containsKey('accountId')) {
-        selectedAccountType = args['accountType'] as String?;
-        selectedAccountId = args['accountId'] as int?;
+        final argType = args['accountType'] as String?;
+        final argId = args['accountId'] as int?;
         _contextAccountName = args['accountName'] as String?;
         _isContextMode = true;
+
+        if (argType == 'payment_method') {
+          selectedAccountType = 'wallet';
+          selectedPaymentMethodId = argId;
+        } else {
+          selectedAccountType = argType;
+          selectedAccountId = argId;
+        }
 
         // Default type per account type
         if (selectedAccountType == 'fund') {
@@ -60,17 +70,66 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     }
   }
 
+  void _updatePaymentMethods() {
+    if (selectedAccountType == 'wallet' && selectedAccountId != null) {
+      final wallet = wallets.firstWhere(
+        (w) => w['id'] == selectedAccountId,
+        orElse: () => null,
+      );
+      if (wallet != null) {
+        currentPaymentMethods = wallet['payment_methods'] as List? ?? [];
+        if (currentPaymentMethods.isNotEmpty) {
+          if (selectedPaymentMethodId == null ||
+              !currentPaymentMethods.any((pm) => pm['id'] == selectedPaymentMethodId)) {
+            selectedPaymentMethodId = currentPaymentMethods.first['id'] as int?;
+          }
+        } else {
+          selectedPaymentMethodId = null;
+        }
+      } else {
+        currentPaymentMethods = [];
+        selectedPaymentMethodId = null;
+      }
+    } else {
+      currentPaymentMethods = [];
+      selectedPaymentMethodId = null;
+    }
+  }
+
   void loadData() async {
-    final dashboard = await apiService.getDashboard();
-    final fundsList = await apiService.getFunds();
-    final categoriesList = await apiService.getTransactionCategories();
-    setState(() {
-      wallets = dashboard?['wallets'] ?? [];
-      businesses = dashboard?['businesses'] ?? [];
-      funds = fundsList ?? [];
-      allCategories = categoriesList ?? [];
-      isLoading = false;
-    });
+    try {
+      final dashboard = await apiService.getDashboard();
+      final fundsList = await apiService.getFunds();
+      final categoriesList = await apiService.getTransactionCategories();
+      setState(() {
+        wallets = dashboard?['wallets'] ?? [];
+        businesses = dashboard?['businesses'] ?? [];
+        funds = fundsList ?? [];
+        allCategories = categoriesList ?? [];
+
+        // If we entered via payment_method, resolve the parent wallet
+        if (_isContextMode && selectedPaymentMethodId != null && selectedAccountId == null) {
+          for (var w in wallets) {
+            final pms = w['payment_methods'] as List? ?? [];
+            if (pms.any((pm) => pm['id'] == selectedPaymentMethodId)) {
+              selectedAccountId = w['id'] as int?;
+              _contextAccountName = w['name'] as String?;
+              break;
+            }
+          }
+        }
+
+        _updatePaymentMethods();
+        isLoading = false;
+      });
+    } catch (e) {
+      print("Error loading AddTransactionScreen data: $e");
+      setState(() {
+        isLoading = false;
+      });
+      Get.snackbar('خطأ الاتصال', 'حدث خطأ أثناء تحميل البيانات من السيرفر',
+          backgroundColor: Colors.red.shade50, colorText: Colors.red.shade800);
+    }
   }
 
   Future<void> _selectDate(BuildContext context) async {
@@ -104,6 +163,12 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
       return;
     }
 
+    if (selectedAccountType == 'wallet' && selectedPaymentMethodId == null) {
+      Get.snackbar('حساب فرعي مطلوب', 'يرجى تحديد الحساب/البطاقة الفرعية لإتمام العملية',
+          backgroundColor: Colors.red.shade50, colorText: Colors.red.shade800);
+      return;
+    }
+
     String transactionableType;
     if (selectedAccountType == 'fund') {
       transactionableType = 'App\\Models\\InvestmentFund';
@@ -124,6 +189,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
       'transactionable_id': selectedAccountId,
       'transactionable_type': transactionableType,
       'description': descController.text,
+      if (selectedPaymentMethodId != null) 'payment_method_id': selectedPaymentMethodId,
     };
 
     final success = await apiService.addTransaction(data);
@@ -205,6 +271,12 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                   // 3. Account selector (only if NOT in context mode)
                   if (_showAccountSelector) ...[
                     _buildAccountSelectorCard(currentAccountsList),
+                    SizedBox(height: 18),
+                  ],
+
+                  // Sub-account Selector (always show if wallet is selected, regardless of context mode)
+                  if (selectedAccountType == 'wallet') ...[
+                    _buildSubAccountSelectorCard(),
                     SizedBox(height: 18),
                   ],
 
@@ -407,6 +479,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                 // Auto-set default type for funds
                 if (val == 'fund') type = 'income';
                 else type = 'expense';
+                _updatePaymentMethods();
               });
             },
           ),
@@ -429,9 +502,59 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                   child: Text(acc['name'].toString(), style: GoogleFonts.almarai(fontSize: 13)),
                 );
               }).toList(),
-              onChanged: (val) => setState(() => selectedAccountId = val),
+              onChanged: (val) {
+                setState(() {
+                  selectedAccountId = val;
+                  _updatePaymentMethods();
+                });
+              },
             ),
           ],
+        ],
+      ),
+    );
+  }
+
+  // ─── Sub-account Selector Card ───
+  Widget _buildSubAccountSelectorCard() {
+    if (selectedAccountType != 'wallet' || currentPaymentMethods.isEmpty) return SizedBox.shrink();
+
+    return Container(
+      padding: EdgeInsets.all(22),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(28),
+        border: Border.all(color: Color(0xFFE2E8F0), width: 1.5),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.015), blurRadius: 15, offset: Offset(0, 5))],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _sectionLabel('الحساب الفرعي / طريقة الدفع'),
+          SizedBox(height: 10),
+          DropdownButtonFormField<int>(
+            value: selectedPaymentMethodId,
+            decoration: InputDecoration(
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(15), borderSide: BorderSide(color: Color(0xFFE2E8F0))),
+              enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(15), borderSide: BorderSide(color: Color(0xFFE2E8F0))),
+              contentPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 14),
+            ),
+            hint: Text('اختر الحساب الفرعي...', style: GoogleFonts.almarai(fontSize: 13, color: Color(0xFF94A3B8))),
+            items: currentPaymentMethods.map((pm) {
+              final String pmType = pm['type'] ?? 'cash';
+              final String pmIcon = pmType == 'bank' ? '🏛️' : (pmType == 'cash' ? '💵' : '💳');
+              return DropdownMenuItem<int>(
+                value: pm['id'] as int,
+                child: Row(
+                  children: [
+                    Text('$pmIcon '),
+                    Text('${pm['name']} (${pm['currency']})', style: GoogleFonts.almarai(fontSize: 13)),
+                  ],
+                ),
+              );
+            }).toList(),
+            onChanged: (val) => setState(() => selectedPaymentMethodId = val),
+          ),
         ],
       ),
     );
