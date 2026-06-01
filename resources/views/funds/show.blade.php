@@ -10,7 +10,8 @@
         reconcilingName: '', 
         reconcilingBalance: 0,
         partnerSource: 'existing',
-        type: 'expense'
+        type: 'expense',
+        activeTxFilter: 'all'
     }">
 
         {{-- Sticky Header --}}
@@ -95,7 +96,9 @@
             <!-- Stats Overview: Sleek Cards -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4" dir="rtl">
                 <!-- Card 1: Available Cash -->
-                <div class="bg-gradient-to-br from-indigo-50/40 via-white to-slate-50/20 rounded-2xl p-5 border border-indigo-100/60 shadow-sm hover:shadow-md transition-all group text-right">
+                <div @click="activeTxFilter = 'all'" 
+                     :class="activeTxFilter === 'all' ? 'ring-2 ring-indigo-500 border-indigo-500 bg-indigo-50/10' : 'border-indigo-100/60 bg-gradient-to-br from-indigo-50/40 via-white to-slate-50/20'" 
+                     class="cursor-pointer transition-all hover:scale-[1.02] active:scale-95 rounded-2xl p-5 border shadow-sm hover:shadow-md group text-right">
                     <div class="w-11 h-11 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600 mb-4 group-hover:scale-105 group-hover:rotate-3 transition-transform border border-indigo-100 shadow-sm">
                         💵
                     </div>
@@ -107,7 +110,9 @@
                 </div>
 
                 <!-- Card 2: Total Income/Revenue -->
-                <div class="bg-gradient-to-br from-emerald-50/40 via-white to-slate-50/20 rounded-2xl p-5 border border-emerald-100/60 shadow-sm hover:shadow-md transition-all group text-right">
+                <div @click="activeTxFilter = 'income'" 
+                     :class="activeTxFilter === 'income' ? 'ring-2 ring-emerald-500 border-emerald-500 bg-emerald-50/10' : 'border-emerald-100/60 bg-gradient-to-br from-emerald-50/40 via-white to-slate-50/20'" 
+                     class="cursor-pointer transition-all hover:scale-[1.02] active:scale-95 rounded-2xl p-5 border shadow-sm hover:shadow-md group text-right">
                     <div class="w-11 h-11 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600 mb-4 group-hover:scale-105 group-hover:rotate-3 transition-transform border border-emerald-100 shadow-sm">
                         📈
                     </div>
@@ -119,7 +124,9 @@
                 </div>
 
                 <!-- Card 3: Total Expenses -->
-                <div class="bg-gradient-to-br from-rose-50/40 via-white to-slate-50/20 rounded-2xl p-5 border border-rose-100/60 shadow-sm hover:shadow-md transition-all group text-right">
+                <div @click="activeTxFilter = 'expense'" 
+                     :class="activeTxFilter === 'expense' ? 'ring-2 ring-rose-500 border-rose-500 bg-rose-50/10' : 'border-rose-100/60 bg-gradient-to-br from-rose-50/40 via-white to-slate-50/20'" 
+                     class="cursor-pointer transition-all hover:scale-[1.02] active:scale-95 rounded-2xl p-5 border shadow-sm hover:shadow-md group text-right">
                     <div class="w-11 h-11 bg-rose-50 rounded-xl flex items-center justify-center text-rose-600 mb-4 group-hover:scale-105 group-hover:rotate-3 transition-transform border border-rose-100 shadow-sm">
                         📉
                     </div>
@@ -131,8 +138,9 @@
                 </div>
 
                 <!-- Card 4: Net Profit/Loss -->
-                <div class="bg-gradient-to-br from-slate-50 via-white to-slate-50/20 rounded-2xl p-5 border border-slate-100 shadow-sm hover:shadow-md transition-all group text-right
-                    {{ $profit >= 0 ? 'from-emerald-50/30 border-emerald-100/60' : 'from-rose-50/30 border-rose-100/60' }}">
+                <div @click="activeTxFilter = 'all'"
+                     class="cursor-pointer transition-all hover:scale-[1.02] active:scale-95 rounded-2xl p-5 border shadow-sm hover:shadow-md group text-right
+                    {{ $profit >= 0 ? 'from-emerald-50/30 border-emerald-100/60' : 'from-rose-50/30 border-rose-100/60' }} bg-gradient-to-br">
                     <div class="w-11 h-11 rounded-xl flex items-center justify-center mb-4 group-hover:scale-105 group-hover:rotate-3 transition-transform border shadow-sm
                         {{ $profit >= 0 ? 'bg-emerald-50 text-emerald-600 border-emerald-100 shadow-emerald-500/5' : 'bg-rose-50 text-rose-600 border-rose-100 shadow-rose-500/5' }}">
                         ⚖️
@@ -145,7 +153,9 @@
                 </div>
 
                 <!-- Card 5: Invested Capital -->
-                <div class="bg-gradient-to-br from-violet-50/40 via-white to-slate-50/20 rounded-2xl p-5 border border-violet-100/60 shadow-sm hover:shadow-md transition-all group text-right">
+                <div @click="activeTxFilter = 'capital'" 
+                     :class="activeTxFilter === 'capital' ? 'ring-2 ring-violet-500 border-violet-500 bg-violet-50/10' : 'border-violet-100/60 bg-gradient-to-br from-violet-50/40 via-white to-slate-50/20'" 
+                     class="cursor-pointer transition-all hover:scale-[1.02] active:scale-95 rounded-2xl p-5 border shadow-sm hover:shadow-md group text-right">
                     <div class="w-11 h-11 bg-violet-50 rounded-xl flex items-center justify-center text-violet-600 mb-4 group-hover:scale-105 group-hover:rotate-3 transition-transform border border-violet-100 shadow-sm">
                         💼
                     </div>
@@ -231,13 +241,22 @@
 
                     <!-- Recent Transactions -->
                     <div class="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm">
-                        <div class="flex justify-between items-center mb-6">
-                            <h3 class="text-base font-black text-slate-900">آخر التحركات</h3>
+                        <div class="flex justify-between items-center mb-6 flex-wrap gap-2">
+                            <div class="flex items-center gap-2">
+                                <h3 class="text-base font-black text-slate-900">آخر التحركات</h3>
+                                <template x-if="activeTxFilter !== 'all'">
+                                    <span class="px-2 py-0.5 text-[9px] font-black rounded-lg uppercase tracking-widest border flex items-center gap-1"
+                                          :class="activeTxFilter === 'income' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : (activeTxFilter === 'expense' ? 'bg-rose-50 text-rose-600 border-rose-100' : 'bg-violet-50 text-violet-600 border-violet-100')">
+                                        <span x-text="activeTxFilter === 'income' ? 'إيرادات' : (activeTxFilter === 'expense' ? 'مصاريف' : 'رأس مال')"></span>
+                                        <button @click="activeTxFilter = 'all'" class="hover:text-slate-950 font-bold mr-1 text-[11px] leading-none">×</button>
+                                    </span>
+                                </template>
+                            </div>
                             <a href="{{ route('funds.transactions', $fund->id) }}" class="text-[10px] font-black text-indigo-600 hover:bg-indigo-50 px-3 py-1.5 rounded-lg transition-colors uppercase tracking-widest border border-indigo-100">عرض الكل</a>
                         </div>
                         <div class="space-y-4">
                             @foreach($transactions as $transaction)
-                                <div class="flex items-center justify-between p-3 rounded-xl hover:bg-slate-50/80 transition-all border border-transparent hover:border-slate-100/80 group">
+                                <div x-show="activeTxFilter === 'all' || activeTxFilter === '{{ $transaction->type }}'" x-transition class="flex items-center justify-between p-3 rounded-xl hover:bg-slate-50/80 transition-all border border-transparent hover:border-slate-100/80 group">
                                     <div class="flex items-center gap-3">
                                         <div class="w-10 h-10 rounded-xl flex items-center justify-center text-lg shadow-sm border border-white transition-transform group-hover:rotate-3" 
                                              style="background-color: {{ $transaction->categoryRelation ? $transaction->categoryRelation->color : ($transaction->type == 'income' ? '#10B981' : '#EF4444') }}15; 
