@@ -10,11 +10,22 @@ class ShamCashController extends Controller
 {
     private $baseUrl = 'https://shamcash-api.com/api/v1/shamcash';
 
+    /**
+     * Get a configured HTTP client with proxy options if set in .env
+     */
+    private function client()
+    {
+        $proxy = env('SHAMCASH_PROXY');
+        if ($proxy) {
+            return Http::withOptions(['proxy' => $proxy]);
+        }
+        return Http::asJson();
+    }
+
     public function initiateLinking()
     {
         // This endpoint creates a new linking session on shamcash-api.com
-        // Note: In a real scenario, we might need to send our own platform identifier or API key
-        $response = Http::post($this->baseUrl . '/link-sessions');
+        $response = $this->client()->post($this->baseUrl . '/link-sessions');
 
         if ($response->successful()) {
             return response()->json($response->json());
@@ -25,7 +36,7 @@ class ShamCashController extends Controller
 
     public function checkLinkStatus($sessionId)
     {
-        $response = Http::get($this->baseUrl . '/link-sessions/' . $sessionId);
+        $response = $this->client()->get($this->baseUrl . '/link-sessions/' . $sessionId);
 
         if ($response->successful()) {
             $data = $response->json();
@@ -63,7 +74,7 @@ class ShamCashController extends Controller
             return response()->json(['error' => 'No ShamCash token found'], 401);
         }
 
-        $response = Http::withToken($token)
+        $response = $this->client()->withToken($token)
             ->get('https://api.shamcash-api.com/v1/accounts');
 
         if ($response->successful()) {
