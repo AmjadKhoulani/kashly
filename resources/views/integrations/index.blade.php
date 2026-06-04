@@ -39,10 +39,12 @@
                     sessionId: '', 
                     polling: false,
                     status: 'pending',
+                    qrCodeUrl: '',
                     async startLink() {
                         this.showQrModal = true;
                         this.status = 'pending';
                         this.qrPayload = '';
+                        this.qrCodeUrl = '';
                         try {
                             let response = await fetch('{{ route('shamcash.initiate') }}', {
                                 method: 'POST',
@@ -54,6 +56,7 @@
                             let data = await response.json();
                             this.qrPayload = data.qr_payload;
                             this.sessionId = data.id;
+                            this.qrCodeUrl = data.qr_code_url || data.qr_code || '';
                             this.startPolling();
                         } catch (e) {
                             alert('خطأ في الاتصال بالخدمة');
@@ -104,7 +107,17 @@
                             <div class="p-6 text-center space-y-6">
                                 <div class="bg-slate-50 p-6 rounded-2xl inline-block border border-slate-100 shadow-inner">
                                     <template x-if="qrPayload">
-                                        <img :src="'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(qrPayload)" class="w-48 h-48 mx-auto rounded-xl" alt="Scan QR">
+                                        <div class="relative inline-block">
+                                            <img :src="qrCodeUrl ? qrCodeUrl : 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(qrPayload)" class="w-48 h-48 mx-auto rounded-xl shadow-md border border-slate-200" alt="Scan QR">
+                                            <!-- Branded logo overlay for local generator -->
+                                            <template x-if="!qrCodeUrl">
+                                                <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                                    <div class="w-10 h-10 bg-white p-1 rounded-lg shadow flex items-center justify-center border border-slate-100">
+                                                        <img src="https://shamcash-api.com/ChamCash.svg" class="w-8 h-8 rounded" alt="SC">
+                                                    </div>
+                                                </div>
+                                            </template>
+                                        </div>
                                     </template>
                                     <template x-if="!qrPayload">
                                         <div class="w-48 h-48 flex items-center justify-center">
