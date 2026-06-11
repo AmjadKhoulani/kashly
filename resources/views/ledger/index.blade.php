@@ -6,7 +6,7 @@
     <div class="bg-white border-b border-slate-100 sticky top-0 z-40 backdrop-blur-xl bg-white/90">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
             <div>
-                <h1 class="text-lg font-black text-slate-900">الديوان 📒</h1>
+                <h1 class="text-lg font-black text-slate-900">الديون 📒</h1>
                 <p class="text-xs font-bold text-slate-400">تتبع ديونك ومدائنك وأقساطك وقروضك</p>
             </div>
             <button @click="showAdd = true"
@@ -66,7 +66,7 @@
         @if($entries->isEmpty())
             <div class="bg-white rounded-3xl border border-slate-100 py-24 text-center shadow-sm">
                 <div class="text-6xl mb-4 opacity-20">📒</div>
-                <p class="text-slate-400 font-black text-lg">الديوان فارغ</p>
+                <p class="text-slate-400 font-black text-lg">الديون فارغة</p>
                 <p class="text-slate-300 text-sm font-bold mt-2">أضف أول قيد لمتابعة ديونك ومدائنك</p>
                 <button @click="showAdd = true" class="mt-6 text-sm font-black text-indigo-600 hover:underline">+ إضافة قيد جديد</button>
             </div>

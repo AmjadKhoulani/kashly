@@ -155,7 +155,7 @@ class _DebtsScreenState extends State<DebtsScreen> {
                     surfaceTintColor: Colors.transparent,
                     title: Column(
                       children: [
-                        Text('الديوان 📒',
+                        Text('الديون 📒',
                             style: GoogleFonts.almarai(
                                 fontWeight: FontWeight.w900,
                                 color: Color(0xFF0F172A),
@@ -450,7 +450,7 @@ class _DebtsScreenState extends State<DebtsScreen> {
               child: Text('📒', style: TextStyle(fontSize: 50)),
             ),
             SizedBox(height: 20),
-            Text('الديوان فارغ', style: GoogleFonts.almarai(fontSize: 16, fontWeight: FontWeight.w900, color: Color(0xFF0F172A))),
+            Text('الديون فارغة', style: GoogleFonts.almarai(fontSize: 16, fontWeight: FontWeight.w900, color: Color(0xFF0F172A))),
             SizedBox(height: 8),
             Text('أضف أول قيد لمتابعة ديونك ومدائنك',
                 style: GoogleFonts.almarai(fontSize: 12, color: Color(0xFF94A3B8), fontWeight: FontWeight.bold)),
@@ -1140,7 +1140,7 @@ class _AddDebtSheetState extends State<AddDebtSheet> {
     setState(() => isSaving = false);
     if (ok) {
       widget.onSaved();
-      Get.snackbar('تم التسجيل ✅', 'تم تسجيل القيد في الديوان',
+      Get.snackbar('تم التسجيل ✅', 'تم تسجيل الدين بنجاح',
           backgroundColor: Colors.green.shade50, colorText: Colors.green.shade800);
     } else {
       Get.snackbar('خطأ', 'فشل تسجيل القيد، يرجى المحاولة',
