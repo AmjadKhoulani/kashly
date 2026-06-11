@@ -37,7 +37,7 @@ class LedgerController extends Controller
             'party_name'    => 'required|string|max:255',
             'party_phone'   => 'nullable|string|max:30',
             'description'   => 'nullable|string',
-            'total_amount'  => 'required|numeric|min:0.01',
+            'total_amount'  => 'required|numeric|min:0',
             'currency'      => 'required|string|size:3',
             'due_date'      => 'nullable|date',
             'start_date'    => 'nullable|date',

@@ -102,7 +102,7 @@ class LedgerEntry extends Model
     // تحديث الحالة تلقائياً بناءً على المدفوع
     public function syncStatus(): void
     {
-        if ($this->paid_amount >= $this->total_amount) {
+        if ($this->total_amount > 0 && $this->paid_amount >= $this->total_amount) {
             $this->status = 'settled';
         } elseif ($this->due_date && $this->due_date->isPast() && $this->paid_amount < $this->total_amount) {
             $this->status = 'overdue';
