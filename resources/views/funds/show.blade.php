@@ -77,6 +77,31 @@
 
         <div class="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-6">
 
+            @if(session('success'))
+                <div class="bg-emerald-50 border border-emerald-200 text-emerald-700 font-bold text-sm rounded-2xl px-5 py-4 flex items-center gap-2">
+                    ✅ {{ session('success') }}
+                </div>
+            @endif
+
+            @if(session('status'))
+                <div class="bg-emerald-50 border border-emerald-200 text-emerald-700 font-bold text-sm rounded-2xl px-5 py-4 flex items-center gap-2">
+                    ✅ {{ session('status') }}
+                </div>
+            @endif
+
+            @if($errors->any())
+                <div class="bg-rose-50 border border-rose-200 text-rose-700 font-bold text-sm rounded-2xl px-5 py-4 space-y-1">
+                    <div class="flex items-center gap-2 font-black">
+                        ❌ حدث خطأ أثناء الحفظ:
+                    </div>
+                    <ul class="list-disc list-inside mr-6 text-xs space-y-0.5">
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
             <!-- Month Filter Selection Bar -->
             <div class="bg-white rounded-3xl border border-slate-100/80 p-4 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4 no-print" dir="rtl">
                 <div class="flex items-center gap-3">
