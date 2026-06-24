@@ -1,6 +1,9 @@
 <x-app-layout>
     <div class="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/20 font-sans" x-data="{ 
         editingEquity: null, 
+        editingEquityAmount: 0,
+        editingEquityPercentage: 0,
+        editingEquityType: 'contribution',
         showModal: false, 
         showAssetModal: false, 
         showPartnerModal: false, 
@@ -381,7 +384,7 @@
                                             </td>
                                             <td class="px-6 py-5 text-center">
                                                 <div class="flex items-center justify-center gap-2">
-                                                    <button @click="editingEquity = {{ $equity->id }}" class="p-2 bg-white border border-slate-100 text-slate-400 hover:text-indigo-600 hover:shadow-sm rounded-lg transition-all">
+                                                    <button @click="editingEquity = {{ $equity->id }}; editingEquityAmount = {{ $equity->amount }}; editingEquityPercentage = {{ $equity->percentage }}; editingEquityType = '{{ $equity->equity_type }}'" class="p-2 bg-white border border-slate-100 text-slate-400 hover:text-indigo-600 hover:shadow-sm rounded-lg transition-all">
                                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                                                     </button>
                                                     <form action="{{ route('funds.removePartner', $equity->id) }}" method="POST" onsubmit="return confirm('استبعاد الشريك من الصندوق؟')">

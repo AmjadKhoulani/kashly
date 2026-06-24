@@ -313,11 +313,17 @@
             @method('PUT')
             <div>
                 <label class="block text-[10px] font-black text-gray-400 uppercase mb-2 tracking-widest">المبلغ (رأس المال)</label>
-                <input type="number" name="amount" class="w-full bg-gray-50 border-0 rounded-2xl p-4 font-black text-lg focus:ring-2 focus:ring-indigo-500 outline-none text-center">
+                <input type="number" name="amount" x-model="editingEquityAmount" :readonly="editingEquityType === 'fixed'" class="w-full bg-gray-50 border-0 rounded-2xl p-4 font-black text-lg focus:ring-2 focus:ring-indigo-500 outline-none text-center" :class="editingEquityType === 'fixed' ? 'opacity-60 cursor-not-allowed' : ''">
+                <template x-if="editingEquityType === 'fixed'">
+                    <p class="text-[9px] font-bold text-amber-600 mt-1 pr-1">* الشريك ذو النسبة الثابتة لا يملك مساهمة رأس مالية مباشرة.</p>
+                </template>
             </div>
             <div>
                 <label class="block text-[10px] font-black text-gray-400 uppercase mb-2 tracking-widest">النسبة المئوية (%)</label>
-                <input type="number" step="0.1" name="percentage" class="w-full bg-gray-50 border-0 rounded-2xl p-4 font-black text-lg focus:ring-2 focus:ring-indigo-500 outline-none text-center">
+                <input type="number" step="0.1" name="percentage" x-model="editingEquityPercentage" :readonly="editingEquityType === 'contribution'" class="w-full bg-gray-50 border-0 rounded-2xl p-4 font-black text-lg focus:ring-2 focus:ring-indigo-500 outline-none text-center" :class="editingEquityType === 'contribution' ? 'opacity-60 cursor-not-allowed' : ''">
+                <template x-if="editingEquityType === 'contribution'">
+                    <p class="text-[9px] font-bold text-indigo-600 mt-1 pr-1">* يتم احتساب النسبة تلقائياً بناءً على قيمة المساهمة المتبقية.</p>
+                </template>
             </div>
             <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-2xl font-black text-base transition-all hover:scale-105">تحديث البيانات</button>
         </form>
