@@ -279,7 +279,7 @@ class InvestmentFundController extends Controller
 
                 Equity::updateOrCreate(
                     ['partner_id' => $partnerId, 'equitable_id' => $fund->id, 'equitable_type' => InvestmentFund::class],
-                    ['amount' => $request->amount, 'equity_type' => 'contribution']
+                    ['amount' => $request->amount, 'equity_type' => 'contribution', 'percentage' => 0]
                 );
             } else {
                 Equity::updateOrCreate(
