@@ -205,11 +205,17 @@ class InvestmentFundController extends Controller
     {
         $fund = InvestmentFund::where('user_id', auth()->id())->findOrFail($id);
         
-        $transactions = Transaction::where('transactionable_id', $fund->id)
+        $type = request('type');
+        $query = Transaction::where('transactionable_id', $fund->id)
             ->where('transactionable_type', InvestmentFund::class)
             ->with(['paymentMethod', 'categoryRelation'])
-            ->latest()
-            ->paginate(20);
+            ->latest();
+
+        if (in_array($type, ['income', 'expense', 'capital'])) {
+            $query->where('type', $type);
+        }
+
+        $transactions = $query->paginate(20)->withQueryString();
 
         $income = Transaction::where('transactionable_id', $fund->id)
             ->where('transactionable_type', InvestmentFund::class)

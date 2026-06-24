@@ -25,37 +25,44 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8 text-right" dir="rtl">
 
             {{-- Mini Stats Bar --}}
-            @php $profit = $income - $expense; @endphp
+            @php 
+                $profit = $income - $expense; 
+                $currentType = request('type', 'all');
+            @endphp
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 {{-- Income Card --}}
-                <div class="bg-gradient-to-br from-emerald-50 to-teal-50/30 rounded-2xl p-4 border border-emerald-100/70 shadow-sm flex items-center justify-between">
+                <a href="{{ route('funds.transactions', [$fund->id, 'type' => $currentType === 'income' ? 'all' : 'income']) }}" 
+                   class="bg-gradient-to-br from-emerald-50 to-teal-50/30 rounded-2xl p-4 border {{ $currentType === 'income' ? 'border-emerald-500 ring-2 ring-emerald-500/20 bg-emerald-50/40' : 'border-emerald-100/70 hover:border-emerald-300' }} shadow-sm flex items-center justify-between transition-all hover:scale-[1.02] text-right">
                     <div>
                         <p class="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-1">إجمالي الإيرادات</p>
                         <p class="text-xl font-black text-emerald-700 tracking-tighter">{{ number_format($income, 0) }} <span class="text-xs font-bold text-emerald-500/80">{{ $fund->currency }}</span></p>
                     </div>
                     <div class="w-10 h-10 bg-white/70 rounded-xl flex items-center justify-center text-xl shadow-sm border border-emerald-100/30">📈</div>
-                </div>
+                </a>
 
                 {{-- Expense Card --}}
-                <div class="bg-gradient-to-br from-rose-50 to-red-50/30 rounded-2xl p-4 border border-rose-100/70 shadow-sm flex items-center justify-between">
+                <a href="{{ route('funds.transactions', [$fund->id, 'type' => $currentType === 'expense' ? 'all' : 'expense']) }}" 
+                   class="bg-gradient-to-br from-rose-50 to-red-50/30 rounded-2xl p-4 border {{ $currentType === 'expense' ? 'border-rose-500 ring-2 ring-rose-500/20 bg-rose-50/40' : 'border-rose-100/70 hover:border-rose-300' }} shadow-sm flex items-center justify-between transition-all hover:scale-[1.02] text-right">
                     <div>
                         <p class="text-[10px] font-black text-rose-500 uppercase tracking-widest mb-1">إجمالي المصاريف</p>
                         <p class="text-xl font-black text-rose-700 tracking-tighter">{{ number_format($expense, 0) }} <span class="text-xs font-bold text-rose-500/80">{{ $fund->currency }}</span></p>
                     </div>
                     <div class="w-10 h-10 bg-white/70 rounded-xl flex items-center justify-center text-xl shadow-sm border border-rose-100/30">📉</div>
-                </div>
+                </a>
 
                 {{-- Capital Card --}}
-                <div class="bg-gradient-to-br from-violet-50 to-indigo-50/30 rounded-2xl p-4 border border-violet-100/70 shadow-sm flex items-center justify-between">
+                <a href="{{ route('funds.transactions', [$fund->id, 'type' => $currentType === 'capital' ? 'all' : 'capital']) }}" 
+                   class="bg-gradient-to-br from-violet-50 to-indigo-50/30 rounded-2xl p-4 border {{ $currentType === 'capital' ? 'border-violet-500 ring-2 ring-violet-500/20 bg-violet-50/40' : 'border-violet-100/70 hover:border-violet-300' }} shadow-sm flex items-center justify-between transition-all hover:scale-[1.02] text-right">
                     <div>
                         <p class="text-[10px] font-black text-violet-500 uppercase tracking-widest mb-1">حركات رأس المال</p>
                         <p class="text-xl font-black text-violet-700 tracking-tighter">{{ number_format($capital, 0) }} <span class="text-xs font-bold text-violet-500/80">{{ $fund->currency }}</span></p>
                     </div>
                     <div class="w-10 h-10 bg-white/70 rounded-xl flex items-center justify-center text-xl shadow-sm border border-violet-100/30">💼</div>
-                </div>
+                </a>
 
                 {{-- Profit/Loss Card --}}
-                <div class="bg-gradient-to-br {{ $profit >= 0 ? 'from-indigo-50 to-blue-50/30 border-indigo-100/70' : 'from-amber-50 to-orange-50/30 border-amber-100/70' }} rounded-2xl p-4 border shadow-sm flex items-center justify-between">
+                <a href="{{ route('funds.transactions', [$fund->id, 'type' => 'all']) }}" 
+                   class="bg-gradient-to-br {{ $profit >= 0 ? 'from-indigo-50 to-blue-50/30' : 'from-amber-50 to-orange-50/30' }} rounded-2xl p-4 border {{ $currentType === 'all' || !request('type') ? 'border-indigo-500 ring-2 ring-indigo-500/20' : 'border-slate-100 hover:border-indigo-300' }} shadow-sm flex items-center justify-between transition-all hover:scale-[1.02] text-right">
                     <div>
                         <p class="text-[10px] font-black {{ $profit >= 0 ? 'text-indigo-500' : 'text-amber-500' }} uppercase tracking-widest mb-1">صافي الربح/الخسارة</p>
                         <p class="text-xl font-black {{ $profit >= 0 ? 'text-indigo-700' : 'text-amber-700' }} tracking-tighter">
@@ -64,6 +71,31 @@
                         </p>
                     </div>
                     <div class="w-10 h-10 bg-white/70 rounded-xl flex items-center justify-center text-xl shadow-sm border border-indigo-100/30">⚖️</div>
+                </a>
+            </div>
+
+            {{-- Filter Pills --}}
+            <div class="flex flex-wrap items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-slate-100/80 shadow-xs">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-indigo-50 text-indigo-600 rounded-lg flex items-center justify-center text-sm border border-indigo-100/30">🔍</div>
+                    <div class="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl">
+                        <a href="{{ route('funds.transactions', [$fund->id, 'type' => 'all']) }}" 
+                           class="px-4 py-2 rounded-lg font-black text-xs transition-all {{ $currentType === 'all' || !request('type') ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-900' }}">
+                            الكل
+                        </a>
+                        <a href="{{ route('funds.transactions', [$fund->id, 'type' => 'income']) }}" 
+                           class="px-4 py-2 rounded-lg font-black text-xs transition-all {{ $currentType === 'income' ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-500 hover:text-slate-900' }}">
+                            إيرادات
+                        </a>
+                        <a href="{{ route('funds.transactions', [$fund->id, 'type' => 'expense']) }}" 
+                           class="px-4 py-2 rounded-lg font-black text-xs transition-all {{ $currentType === 'expense' ? 'bg-white text-rose-600 shadow-sm' : 'text-slate-500 hover:text-slate-900' }}">
+                            مصاريف
+                        </a>
+                        <a href="{{ route('funds.transactions', [$fund->id, 'type' => 'capital']) }}" 
+                           class="px-4 py-2 rounded-lg font-black text-xs transition-all {{ $currentType === 'capital' ? 'bg-white text-violet-600 shadow-sm' : 'text-slate-500 hover:text-slate-900' }}">
+                            رأس المال
+                        </a>
+                    </div>
                 </div>
             </div>
 
