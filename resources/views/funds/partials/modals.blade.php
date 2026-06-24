@@ -97,16 +97,16 @@
 
             <div>
                 <label class="block text-[10px] font-black text-gray-400 uppercase mb-2 tracking-widest">نوع الحصة</label>
-                <select name="equity_type" x-model="type" class="w-full bg-gray-50 border-0 rounded-2xl p-4 font-bold text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                <select name="equity_type" x-model="partnerEquityType" class="w-full bg-gray-50 border-0 rounded-2xl p-4 font-bold text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
                     <option value="contribution">بناءً على مبلغ مساهمة (رأس مال)</option>
                     <option value="fixed">نسبة مئوية ثابتة</option>
                 </select>
             </div>
-            <div x-show="type === 'contribution'">
+            <div x-show="partnerEquityType === 'contribution'">
                 <label class="block text-[10px] font-black text-gray-400 uppercase mb-2 tracking-widest">مبلغ المساهمة</label>
                 <input type="number" name="amount" class="w-full bg-gray-50 border-0 rounded-2xl p-4 font-black text-xl focus:ring-2 focus:ring-indigo-500 outline-none text-center">
             </div>
-            <div x-show="type === 'fixed'">
+            <div x-show="partnerEquityType === 'fixed'">
                 <label class="block text-[10px] font-black text-gray-400 uppercase mb-2 tracking-widest">النسبة المئوية (%)</label>
                 <input type="number" name="percentage" class="w-full bg-gray-50 border-0 rounded-2xl p-4 font-black text-xl focus:ring-2 focus:ring-indigo-500 outline-none text-center" placeholder="مثلاً: 25">
             </div>

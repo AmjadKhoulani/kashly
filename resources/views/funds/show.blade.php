@@ -13,6 +13,7 @@
         reconcilingName: '', 
         reconcilingBalance: 0,
         partnerSource: 'existing',
+        partnerEquityType: 'contribution',
         type: 'expense',
         activeTxFilter: 'all'
     }">
