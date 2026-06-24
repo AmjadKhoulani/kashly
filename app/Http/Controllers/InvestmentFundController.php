@@ -236,10 +236,10 @@ class InvestmentFundController extends Controller
         $request->validate([
             'partner_id' => 'required_without:new_partner_name|nullable|exists:partners,id',
             'new_partner_name' => 'required_without:partner_id|nullable|string|max:255',
-            'new_partner_email' => 'required_if:is_new,true|nullable|email|unique:users,email',
+            'new_partner_email' => 'required_if:partner_source,new|email|unique:users,email',
             'equity_type' => 'required|in:contribution,fixed',
-            'amount' => 'required_if:equity_type,contribution|nullable|numeric|min:0',
-            'percentage' => 'required_if:equity_type,fixed|nullable|numeric|min:0|max:100',
+            'amount' => 'required_if:equity_type,contribution|numeric|min:0',
+            'percentage' => 'required_if:equity_type,fixed|numeric|min:0|max:100',
         ]);
 
         DB::transaction(function () use ($fund, $request) {
