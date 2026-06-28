@@ -19,22 +19,31 @@ Route::get('/', function () {
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    Route::get('/funds', [InvestmentFundController::class, 'index'])->name('funds.index');
-    Route::post('/funds', [InvestmentFundController::class, 'store'])->name('funds.store');
-    Route::get('/funds/{id}', [InvestmentFundController::class, 'show'])->name('funds.show');
-    Route::get('/funds/{id}/transactions', [InvestmentFundController::class, 'fundTransactions'])->name('funds.transactions');
-    Route::post('/funds/{id}/add-partner', [InvestmentFundController::class, 'addPartner'])->name('funds.addPartner');
-    Route::put('/equities/{id}', [InvestmentFundController::class, 'updateEquity'])->name('funds.updateEquity');
-    Route::delete('/equities/{id}', [InvestmentFundController::class, 'removePartner'])->name('funds.removePartner');
-    Route::post('/funds/{id}/add-asset', [InvestmentFundController::class, 'addAsset'])->name('funds.addAsset');
-    Route::post('/funds/{id}/add-payment-method', [InvestmentFundController::class, 'addPaymentMethod'])->name('funds.addPaymentMethod');
-    Route::get('/funds/{id}/distributions', [InvestmentFundController::class, 'distributions'])->name('funds.distributions');
-    Route::post('/funds/{id}/distributions', [InvestmentFundController::class, 'executeDistribution'])->name('funds.executeDistribution');
-    Route::post('/funds/{fundId}/accounts/{accountId}/reconcile', [InvestmentFundController::class, 'reconcileAccount'])->name('funds.reconcileAccount');
-    Route::delete('/funds/{id}', [InvestmentFundController::class, 'destroy'])->name('funds.destroy');
-    Route::get('/partners', [PartnerController::class, 'index'])->name('partners.index');
-    Route::delete('/partners/{partner}', [PartnerController::class, 'destroy'])->name('partners.destroy');
-    Route::post('/partners/{partner}/link', [PartnerController::class, 'linkAccount'])->name('partners.link');
+    
+    // Modules settings routes
+    Route::get('/settings/modules', [\App\Http\Controllers\ModuleController::class, 'index'])->name('settings.modules');
+    Route::post('/settings/modules/{id}/toggle', [\App\Http\Controllers\ModuleController::class, 'toggle'])->name('settings.modules.toggle');
+
+    // Investments/Funds Module Group
+    Route::middleware(['module:investments'])->group(function () {
+        Route::get('/funds', [InvestmentFundController::class, 'index'])->name('funds.index');
+        Route::post('/funds', [InvestmentFundController::class, 'store'])->name('funds.store');
+        Route::get('/funds/{id}', [InvestmentFundController::class, 'show'])->name('funds.show');
+        Route::get('/funds/{id}/transactions', [InvestmentFundController::class, 'fundTransactions'])->name('funds.transactions');
+        Route::post('/funds/{id}/add-partner', [InvestmentFundController::class, 'addPartner'])->name('funds.addPartner');
+        Route::put('/equities/{id}', [InvestmentFundController::class, 'updateEquity'])->name('funds.updateEquity');
+        Route::delete('/equities/{id}', [InvestmentFundController::class, 'removePartner'])->name('funds.removePartner');
+        Route::post('/funds/{id}/add-asset', [InvestmentFundController::class, 'addAsset'])->name('funds.addAsset');
+        Route::post('/funds/{id}/add-payment-method', [InvestmentFundController::class, 'addPaymentMethod'])->name('funds.addPaymentMethod');
+        Route::get('/funds/{id}/distributions', [InvestmentFundController::class, 'distributions'])->name('funds.distributions');
+        Route::post('/funds/{id}/distributions', [InvestmentFundController::class, 'executeDistribution'])->name('funds.executeDistribution');
+        Route::post('/funds/{fundId}/accounts/{accountId}/reconcile', [InvestmentFundController::class, 'reconcileAccount'])->name('funds.reconcileAccount');
+        Route::delete('/funds/{id}', [InvestmentFundController::class, 'destroy'])->name('funds.destroy');
+        Route::get('/partners', [PartnerController::class, 'index'])->name('partners.index');
+        Route::delete('/partners/{partner}', [PartnerController::class, 'destroy'])->name('partners.destroy');
+        Route::post('/partners/{partner}/link', [PartnerController::class, 'linkAccount'])->name('partners.link');
+    });
+
     Route::redirect('/transactions', '/dashboard')->name('transactions.index');
     Route::post('/transactions', [TransactionController::class, 'store'])->name('transactions.store');
     Route::post('/transactions/transfer', [TransactionController::class, 'transfer'])->name('transactions.transfer');
@@ -55,13 +64,25 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/categories/{id}', [\App\Http\Controllers\CategoryController::class, 'destroy'])->name('categories.destroy');
 
     // Ledger: الديون والمديونيات
-    Route::get('/ledger', [\App\Http\Controllers\LedgerController::class, 'index'])->name('ledger.index');
-    Route::post('/ledger', [\App\Http\Controllers\LedgerController::class, 'store'])->name('ledger.store');
-    Route::get('/ledger/{id}', [\App\Http\Controllers\LedgerController::class, 'show'])->name('ledger.show');
-    Route::put('/ledger/{id}', [\App\Http\Controllers\LedgerController::class, 'update'])->name('ledger.update');
-    Route::delete('/ledger/{id}', [\App\Http\Controllers\LedgerController::class, 'destroy'])->name('ledger.destroy');
-    Route::post('/ledger/{id}/payment', [\App\Http\Controllers\LedgerController::class, 'addPayment'])->name('ledger.payment');
-    Route::post('/ledger/{id}/charge', [\App\Http\Controllers\LedgerController::class, 'addCharge'])->name('ledger.charge');
+    Route::middleware(['module:ledger'])->group(function () {
+        Route::get('/ledger', [\App\Http\Controllers\LedgerController::class, 'index'])->name('ledger.index');
+        Route::post('/ledger', [\App\Http\Controllers\LedgerController::class, 'store'])->name('ledger.store');
+        Route::get('/ledger/{id}', [\App\Http\Controllers\LedgerController::class, 'show'])->name('ledger.show');
+        Route::put('/ledger/{id}', [\App\Http\Controllers\LedgerController::class, 'update'])->name('ledger.update');
+        Route::delete('/ledger/{id}', [\App\Http\Controllers\LedgerController::class, 'destroy'])->name('ledger.destroy');
+        Route::post('/ledger/{id}/payment', [\App\Http\Controllers\LedgerController::class, 'addPayment'])->name('ledger.payment');
+        Route::post('/ledger/{id}/charge', [\App\Http\Controllers\LedgerController::class, 'addCharge'])->name('ledger.charge');
+    });
+
+    // Real Estate & Rentals Module Group
+    Route::middleware(['module:rentals'])->group(function () {
+        Route::get('/rentals', [\App\Http\Controllers\RentalController::class, 'index'])->name('rentals.index');
+        Route::post('/rentals/properties', [\App\Http\Controllers\RentalController::class, 'storeProperty'])->name('rentals.properties.store');
+        Route::post('/rentals/properties/{propertyId}/units', [\App\Http\Controllers\RentalController::class, 'storeUnit'])->name('rentals.units.store');
+        Route::post('/rentals/tenants', [\App\Http\Controllers\RentalController::class, 'storeTenant'])->name('rentals.tenants.store');
+        Route::post('/rentals/contracts', [\App\Http\Controllers\RentalController::class, 'storeContract'])->name('rentals.contracts.store');
+        Route::post('/rentals/payments/{paymentId}/collect', [\App\Http\Controllers\RentalController::class, 'collectPayment'])->name('rentals.payments.collect');
+    });
 
     // ShamCash Integration
     Route::post('/shamcash/initiate', [\App\Http\Controllers\ShamCashController::class, 'initiateLinking'])->name('shamcash.initiate');

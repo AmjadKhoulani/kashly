@@ -19,18 +19,29 @@
                         <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="text-sm font-bold">
                             الرئيسية
                         </x-nav-link>
-                        <x-nav-link :href="route('funds.index')" :active="request()->routeIs('funds.*')" class="text-sm font-bold">
-                            الاستثمارات
-                        </x-nav-link>
+                        @if(Auth::user()->isModuleActive('investments'))
+                            <x-nav-link :href="route('funds.index')" :active="request()->routeIs('funds.*')" class="text-sm font-bold">
+                                الاستثمارات
+                            </x-nav-link>
+                        @endif
                         <x-nav-link :href="route('wallets.index')" :active="request()->routeIs('wallets.*')" class="text-sm font-bold">
                             المحافظ
                         </x-nav-link>
-                        <x-nav-link :href="route('ledger.index')" :active="request()->routeIs('ledger.*')" class="text-sm font-bold">
-                            الديون 📒
-                        </x-nav-link>
-                        <x-nav-link :href="route('partners.index')" :active="request()->routeIs('partners.*')" class="text-sm font-bold">
-                            الشركاء
-                        </x-nav-link>
+                        @if(Auth::user()->isModuleActive('ledger'))
+                            <x-nav-link :href="route('ledger.index')" :active="request()->routeIs('ledger.*')" class="text-sm font-bold">
+                                الديون 📒
+                            </x-nav-link>
+                        @endif
+                        @if(Auth::user()->isModuleActive('rentals'))
+                            <x-nav-link :href="route('rentals.index')" :active="request()->routeIs('rentals.*')" class="text-sm font-bold">
+                                العقارات 🏢
+                            </x-nav-link>
+                        @endif
+                        @if(Auth::user()->isModuleActive('investments'))
+                            <x-nav-link :href="route('partners.index')" :active="request()->routeIs('partners.*')" class="text-sm font-bold">
+                                الشركاء
+                            </x-nav-link>
+                        @endif
                         <x-nav-link :href="route('integrations.index')" :active="request()->routeIs('integrations.*')" class="text-sm font-bold">
                             الربط الآلي
                         </x-nav-link>
@@ -72,6 +83,10 @@
                     </x-slot>
 
                     <x-slot name="content">
+                        <x-dropdown-link :href="route('settings.modules')">
+                            المنظومات والإضافات ⚙️
+                        </x-dropdown-link>
+
                         <x-dropdown-link :href="route('profile.edit')">
                             الملف الشخصي
                         </x-dropdown-link>
@@ -107,6 +122,29 @@
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 الرئيسية
             </x-responsive-nav-link>
+            @if(Auth::user()->isModuleActive('investments'))
+                <x-responsive-nav-link :href="route('funds.index')" :active="request()->routeIs('funds.*')">
+                    الاستثمارات
+                </x-responsive-nav-link>
+            @endif
+            <x-responsive-nav-link :href="route('wallets.index')" :active="request()->routeIs('wallets.*')">
+                المحافظ
+            </x-responsive-nav-link>
+            @if(Auth::user()->isModuleActive('ledger'))
+                <x-responsive-nav-link :href="route('ledger.index')" :active="request()->routeIs('ledger.*')">
+                    الديون 📒
+                </x-responsive-nav-link>
+            @endif
+            @if(Auth::user()->isModuleActive('rentals'))
+                <x-responsive-nav-link :href="route('rentals.index')" :active="request()->routeIs('rentals.*')">
+                    العقارات 🏢
+                </x-responsive-nav-link>
+            @endif
+            @if(Auth::user()->isModuleActive('investments'))
+                <x-responsive-nav-link :href="route('partners.index')" :active="request()->routeIs('partners.*')">
+                    الشركاء
+                </x-responsive-nav-link>
+            @endif
         </div>
 
         <!-- Responsive Settings Options -->
@@ -117,6 +155,10 @@
             </div>
 
             <div class="mt-3 space-y-1">
+                <x-responsive-nav-link :href="route('settings.modules')">
+                    المنظومات والإضافات ⚙️
+                </x-responsive-nav-link>
+
                 <x-responsive-nav-link :href="route('profile.edit')">
                     الملف الشخصي
                 </x-responsive-nav-link>

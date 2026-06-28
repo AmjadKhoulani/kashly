@@ -68,4 +68,33 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function modules()
+    {
+        return $this->belongsToMany(SystemModule::class, 'user_modules', 'user_id', 'module_id')
+                    ->withPivot('activated_at');
+    }
+
+    public function isModuleActive($moduleId)
+    {
+        if ($this->isSuperAdmin()) {
+            return true;
+        }
+        
+        static $activeModules = null;
+        if ($activeModules === null) {
+            $activeModules = $this->modules()->pluck('module_id')->toArray();
+            
+            if (empty($activeModules)) {
+                try {
+                    $this->modules()->syncWithoutDetaching(['ledger', 'investments']);
+                    $activeModules = ['ledger', 'investments'];
+                } catch (\Exception $e) {
+                    $activeModules = ['ledger', 'investments'];
+                }
+            }
+        }
+        
+        return in_array($moduleId, $activeModules);
+    }
 }
